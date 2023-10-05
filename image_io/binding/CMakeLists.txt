@@ -1,0 +1,2 @@
+pybind11_add_module(image_io image_io_binding.cpp)
+target_link_libraries(image_io PRIVATE loguru)
