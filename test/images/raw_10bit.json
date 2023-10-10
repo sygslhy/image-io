@@ -1,0 +1,9 @@
+{
+  "fileInfo": {
+		"width": 6016,
+		"height": 4512,
+		"format": "raw10",
+		"pixelPrecision": 10,
+		"pixelType": "bayer_grbg"
+	}
+}

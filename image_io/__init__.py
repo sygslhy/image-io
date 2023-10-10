@@ -1,3 +1,3 @@
-from .io import read_image, write_image
-from impact_cpp.io import ImageWriter
-from impact_cpp import PixelType, ImageFormat, ImageLayout, ExifMetadata
+from .io import read_image, read_image_exif, write_image, write_image_exif
+from cxx_image_io.io import ImageWriter, ImageReader
+from cxx_image_io import PixelType, FileFormat, ImageLayout, ImageMetadata, ExifMetadata

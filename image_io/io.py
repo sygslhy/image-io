@@ -1,6 +1,5 @@
-import sys
-sys.path.append('build/cmake-release')
-from impact_cpp import set_log_level, io, parser, ImageUint16, ImageUint8, ImageFloat, ImageDouble, ImageInt, PixelType, PixelRepresentation, ImageLayout
+
+from cxx_image_io import  io, parser, ImageUint16, ImageUint8, ImageFloat, ImageDouble, ImageInt, PixelType, PixelRepresentation, ImageLayout, ImageMetadata, ExifMetadata
 import numpy as np
 
 __numpy_array_image_convert_vector = {
@@ -11,16 +10,15 @@ __numpy_array_image_convert_vector = {
         np.dtype('int'): ImageInt
 }
 
+# fill the image critical information to metadata that could be used at otherwhere. 
+def __fill_medatata(image, metadata):
+    assert metadata is not None
+    metadata.fileInfo.pixelType = image.pixelType()
+    metadata.fileInfo.pixelPrecision = image.pixelPrecision()
+    metadata.fileInfo.imageLayout = image.imageLayout()
 
-class ImageInfo: # change to ImageMetadata when read_image.
-    def __init__(self, pixel_type:PixelType, pixel_precision:int = 0, image_layout:ImageLayout = ImageLayout.PLANAR):
-        self.pixel_type = pixel_type
-        self.pixel_precision = pixel_precision
-        self.image_layout = image_layout
 
-# read_exif de pybinding
-# cpp_log_level can be a global function , no expose to user.
-def read_image(image_path:str, metadata_path:str = None, read_info = False, cpp_log_level = 'off') -> np.array:
+def read_image(image_path:str, metadata_path:str = None) -> np.array:
     """Read different types of image files and return a numpy array,
        Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
 
@@ -30,10 +28,6 @@ def read_image(image_path:str, metadata_path:str = None, read_info = False, cpp_
         path to image file
     metadata_path : str, optional
         path to sidecar file for raw file case, by default None
-    read_info : bool, optional
-        flag to read along the image with descriptive format infomations, by default False
-    cpp_log_level : str, optional
-        flag to set the trace leve in C++ code, [off, fatal, error, warning, info] , by default 'off'
 
     Returns
     -------
@@ -41,24 +35,42 @@ def read_image(image_path:str, metadata_path:str = None, read_info = False, cpp_
         returned image in numpy array format
 
     """
-    set_log_level(cpp_log_level)
-    metadata = parser.readSidecar(image_path, metadata_path)
+    metadata = parser.readMetadata(image_path, metadata_path)
     image_reader = io.makeReader(image_path, metadata)
-    reader_descriptor = image_reader.readDescriptor()
-    if reader_descriptor.pixelRepresentation == PixelRepresentation.UINT8:
+    metadata = ImageMetadata() if metadata is None else metadata
+    image_reader.readMetadata(metadata)
+    if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
         image = image_reader.read8u()
-        return (np.array(image, copy=False), ImageInfo(image.pixelType(), image.pixelPrecision(), image.imageLayout())) if read_info is True else np.array(image, copy=False)
-    if reader_descriptor.pixelRepresentation == PixelRepresentation.UINT16:
+    elif image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
         image = image_reader.read16u()
-        return (np.array(image, copy=False), ImageInfo(image.pixelType(), image.pixelPrecision(), image.imageLayout())) if read_info is True else np.array(image, copy=False)
-    if readerDescriptor.pixelRepresentation == PixelRepresentation.FLOAT:
+    elif image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
         image = image_reader.readf()
-        return (np.array(image, copy=False), ImageInfo(image.pixelType(), image.pixelPrecision(), image.imageLayout())) if read_info is True else np.array(image, copy=False)
+    else:
+        raise Exception('Unsupported image type!')
+    __fill_medatata(image, metadata)
+    return np.array(image, copy=False), metadata
+    
 
-    raise Exception('Unsupported image type!')
+def read_image_exif(image_path:str) -> ExifMetadata:
+    """Read the exif data from image 
+
+    Parameters
+    ----------
+    image_path : str
+        path to image file
+
+    Returns
+    -------
+    ExifMetadata
+        returned exif data
+    """
+    metadata = parser.readMetadata(image_path, None)
+    image_reader = io.makeReader(image_path, metadata)
+    return image_reader.readExif()
+    
 
 # no more need for Image medata in parameters because it will be in part of ImageWriter Option.
-def write_image(output_path:str, image_array:np.array,  write_options:io.ImageWriter.Options = None, cpp_log_level = 'off'):
+def write_image(output_path:str, image_array:np.array, write_options:io.ImageWriter.Options = None):
     """Write a numpy array to different types of image file
        Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
 
@@ -68,15 +80,25 @@ def write_image(output_path:str, image_array:np.array,  write_options:io.ImageWr
         path to image file
     image_array : np.array
         numpy array image to write
-    image_info : ImageInfo
-        image format descriptive infomations
     write_options : io.ImageWriter.Options, optional
         optional write options for writing parameters like jpegQualiy, tiff compression type and exif metadata infos. by default None
-    cpp_log_level : str, optional
-        flag to set the trace leve in C++ code, [off, fatal, error, warning, info] , by default 'off'
     """
-    set_log_level(cpp_log_level)
     options = io.ImageWriter.Options() if write_options is None else write_options
-    image = __numpy_array_image_convert_vector[image_array.dtype](image_array, image_info.pixel_type, image_info.image_layout, image_info.pixel_precision)
+    image = __numpy_array_image_convert_vector[image_array.dtype](image_array, options.metadata.fileInfo.pixelType, 
+                                    options.metadata.fileInfo.imageLayout, options.metadata.fileInfo.pixelPrecision)
     image_writer = io.makeWriter(output_path, options)
     image_writer.write(image)
+
+
+def write_image_exif(image_path:str, exif:ExifMetadata = None):
+    """Write the exif data from image 
+
+    Parameters
+    ----------
+    image_path : str
+        path to image file
+    exif : ExifMetadata
+        exif data to write
+    """
+    image_writer = io.makeWriter(image_path, io.ImageWriter.Options())
+    image_writer.writeExif(exif)
