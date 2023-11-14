@@ -91,7 +91,8 @@ void init_io(py::module &m) {
         .value("DEFLATE", ImageWriter::TiffCompression::DEFLATE);
 
     py::class_<ImageWriter::Options> options(imageWriter, "Options");
-    options.def(py::init([](py::object metadata) {
+    options.def(py::init<>())
+        .def(py::init([](py::object metadata) {
             ImageMetadata *cls = metadata.cast<ImageMetadata *>();
             return std::make_unique<ImageWriter::Options>(*cls);
         }))
@@ -136,7 +137,8 @@ void init_io(py::module &m) {
         .def("write",
              [](TiffWriter &self, const Image16u &image) { self.write(image); })
         .def("write",
-             [](TiffWriter &self, const Imagef &image) { self.write(image); });
+             [](TiffWriter &self, const Imagef &image) { self.write(image); })
+        .def("writeExif", &TiffWriter::writeExif);
 
     py::class_<CfaWriter, ImageWriter> cfaWriter(m_io, "CfaWriter");
     cfaWriter.def("write", [](CfaWriter &self, const Image16u &image) {

@@ -1,4 +1,4 @@
-from image_io import ImageMetadata, ImageWriter, FileFormat, PixelType, ImageLayout
+from image_io import ImageMetadata, ExifMetadata, ImageWriter, FileFormat, PixelType, ImageLayout
 from image_io import read_image, read_image_exif, write_image, write_image_exif
 import numpy as np
 
@@ -9,6 +9,8 @@ import hashlib
 test_images_dir = Path('./test/images/')
 test_npy_dir = Path('./test/npy/')
 test_outputs_dir = Path('./test/_outputs/')
+test_ref_dir = Path('./test/ref/')
+test_exif_dir = Path('./test/exif/')
 
 raw_path = str(test_images_dir / 'plain_raw_16bit.raw')
 bmp_path = str(test_images_dir / 'rgb_8bit.bmp')
@@ -20,6 +22,12 @@ rawmipi12_path = str(test_images_dir / 'raw_12bit.RAWMIPI12')
 rawmipi10_path = str(test_images_dir / 'raw_10bit.RAWMIPI')
 dng_path = str(test_images_dir / 'raw.DNG')
 
+
+exif_read_jpg_path = str(test_exif_dir / 'Canon_40D.jpg')
+exif_read_tif_path = str(test_exif_dir / 'dwsample-tiff-1280.tif')
+exif_read_dng_path = str(test_exif_dir / 'raw.DNG')
+exif_write_jpg_path = str(test_exif_dir / 'rgb_8bit.jpg')
+exif_write_tif_path = str(test_exif_dir / 'rgb_8bit.tif')
 
 output_raw_path = str(test_outputs_dir / 'plain_raw_16bit.raw')
 output_bmp_path = str(test_outputs_dir / 'rgb_8bit.bmp')
@@ -41,18 +49,16 @@ rawmipi12_npy_path = str(test_npy_dir /'ref_bayer_12bit_rawmipi.npy')
 rawmipi10_npy_path = str(test_npy_dir /'ref_bayer_10bit_rawmipi.npy')
 dng_npy_path = str(test_npy_dir /'ref_bayer_dng.npy')
 
-# exif_jpg_path = str(test_images_base_dir / 'Canon_40D.jpg')
-# exif = read_image_exif(exif_jpg_path)
 
-
-# exif.isoSpeedRatings = 200
-# exif.imageWidth = 100
-# exif.imageHeight = 68
-# exif.make = 'LHY'
-# print('exif', exif.imageWidth, exif.imageHeight, exif.orientation, exif.isoSpeedRatings)
-
-# exif_jpg_out_path = str(test_images_base_dir / 'write_test.jpg')
-# write_image_exif(exif_jpg_out_path, exif)
+ref_raw_path = str(test_ref_dir / 'plain_raw_16bit.raw')
+ref_bmp_path = str(test_ref_dir /'rgb_8bit.bmp')
+ref_jpg_path = str(test_ref_dir /'rgb_8bit.jpg')
+ref_png_path = str(test_ref_dir /'rgba_8bit.png')
+ref_tif_path = str(test_ref_dir /'rgb_8bit.tif')
+ref_cfa_path = str(test_ref_dir /'bayer_10bit.cfa')
+ref_rawmipi12_path = str(test_ref_dir /'raw_12bit.RAWMIPI12')
+ref_rawmipi10_path = str(test_ref_dir /'raw_10bit.RAWMIPI')
+ref_dng_path = str(test_ref_dir /'raw.DNG')
 
 
 def __get_file_hash(file_name):
@@ -91,14 +97,14 @@ def test_read_image(image_path, ref_numpy_info, ref_image_info, ref_pixel_values
 
 @pytest.mark.parametrize('output_path, numpy_array_path, pixel_type, image_layout, pixel_precision, file_format, ref_path',
                 [
-                    (output_raw_path, raw_npy_path, PixelType.BAYER_GBRG, ImageLayout.PLANAR, 0, FileFormat.PLAIN, raw_path),
-                    (output_bmp_path, bmp_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, bmp_path),
-                    # (output_jpg_path, jpg_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, jpg_path),
-                    # (output_png_path, png_npy_path, PixelType.RGBA, ImageLayout.INTERLEAVED, 0, None, png_path),
-                    # (output_tif_path, tif_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, tif_path),
-                    # (output_cfa_path, cfa_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, cfa_path),
-                    # (output_rawmipi12_path, rawmipi12_npy_path, PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None, rawmipi12_path),
-                    # (output_rawmipi10_path, rawmipi10_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 10, None, rawmipi10_path),
+                    (output_raw_path, raw_npy_path, PixelType.BAYER_GBRG, ImageLayout.PLANAR, 0, FileFormat.PLAIN, ref_raw_path),
+                    (output_bmp_path, bmp_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, ref_bmp_path),
+                    # (output_jpg_path, jpg_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, ref_jpg_path),
+                    (output_png_path, png_npy_path, PixelType.RGBA, ImageLayout.INTERLEAVED, 0, None, ref_png_path),
+                    (output_tif_path, tif_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, ref_tif_path),
+                    (output_cfa_path, cfa_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, ref_cfa_path),
+                    (output_rawmipi12_path, rawmipi12_npy_path, PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None, ref_rawmipi12_path),
+                    (output_rawmipi10_path, rawmipi10_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 10, None, ref_rawmipi10_path),
                     # (output_dng_path, dng_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, dng_path),
                 ])
 def test_write_image(output_path, numpy_array_path, pixel_type, image_layout, pixel_precision, file_format, ref_path):
@@ -109,10 +115,59 @@ def test_write_image(output_path, numpy_array_path, pixel_type, image_layout, pi
     write_options.fileFormat = metadata.fileInfo.fileFormat
     image = np.load(numpy_array_path)
     write_image(output_path, image, write_options=write_options)
-
     output_hash = __get_file_hash(output_path)
     ref_hash = __get_file_hash(ref_path)
-
     assert output_hash == ref_hash
+
+@pytest.mark.parametrize('image_path, ref_exif',
+                        [ (exif_read_jpg_path, ('2008:05:30 15:56:01\x00', 1/160, 135, 71/10, 100, 'Canon\x00', 'Canon EOS 40D\x00', 1, 'GIMP 2.4.5\x00')),
+                           (exif_read_dng_path, ('2021:07:21 17:13:42', 1/40, 4.5, 28/10, 800, 'DJI', 'FC3170', 1, 'Adobe Photoshop Lightroom 11.4.1 Classic (Macintosh)')),
+                          (exif_read_tif_path, ('2022-06-23 15:35:43', 1/10, 125, 17/10, 200, 'Test tif', 'Impact', 1, 'Adobe Photoshop CC 2017 (Windows)')) 
+
+                        ]
+)
+def test_read_exif(image_path, ref_exif):
+    exif = read_image_exif(image_path)
+    epsilon = 0.000001
+    assert exif.dateTimeOriginal == ref_exif[0]
+    assert abs(exif.exposureTime.asDouble() - ref_exif[1]) < epsilon
+    assert abs(exif.focalLength.asDouble() - ref_exif[2]) < epsilon
+    assert abs(exif.fNumber.asDouble() - ref_exif[3]) < epsilon
+    assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software) == ref_exif[4:]
+
+
+
+
+@pytest.mark.parametrize('image_path',
+                        [ (exif_write_jpg_path),
+                          (exif_write_tif_path) 
+                        ]
+)
+
+def test_write_exif(image_path):
     
+    assert Path(image_path).exists()
+    
+    exif = ExifMetadata()
+
+    exif.make = 'Test write exif'
+    exif.model = 'exif writer'
+    exif.isoSpeedRatings = 850
+    exif.exposureTime = ExifMetadata.Rational(1, 100)
+    exif.focalLength = ExifMetadata.Rational(35, 1)
+    exif.fNumber = ExifMetadata.Rational(22, 10)
+    exif.dateTimeOriginal = '2023-10-23 12:30:43'
+    exif.orientation = 1
+    exif.software = 'change'
+    write_image_exif(image_path, exif)
+
+    epsilon = 0.000001
+    parsed_exif = read_image_exif(image_path) 
+    assert parsed_exif.dateTimeOriginal == exif.dateTimeOriginal
+    assert abs(parsed_exif.exposureTime.asDouble() - exif.exposureTime.asDouble()) < epsilon
+    assert abs(parsed_exif.focalLength.asDouble() - exif.focalLength.asDouble()) < epsilon
+    assert abs(parsed_exif.fNumber.asDouble() - exif.fNumber.asDouble()) < epsilon
+    assert (parsed_exif.make, parsed_exif.model) == (exif.make, exif.model) 
+    assert (parsed_exif.isoSpeedRatings, parsed_exif.make, parsed_exif.model, parsed_exif.orientation, parsed_exif.software) == (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software)
+
 

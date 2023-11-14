@@ -3,3 +3,6 @@ compile_commands.json
 __pycache__/
 *.pyc
 test/_outputs
+*.pyd
+image_io.egg-info/
+dist/

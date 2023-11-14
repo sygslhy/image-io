@@ -17,3 +17,8 @@ target_link_libraries(cxx_image_io_bind PRIVATE Deflate::Deflate Intl::Intl Icon
 pybind11_add_module(cxx_image_io BindingEntryPoint.cpp)
 target_link_libraries(cxx_image_io PRIVATE cxx_image_io_bind pybind11::pybind11 loguru)
 
+
+install(TARGETS cxx_image_io
+  COMPONENT python
+  LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/image_io"
+  )
