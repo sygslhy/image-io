@@ -1,0 +1,10 @@
+*.cfa filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.raw filter=lfs diff=lfs merge=lfs -text
+*.RAWMIPI filter=lfs diff=lfs merge=lfs -text
+*.RAWMIPI12 filter=lfs diff=lfs merge=lfs -text
+*.DNG filter=lfs diff=lfs merge=lfs -text
+*.bmp filter=lfs diff=lfs merge=lfs -text
+*.tif filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.npy filter=lfs diff=lfs merge=lfs -text
