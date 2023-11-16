@@ -1,5 +1,5 @@
 
-from cxx_image_io import  io, parser, ImageUint16, ImageUint8, ImageFloat, ImageDouble, ImageInt, PixelType, PixelRepresentation, ImageLayout, ImageMetadata, ExifMetadata
+from cxx_image import io, parser, ImageUint16, ImageUint8, ImageFloat, ImageDouble, ImageInt, PixelType, PixelRepresentation, ImageLayout, ImageMetadata, ExifMetadata
 import numpy as np
 
 __numpy_array_image_convert_vector = {
@@ -38,7 +38,7 @@ def read_image(image_path:str, metadata_path:str = None) -> np.array:
     metadata = parser.readMetadata(image_path, metadata_path)
     image_reader = io.makeReader(image_path, metadata)
     metadata = ImageMetadata() if metadata is None else metadata
-    image_reader.readMetadata(metadata)
+    metadata = image_reader.readMetadata(metadata)
     if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
         image = image_reader.read8u()
     elif image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
@@ -51,7 +51,7 @@ def read_image(image_path:str, metadata_path:str = None) -> np.array:
     return np.array(image, copy=False), metadata
     
 
-def read_image_exif(image_path:str) -> ExifMetadata:
+def read_exif(image_path:str) -> ExifMetadata:
     """Read the exif data from image 
 
     Parameters
@@ -69,8 +69,7 @@ def read_image_exif(image_path:str) -> ExifMetadata:
     return image_reader.readExif()
     
 
-# no more need for Image medata in parameters because it will be in part of ImageWriter Option.
-def write_image(output_path:str, image_array:np.array, write_options:io.ImageWriter.Options = None):
+def write_image(output_path:str, image_array:np.array, write_options:io.ImageWriter.Options):
     """Write a numpy array to different types of image file
        Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
 
@@ -80,8 +79,8 @@ def write_image(output_path:str, image_array:np.array, write_options:io.ImageWri
         path to image file
     image_array : np.array
         numpy array image to write
-    write_options : io.ImageWriter.Options, optional
-        optional write options for writing parameters like jpegQualiy, tiff compression type and exif metadata infos. by default None
+    write_options : io.ImageWriter.Options
+        write options for writing parameters like, image buffer info, jpegQualiy, tiff compression type and exif metadata infos. by default None
     """
     options = io.ImageWriter.Options() if write_options is None else write_options
     image = __numpy_array_image_convert_vector[image_array.dtype](image_array, options.metadata.fileInfo.pixelType, 
@@ -90,7 +89,7 @@ def write_image(output_path:str, image_array:np.array, write_options:io.ImageWri
     image_writer.write(image)
 
 
-def write_image_exif(image_path:str, exif:ExifMetadata = None):
+def write_exif(image_path:str, exif:ExifMetadata = None):
     """Write the exif data from image 
 
     Parameters

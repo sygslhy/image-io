@@ -17,6 +17,7 @@
 #include "TiffIO.h"
 
 #include <stdexcept>
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -30,7 +31,11 @@ void init_io(py::module &m) {
 
     py::class_<ImageReader> imageReader(m_io, "ImageReader");
     imageReader.def("pixelRepresentation", &ImageReader::pixelRepresentation)
-        .def("readMetadata", &ImageReader::readMetadata)
+        .def("readMetadata", [](ImageReader &self, py::object &metadata) {
+            std::optional<ImageMetadata> cls = metadata.cast<ImageMetadata>();
+            self.readMetadata(cls);
+            return py::cast(cls);
+        })
         .def("readExif", &ImageReader::readExif);
 
     py::class_<PlainReader, ImageReader> plainReader(m_io, "PlainReader");
@@ -117,10 +122,10 @@ void init_io(py::module &m) {
     });
 
     py::class_<JpegWriter, ImageWriter> jpegWriter(m_io, "JpegWriter");
-    jpegWriter.def("write", [](JpegWriter &self, const Image8u &image) {
-        self.write(image);
-    })
-    .def("writeExif", &JpegWriter::writeExif);
+    jpegWriter
+        .def("write",
+             [](JpegWriter &self, const Image8u &image) { self.write(image); })
+        .def("writeExif", &JpegWriter::writeExif);
 
     py::class_<PngWriter, ImageWriter> pngWriter(m_io, "PngWriter");
     pngWriter
@@ -159,13 +164,12 @@ void init_io(py::module &m) {
                             self.write(image);
                         });
 
-
     py::class_<DngWriter, ImageWriter> dngWriter(m_io, "DngWriter");
-    dngWriter.def("write", [](DngWriter &self,
-                         const Image16u &image) { self.write(image); })
-            .def("write",
-                [](DngWriter &self, const Imagef &image) { self.write(image); });
-
+    dngWriter
+        .def("write",
+             [](DngWriter &self, const Image16u &image) { self.write(image); })
+        .def("write",
+             [](DngWriter &self, const Imagef &image) { self.write(image); });
 
     m_io.def("makeWriter", [](const std::string &outputPath,
                               const py::object &write_options) {

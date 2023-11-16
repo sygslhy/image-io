@@ -1,0 +1,39 @@
+[project]
+name = "cxx-image-io"
+version = "0.0.2"
+authors = [
+  { name="Yuan SUN", email="sunyuan860510@gmail.com" },
+]
+description = "Python image IO module with binding cxx image code"
+license = {file = "LICENSE.md"}
+readme = "README.md"
+requires-python = ">=3.11, <=3.12"
+dependencies =[
+    "numpy>=1.26.0"
+]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+]
+
+[project.urls]
+Homepage = "https://github.com/sygslhy/image-io"
+Issues = "https://github.com/sygslhy/image-io/issues"
+
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["image_io*"]
+exclude = ["test*"]
+
+[tool.setuptools.package-data]
+image_io = ["*.pyd"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

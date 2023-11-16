@@ -60,17 +60,35 @@ ref_rawmipi12_path = str(test_ref_dir /'raw_12bit.RAWMIPI12')
 ref_rawmipi10_path = str(test_ref_dir /'raw_10bit.RAWMIPI')
 ref_dng_path = str(test_ref_dir /'raw.DNG')
 
+__epsilon = 0.000001
+__exif = ExifMetadata()
+__exif.make = 'Test write exif'
+__exif.model = 'exif writer'
+__exif.isoSpeedRatings = 850
+__exif.exposureTime = ExifMetadata.Rational(1, 100)
+__exif.focalLength = ExifMetadata.Rational(35, 1)
+__exif.fNumber = ExifMetadata.Rational(22, 10)
+__exif.dateTimeOriginal = '2023-10-23 12:30:43'
+__exif.orientation = 1
+__exif.software = 'change'
+
 
 def __get_file_hash(file_name):
     content = open(file_name, 'rb').read()
     hash = hashlib.md5(content).hexdigest()
     return hash
 
+def __check_exif_values(exif, ref_exif):
+    assert exif.dateTimeOriginal == ref_exif[0]
+    assert abs(exif.exposureTime.asDouble() - ref_exif[1]) < __epsilon
+    assert abs(exif.focalLength.asDouble() - ref_exif[2]) < __epsilon
+    assert abs(exif.fNumber.asDouble() - ref_exif[3]) < __epsilon
+    assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software) == ref_exif[4:]
+
 
 @pytest.fixture()
 def regression(pytestconfig):
     return Regression('test_image_io_binding', pytestconfig)
-
 
 
 @pytest.mark.parametrize('image_path, ref_numpy_info, ref_image_info, ref_pixel_values',
@@ -99,43 +117,44 @@ def test_read_image(image_path, ref_numpy_info, ref_image_info, ref_pixel_values
                 [
                     (output_raw_path, raw_npy_path, PixelType.BAYER_GBRG, ImageLayout.PLANAR, 0, FileFormat.PLAIN, ref_raw_path),
                     (output_bmp_path, bmp_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, ref_bmp_path),
-                    # (output_jpg_path, jpg_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, ref_jpg_path),
+                    (output_jpg_path, jpg_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, None), # jpg write output sha1 changes everytime, so current no hash check for jpg.
                     (output_png_path, png_npy_path, PixelType.RGBA, ImageLayout.INTERLEAVED, 0, None, ref_png_path),
                     (output_tif_path, tif_npy_path, PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, ref_tif_path),
                     (output_cfa_path, cfa_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, ref_cfa_path),
                     (output_rawmipi12_path, rawmipi12_npy_path, PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None, ref_rawmipi12_path),
                     (output_rawmipi10_path, rawmipi10_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 10, None, ref_rawmipi10_path),
-                    # (output_dng_path, dng_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, dng_path),
+                    # (output_dng_path, dng_npy_path, PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, dng_path),  # jpg write output is not correct, temply disable this test case.
                 ])
 def test_write_image(output_path, numpy_array_path, pixel_type, image_layout, pixel_precision, file_format, ref_path):
-    
     metadata = ImageMetadata()
     metadata.fileInfo.pixelType, metadata.fileInfo.imageLayout, metadata.fileInfo.pixelPrecision, metadata.fileInfo.fileFormat = pixel_type, image_layout, pixel_precision, file_format
+    metadata.exifMetadata = __exif
     write_options = ImageWriter.Options(metadata)
     write_options.fileFormat = metadata.fileInfo.fileFormat
     image = np.load(numpy_array_path)
-    write_image(output_path, image, write_options=write_options)
-    output_hash = __get_file_hash(output_path)
-    ref_hash = __get_file_hash(ref_path)
-    assert output_hash == ref_hash
+    write_image(output_path, image, write_options)
+    if ref_path is not None:
+        output_hash = __get_file_hash(output_path)
+        ref_hash = __get_file_hash(ref_path)
+        assert output_hash == ref_hash
+
+
+
+
 
 @pytest.mark.parametrize('image_path, ref_exif',
                         [ (exif_read_jpg_path, ('2008:05:30 15:56:01\x00', 1/160, 135, 71/10, 100, 'Canon\x00', 'Canon EOS 40D\x00', 1, 'GIMP 2.4.5\x00')),
-                           (exif_read_dng_path, ('2021:07:21 17:13:42', 1/40, 4.5, 28/10, 800, 'DJI', 'FC3170', 1, 'Adobe Photoshop Lightroom 11.4.1 Classic (Macintosh)')),
+                          (exif_read_dng_path, ('2021:07:21 17:13:42', 1/40, 4.5, 28/10, 800, 'DJI', 'FC3170', 1, 'Adobe Photoshop Lightroom 11.4.1 Classic (Macintosh)')),
                           (exif_read_tif_path, ('2022-06-23 15:35:43', 1/10, 125, 17/10, 200, 'Test tif', 'Impact', 1, 'Adobe Photoshop CC 2017 (Windows)')) 
 
                         ]
 )
 def test_read_exif(image_path, ref_exif):
     exif = read_image_exif(image_path)
-    epsilon = 0.000001
-    assert exif.dateTimeOriginal == ref_exif[0]
-    assert abs(exif.exposureTime.asDouble() - ref_exif[1]) < epsilon
-    assert abs(exif.focalLength.asDouble() - ref_exif[2]) < epsilon
-    assert abs(exif.fNumber.asDouble() - ref_exif[3]) < epsilon
-    assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software) == ref_exif[4:]
+    __check_exif_values(exif, ref_exif)
 
-
+    _, metadata = read_image(image_path)
+    __check_exif_values(metadata.exifMetadata, ref_exif)
 
 
 @pytest.mark.parametrize('image_path',
@@ -147,27 +166,13 @@ def test_read_exif(image_path, ref_exif):
 def test_write_exif(image_path):
     
     assert Path(image_path).exists()
-    
-    exif = ExifMetadata()
-
-    exif.make = 'Test write exif'
-    exif.model = 'exif writer'
-    exif.isoSpeedRatings = 850
-    exif.exposureTime = ExifMetadata.Rational(1, 100)
-    exif.focalLength = ExifMetadata.Rational(35, 1)
-    exif.fNumber = ExifMetadata.Rational(22, 10)
-    exif.dateTimeOriginal = '2023-10-23 12:30:43'
-    exif.orientation = 1
-    exif.software = 'change'
-    write_image_exif(image_path, exif)
-
-    epsilon = 0.000001
+    write_image_exif(image_path, __exif) 
     parsed_exif = read_image_exif(image_path) 
-    assert parsed_exif.dateTimeOriginal == exif.dateTimeOriginal
-    assert abs(parsed_exif.exposureTime.asDouble() - exif.exposureTime.asDouble()) < epsilon
-    assert abs(parsed_exif.focalLength.asDouble() - exif.focalLength.asDouble()) < epsilon
-    assert abs(parsed_exif.fNumber.asDouble() - exif.fNumber.asDouble()) < epsilon
-    assert (parsed_exif.make, parsed_exif.model) == (exif.make, exif.model) 
-    assert (parsed_exif.isoSpeedRatings, parsed_exif.make, parsed_exif.model, parsed_exif.orientation, parsed_exif.software) == (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software)
+    assert parsed_exif.dateTimeOriginal == __exif.dateTimeOriginal
+    assert abs(parsed_exif.exposureTime.asDouble() - __exif.exposureTime.asDouble()) < __epsilon
+    assert abs(parsed_exif.focalLength.asDouble() - __exif.focalLength.asDouble()) < __epsilon
+    assert abs(parsed_exif.fNumber.asDouble() - __exif.fNumber.asDouble()) < __epsilon
+    assert (parsed_exif.make, parsed_exif.model) == (__exif.make, __exif.model)
+    assert (parsed_exif.isoSpeedRatings,  parsed_exif.orientation, parsed_exif.software) == (__exif.isoSpeedRatings, __exif.orientation, __exif.software)
 
 
