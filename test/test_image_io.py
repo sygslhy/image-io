@@ -1,5 +1,5 @@
 from image_io import ImageMetadata, ExifMetadata, ImageWriter, FileFormat, PixelType, ImageLayout
-from image_io import read_image, read_image_exif, write_image, write_image_exif
+from image_io import read_image, read_exif, write_image, write_exif
 import numpy as np
 
 import pytest
@@ -86,10 +86,6 @@ def __check_exif_values(exif, ref_exif):
     assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software) == ref_exif[4:]
 
 
-@pytest.fixture()
-def regression(pytestconfig):
-    return Regression('test_image_io_binding', pytestconfig)
-
 
 @pytest.mark.parametrize('image_path, ref_numpy_info, ref_image_info, ref_pixel_values',
                             [
@@ -150,7 +146,7 @@ def test_write_image(output_path, numpy_array_path, pixel_type, image_layout, pi
                         ]
 )
 def test_read_exif(image_path, ref_exif):
-    exif = read_image_exif(image_path)
+    exif = read_exif(image_path)
     __check_exif_values(exif, ref_exif)
 
     _, metadata = read_image(image_path)
@@ -166,8 +162,8 @@ def test_read_exif(image_path, ref_exif):
 def test_write_exif(image_path):
     
     assert Path(image_path).exists()
-    write_image_exif(image_path, __exif) 
-    parsed_exif = read_image_exif(image_path) 
+    write_exif(image_path, __exif)
+    parsed_exif = read_exif(image_path)
     assert parsed_exif.dateTimeOriginal == __exif.dateTimeOriginal
     assert abs(parsed_exif.exposureTime.asDouble() - __exif.exposureTime.asDouble()) < __epsilon
     assert abs(parsed_exif.focalLength.asDouble() - __exif.focalLength.asDouble()) < __epsilon
