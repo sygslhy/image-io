@@ -79,10 +79,12 @@ setup(
     },
 
     classifiers=[
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
     ],
     ext_modules=[
                 # This CmakeExtension take care build the binding projet by cmake to generate pyd file.
@@ -110,7 +112,7 @@ setup(
                 ),
 
     ],
-    python_requires='>=3.11, <=3.12',
+    python_requires='>=3.10, <=3.12',
     cmdclass={'build_ext':CMakeBuild},
     zip_safe=False,
     packages = find_packages(exclude=["*.test", "*.test.*", "test.*", "test", "setup.py"]),
