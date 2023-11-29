@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Build everything as static for MinGW to avoid any DLL dependency
 if(MINGW OR MSYS)
     link_libraries("-static -static-libgcc -static-libstdc++")
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std:c++17>")
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=c++17>")
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
