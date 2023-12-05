@@ -4,7 +4,6 @@
 #include "pybind11/stl.h"
 namespace py = pybind11;
 
-
 namespace cxximg {
 
 void init_model(py::module &m) {
@@ -35,13 +34,13 @@ void init_model(py::module &m) {
         .def_readwrite("isoSpeedRatings", &ExifMetadata::isoSpeedRatings)
         .def_readwrite("focalLength", &ExifMetadata::focalLength);
 
-
     py::class_<ExifMetadata::Rational>(exifMetadata, "Rational", py::is_final())
-        .def(py::init([](uint32_t n, uint32_t dn){
-                std::unique_ptr<ExifMetadata::Rational> rational(new ExifMetadata::Rational());
-                rational->numerator = n;
-                rational->denominator = dn;
-                return rational;
+        .def(py::init([](uint32_t n, uint32_t dn) {
+            std::unique_ptr<ExifMetadata::Rational> rational(
+                new ExifMetadata::Rational());
+            rational->numerator = n;
+            rational->denominator = dn;
+            return rational;
         }))
         .def_readwrite("numerator", &ExifMetadata::Rational::numerator)
         .def_readwrite("denominator", &ExifMetadata::Rational::denominator)
@@ -63,33 +62,42 @@ void init_model(py::module &m) {
         .def_readwrite("width", &ImageMetadata::ROI::width)
         .def_readwrite("height", &ImageMetadata::ROI::height);
 
-    py::class_<ImageMetadata::FileInfo>(imageMetadata, "FileInfo", py::is_final())
+    py::class_<ImageMetadata::FileInfo>(imageMetadata, "FileInfo",
+                                        py::is_final())
         .def(py::init<>())
         .def_readwrite("width", &ImageMetadata::FileInfo::width)
         .def_readwrite("height", &ImageMetadata::FileInfo::height)
-        .def_readwrite("pixelPrecision", &ImageMetadata::FileInfo::pixelPrecision)
+        .def_readwrite("pixelPrecision",
+                       &ImageMetadata::FileInfo::pixelPrecision)
         .def_readwrite("fileFormat", &ImageMetadata::FileInfo::fileFormat)
         .def_readwrite("imageLayout", &ImageMetadata::FileInfo::imageLayout)
         .def_readwrite("pixelType", &ImageMetadata::FileInfo::pixelType)
-        .def_readwrite("pixelRepresentation", &ImageMetadata::FileInfo::pixelRepresentation)
-        .def_readwrite("widthAlignment", &ImageMetadata::FileInfo::widthAlignment);
+        .def_readwrite("pixelRepresentation",
+                       &ImageMetadata::FileInfo::pixelRepresentation)
+        .def_readwrite("widthAlignment",
+                       &ImageMetadata::FileInfo::widthAlignment);
 
-    py::class_<ImageMetadata::CameraControls> cameraControls(imageMetadata, "CameraControls", py::is_final());
+    py::class_<ImageMetadata::CameraControls> cameraControls(
+        imageMetadata, "CameraControls", py::is_final());
     cameraControls.def(py::init<>())
-        .def_readwrite("whiteBalance", &ImageMetadata::CameraControls::whiteBalance)
-        .def_readwrite("colorLensShading", &ImageMetadata::CameraControls::colorLensShading)
-        .def_readwrite("faceDetection", &ImageMetadata::CameraControls::faceDetection);
+        .def_readwrite("whiteBalance",
+                       &ImageMetadata::CameraControls::whiteBalance)
+        .def_readwrite("colorLensShading",
+                       &ImageMetadata::CameraControls::colorLensShading)
+        .def_readwrite("faceDetection",
+                       &ImageMetadata::CameraControls::faceDetection);
 
-    py::class_<ImageMetadata::WhiteBalance> whiteBalance(imageMetadata, "WhiteBalance", py::is_final());
+    py::class_<ImageMetadata::WhiteBalance> whiteBalance(
+        imageMetadata, "WhiteBalance", py::is_final());
     whiteBalance.def(py::init<>())
         .def_readwrite("gainR", &ImageMetadata::WhiteBalance::gainR)
         .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB);
 
-    py::class_<ImageMetadata::ColorLensShading> colorLensShading(imageMetadata, "ColorLensShading", py::is_final());
+    py::class_<ImageMetadata::ColorLensShading> colorLensShading(
+        imageMetadata, "ColorLensShading", py::is_final());
     colorLensShading.def(py::init<>())
         .def_readwrite("gainR", &ImageMetadata::ColorLensShading::gainR)
         .def_readwrite("gainB", &ImageMetadata::ColorLensShading::gainB);
-
 }
 
-}
+} // namespace cxximg

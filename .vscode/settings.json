@@ -11,9 +11,11 @@
     "cmake.generator": "Ninja",
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
-    "python.analysis.useImportHeuristic": true,
-    "python.formatting.provider": "yapf",
-    "python.linting.flake8Enabled": true,
-    "python.linting.pylintEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "[python]": {
+        "editor.formatOnSaveMode": "file",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "eeyore.yapf",
+        "editor.formatOnType": false
+    }
 }

@@ -16,8 +16,9 @@
 #include "PngIO.h"
 #include "TiffIO.h"
 
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
+
 
 namespace py = pybind11;
 
@@ -31,11 +32,13 @@ void init_io(py::module &m) {
 
     py::class_<ImageReader> imageReader(m_io, "ImageReader");
     imageReader.def("pixelRepresentation", &ImageReader::pixelRepresentation)
-        .def("readMetadata", [](ImageReader &self, py::object &metadata) {
-            std::optional<ImageMetadata> cls = metadata.cast<ImageMetadata>();
-            self.readMetadata(cls);
-            return py::cast(cls);
-        })
+        .def("readMetadata",
+             [](ImageReader &self, py::object &metadata) {
+                 std::optional<ImageMetadata> cls =
+                     metadata.cast<ImageMetadata>();
+                 self.readMetadata(cls);
+                 return py::cast(cls);
+             })
         .def("readExif", &ImageReader::readExif);
 
     py::class_<PlainReader, ImageReader> plainReader(m_io, "PlainReader");

@@ -1,9 +1,13 @@
 import os
 import sys
 
+# Try to ensure that the .pyd file directory is appended in sys.path.
 cur_file_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(cur_file_dir)
+# Then import cxx_image from .pyd file.
+from cxx_image import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
+                       PixelType)
+from cxx_image.io import ImageReader, ImageWriter
 
-from .io import read_image, read_exif, write_image, write_exif
-from cxx_image.io import ImageWriter, ImageReader
-from cxx_image import PixelType, FileFormat, ImageLayout, ImageMetadata, ExifMetadata
+# Exposure the public APIs
+from .io import read_exif, read_image, write_exif, write_image
