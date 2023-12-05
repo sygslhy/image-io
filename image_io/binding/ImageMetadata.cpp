@@ -32,7 +32,8 @@ void init_model(py::module &m) {
         .def_readwrite("exposureTime", &ExifMetadata::exposureTime)
         .def_readwrite("fNumber", &ExifMetadata::fNumber)
         .def_readwrite("isoSpeedRatings", &ExifMetadata::isoSpeedRatings)
-        .def_readwrite("focalLength", &ExifMetadata::focalLength);
+        .def_readwrite("focalLength", &ExifMetadata::focalLength)
+        .def_readwrite("focalLengthIn35mmFilm", &ExifMetadata::focalLengthIn35mmFilm);
 
     py::class_<ExifMetadata::Rational>(exifMetadata, "Rational", py::is_final())
         .def(py::init([](uint32_t n, uint32_t dn) {
@@ -76,6 +77,27 @@ void init_model(py::module &m) {
                        &ImageMetadata::FileInfo::pixelRepresentation)
         .def_readwrite("widthAlignment",
                        &ImageMetadata::FileInfo::widthAlignment);
+
+    py::class_<ImageMetadata::ShootingParams>(imageMetadata, "ShootingParams",
+                                        py::is_final())
+        .def(py::init<>())
+        .def_readwrite("aperture", &ImageMetadata::ShootingParams::aperture)
+        .def_readwrite("exposureTime", &ImageMetadata::ShootingParams::exposureTime)
+        .def_readwrite("totalGain",
+                       &ImageMetadata::ShootingParams::totalGain)
+        .def_readwrite("sensorGain", &ImageMetadata::ShootingParams::sensorGain)
+        .def_readwrite("ispGain", &ImageMetadata::ShootingParams::ispGain);
+
+    py::class_<ImageMetadata::CalibrationData>(imageMetadata, "CalibrationData",
+                                        py::is_final())
+        .def(py::init<>())
+        .def_readwrite("blackLevel", &ImageMetadata::CalibrationData::blackLevel)
+        .def_readwrite("whiteLevel", &ImageMetadata::CalibrationData::whiteLevel)
+        .def_readwrite("luminanceLensShading",
+                       &ImageMetadata::CalibrationData::luminanceLensShading)
+        .def_readwrite("colorMatrix", &ImageMetadata::CalibrationData::colorMatrix)
+        .def_readwrite("colorMatrixTarget", &ImageMetadata::CalibrationData::colorMatrixTarget);
+
 
     py::class_<ImageMetadata::CameraControls> cameraControls(
         imageMetadata, "CameraControls", py::is_final());

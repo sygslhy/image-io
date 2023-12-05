@@ -5,8 +5,9 @@ import numpy as np
 import pytest
 
 from image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
-                      ImageWriter, PixelType, read_exif, read_image,
-                      write_exif, write_image)
+                      PixelRepresentation, RgbColorSpace, ImageWriter,
+                      PixelType, read_exif, read_image, write_exif,
+                      write_image)
 
 test_images_dir = Path('./test/images/')
 test_npy_dir = Path('./test/npy/')
@@ -60,7 +61,7 @@ ref_rawmipi12_path = str(test_ref_dir / 'raw_12bit.RAWMIPI12')
 ref_rawmipi10_path = str(test_ref_dir / 'raw_10bit.RAWMIPI')
 ref_dng_path = str(test_ref_dir / 'raw.DNG')
 
-__epsilon = 0.000001
+__epsilon = 0.0000001
 __exif = ExifMetadata()
 __exif.make = 'Test write exif'
 __exif.model = 'exif writer'
@@ -86,6 +87,83 @@ def __check_exif_values(exif, ref_exif):
     assert abs(exif.fNumber.asDouble() - ref_exif[3]) < __epsilon
     assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation,
             exif.software) == ref_exif[4:]
+
+
+def test_parse_metatat():
+    image, metadata = read_image(rawmipi12_path)
+    assert metadata is not None
+
+    # Check fileInfo members
+    assert metadata.fileInfo is not None
+    assert metadata.fileInfo.fileFormat == FileFormat.RAW12
+    assert metadata.fileInfo.imageLayout == ImageLayout.PLANAR
+    assert metadata.fileInfo.pixelType == PixelType.BAYER_GBRG
+    assert metadata.fileInfo.pixelPrecision == 12
+    assert metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16
+    assert metadata.fileInfo.width == 4080
+    assert metadata.fileInfo.height == 3072
+
+    # Check shootingParams members
+    assert metadata.shootingParams is not None
+    assert abs(metadata.shootingParams.aperture - 2.2) < __epsilon
+    assert abs(metadata.shootingParams.exposureTime - 0.016631526) < __epsilon
+    assert abs(metadata.shootingParams.totalGain - 1.001035) < __epsilon
+    assert metadata.shootingParams.sensorGain == 1.0
+    assert abs(metadata.shootingParams.ispGain - 1.001035) < __epsilon
+
+    # Check cameraControls members
+    assert metadata.cameraControls is not None
+    assert abs(metadata.cameraControls.whiteBalance.gainR -
+               2.223459892023346) < __epsilon
+    assert abs(metadata.cameraControls.whiteBalance.gainB -
+               1.462103373540856) < __epsilon
+    array_r = np.array(metadata.cameraControls.colorLensShading.gainR,
+                       copy=False)
+    array_b = np.array(metadata.cameraControls.colorLensShading.gainB,
+                       copy=False)
+    assert array_r.shape == (3, 3) and array_b.shape == (3, 3)
+    np.array_equal(
+        array_r, np.array([[2.0, 1.5, 2.0], [1.5, 1.0, 1.5], [2.0, 1.5, 2.0]]))
+    np.array_equal(
+        array_b, np.array([[3.0, 2.5, 3.0], [2.5, 1.0, 2.5], [3.0, 2.5, 3.0]]))
+    assert metadata.cameraControls.faceDetection[
+        0].x == metadata.cameraControls.faceDetection[0].y == 0
+    assert metadata.cameraControls.faceDetection[0].width == 100
+    assert metadata.cameraControls.faceDetection[0].height == 200
+
+    # Check calibrationData members
+    assert metadata.calibrationData is not None
+    assert metadata.calibrationData.blackLevel == 256
+    assert metadata.calibrationData.whiteLevel == 4095
+    array_g = np.array(metadata.calibrationData.luminanceLensShading,
+                       copy=False)
+    np.array_equal(
+        array_g, np.array([[2.0, 1.5, 2.0], [1.5, 1.1, 1.5], [2.0, 1.5, 2.0]]))
+    assert metadata.calibrationData.colorMatrixTarget == RgbColorSpace.SRGB
+    array_color_matrix = np.array(metadata.calibrationData.colorMatrix,
+                                  copy=False)
+    np.array_equal(
+        array_color_matrix,
+        np.array([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]))
+
+    # Check exifMetadata members
+    assert metadata.exifMetadata is not None
+    assert metadata.exifMetadata.imageWidth == 4080
+    assert metadata.exifMetadata.imageHeight == 3072
+    assert metadata.exifMetadata.imageDescription == 'Raw 12 bit image'
+    assert metadata.exifMetadata.make == 'Xiaomi'
+    assert metadata.exifMetadata.model == 'M2102K1G'
+    assert metadata.exifMetadata.orientation == 1
+    assert metadata.exifMetadata.software == 'Impact'
+    assert metadata.exifMetadata.exposureTime.numerator == 1
+    assert metadata.exifMetadata.exposureTime.denominator == 60
+    assert metadata.exifMetadata.fNumber.numerator == 195
+    assert metadata.exifMetadata.fNumber.denominator == 100
+    assert metadata.exifMetadata.isoSpeedRatings == 50
+    assert metadata.exifMetadata.dateTimeOriginal == '2021:11:16 13:15:20'
+    assert metadata.exifMetadata.focalLength.numerator == 7590
+    assert metadata.exifMetadata.focalLength.denominator == 1000
+    assert metadata.exifMetadata.focalLengthIn35mmFilm == 7
 
 
 @pytest.mark.parametrize(
