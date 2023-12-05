@@ -16,10 +16,6 @@
 #include "PngIO.h"
 #include "TiffIO.h"
 
-#include <iostream>
-#include <stdexcept>
-
-
 namespace py = pybind11;
 
 namespace cxximg {
