@@ -6,5 +6,4 @@ __pycache__/
 cxx_image_io.egg-info/
 dist/
 pv_venv/
-!image_io/cxx_image_io.cp311-win_amd64.pyd
-!image_io/cxx_image_io.cp312-win_amd64.pyd
+!image_io/cxx_image_io.*.pyd

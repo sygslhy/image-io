@@ -1,0 +1,19 @@
+{
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.path": "/usr/bin/clang-tidy-12",
+    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true,
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "C_Cpp.default.cppStandard": "c++17",
+    "autoDocstring.docstringFormat": "numpy",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureOnOpen": false,
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "cmake.generator": "Ninja",
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "python.analysis.useImportHeuristic": true,
+    "python.formatting.provider": "yapf",
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.testing.pytestEnabled": true
+}

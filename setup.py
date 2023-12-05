@@ -58,7 +58,7 @@ class CMakeBuild(build_ext):
         # build\lib.win-amd64-cpython-312\image_io\cxx_image.cp312-win_amd64.pyd
         pyd_name = os.path.basename(self.get_outputs()[0])
         pyd_target_path = os.path.join(os.path.dirname(self.get_outputs()[0]), 'image_io', pyd_name)
-        pyd_origin_path = os.path.join(ext.sourcedir,'image_io', pyd_name) 
+        pyd_origin_path = os.path.join(ext.sourcedir,'image_io', pyd_name)
         self.copy_file(pyd_origin_path, pyd_target_path, level=self.verbose)
 
 with open("README.md", "r") as f:
@@ -73,7 +73,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sygslhy/image-io",
-    project_urls={  
+    project_urls={
         "Homepage": "https://github.com/sygslhy/image-io",
         "Issues": "https://github.com/sygslhy/image-io/issues",
     },
@@ -101,12 +101,6 @@ setup(
                         'image_io/binding/Matrix.cpp',
                         'image_io/binding/MetadataParser.cpp',
                         'image_io/binding/CMakeLists.txt',
-                        'cmake/modules/FindDeflate.cmake',
-                        'cmake/modules/FindJBIG.cmake',
-                        'cmake/modules/FindLERC.cmake',
-                        'cmake/modules/FindLZMA.cmake',
-                        'cmake/modules/FindWebP.cmake',
-                        'cmake/modules/FindZSTD.cmake',
                         'CMakeLists.txt'
                     ]
                 ),
@@ -120,4 +114,3 @@ setup(
     package_data={'image_io': ['*.pyd']},
     install_requires=['numpy>=1.26']
 )
-
