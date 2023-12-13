@@ -17,5 +17,5 @@ target_link_libraries(cxx_image PRIVATE cxx_image_bind pybind11::pybind11 loguru
 
 install(TARGETS cxx_image
 	COMPONENT python
-	LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/image_io"
+	LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/cxx_image_io"
 )

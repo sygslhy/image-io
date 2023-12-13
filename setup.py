@@ -52,12 +52,12 @@ class CMakeBuild(build_ext):
         # which provide the binding interface.
         # So the solution is to copy explicitly the pyd file to build_lib folder,
         # so that the install_lib in build backend will take care of it.
-        # copy D:\Work\image-io\image_io\cxx_image.cp312-win_amd64.pyd to
-        # build\lib.win-amd64-cpython-312\image_io\cxx_image.cp312-win_amd64.pyd
+        # copy D:\Work\image-io\cxx_image_io\cxx_image.cp312-win_amd64.pyd to
+        # build\lib.win-amd64-cpython-312\cxx_image_io\cxx_image.cp312-win_amd64.pyd
         pyd_name = os.path.basename(self.get_outputs()[0])
         pyd_target_path = os.path.join(os.path.dirname(self.get_outputs()[0]),
-                                       'image_io', pyd_name)
-        pyd_origin_path = os.path.join(ext.sourcedir, 'image_io', pyd_name)
+                                       'cxx_image_io', pyd_name)
+        pyd_origin_path = os.path.join(ext.sourcedir, 'cxx_image_io', pyd_name)
         self.copy_file(pyd_origin_path, pyd_target_path, level=self.verbose)
 
 
@@ -66,7 +66,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.0.4",
+    version="0.0.5",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -90,15 +90,15 @@ setup(
         # by cmake to generate pyd file.
         CMakeExtension(name='cxx_image', sourcedir='.'),
         # This Extension take care only to save the source C++ code.
-        Extension(name='image_io',
+        Extension(name='cxx_image_io',
                   sources=[
-                      'image_io/binding/BindingEntryPoint.cpp',
-                      'image_io/binding/Image.cpp',
-                      'image_io/binding/ImageIO.cpp',
-                      'image_io/binding/ImageMetadata.cpp',
-                      'image_io/binding/Matrix.cpp',
-                      'image_io/binding/MetadataParser.cpp',
-                      'image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
+                      'cxx_image_io/binding/BindingEntryPoint.cpp',
+                      'cxx_image_io/binding/Image.cpp',
+                      'cxx_image_io/binding/ImageIO.cpp',
+                      'cxx_image_io/binding/ImageMetadata.cpp',
+                      'cxx_image_io/binding/Matrix.cpp',
+                      'cxx_image_io/binding/MetadataParser.cpp',
+                      'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
     python_requires='>=3.10, <=3.12',
@@ -106,6 +106,6 @@ setup(
     zip_safe=False,
     packages=find_packages(
         exclude=["*.test", "*.test.*", "test.*", "test", "setup.py"]),
-    package_dir={'cxx-image-io': 'image_io'},
-    package_data={'image_io': ['*.pyd']},
+    package_dir={'cxx-image-io': 'cxx_image_io'},
+    package_data={'cxx_image_io': ['*.pyd']},
     install_requires=['numpy>=1.26'])

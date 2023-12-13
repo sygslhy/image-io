@@ -1,4 +1,4 @@
-# CXX Image IO 
+# CXX Image IO
 
 CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image,
 These IO interfaces are designed to read and write images in many file formats in generic way and to interact nicely with numpy array.
@@ -43,15 +43,15 @@ pip install cxx_image_io
 `read_image` is able to read a image file and return a numpy array and ImageMetadata object.
 
 ~~~~~~~~~~~~~~~{.python}
-from image_io import read_image
-from image_io import ImageMetadata
+from cxx_cxx_image_io import read_image
+from cxx_cxx_image_io import ImageMetadata
 import numpy as np
 
 image, metadata = read_image('/path/to/image.jpg')
 assert isinstance(image, np.ndarray)
 
 print('Type:', image.dtype)
-print('Shape:', image.shape) 
+print('Shape:', image.shape)
 ~~~~~~~~~~~~~~~
 
 image is a numpy array which is suitable for the image processing afterwards.
@@ -66,7 +66,7 @@ ImageMetadata is the information about the image, including the pixel type, pixe
 
 ~~~~~~~~~~~~~~~{.python}
 print('Type:', metadata.fileInfo.pixelType)
-print('Precision:', metadata.fileInfo.pixelPrecision) 
+print('Precision:', metadata.fileInfo.pixelPrecision)
 print('Layout:', metadata.fileInfo.imageLayout)
 ~~~~~~~~~~~~~~~
 
@@ -78,7 +78,7 @@ Layout: ImageLayout.INTERLEAVED
 ~~~~~~~~~~~~~~~
 
 Some file formats need to know in advance some informations about the image.
-For example, the PLAIN format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data. 
+For example, the PLAIN format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data.
 
 ~~~~~~~~~~~~~~~{.python}
 image, metadata = read_image('/path/to/image.plain16')
@@ -119,8 +119,8 @@ User need to define the following fundamental parameters in ImageMetadata which 
 In order to call the specific C++ image libraries with them.
 
 ~~~~~~~~~~~~~~~{.python}
-from image_io import ImageMetadata, ImageWriter, FileFormat, PixelType, ImageLayout
-from image_io import write_image
+from cxx_image_io import ImageMetadata, ImageWriter, FileFormat, PixelType, ImageLayout
+from cxx_image_io import write_image
 import numpy as np
 
 metadata = ImageMetadata()
@@ -152,7 +152,7 @@ Some image formats, like JPEG and TIFF, support EXIF reading and writing.
 If supported, EXIF can be read by calling `read_exif` and be written by calling `write_exif`.
 
 ~~~~~~~~~~~~~~~{.python}
-from image_io import read_exif, write_exif
+from cxx_image_io import read_exif, write_exif
 exif = read_exif('/path/to/image.jpg')
 
 print('model:', exif.model)

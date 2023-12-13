@@ -40,4 +40,4 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
-add_subdirectory(image_io/binding)
+add_subdirectory(cxx_image_io/binding)

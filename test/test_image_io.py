@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
+from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
                       PixelRepresentation, RgbColorSpace, ImageWriter,
                       PixelType, read_exif, read_image, write_exif,
                       write_image)
