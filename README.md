@@ -43,8 +43,8 @@ pip install cxx_image_io
 `read_image` is able to read a image file and return a numpy array and ImageMetadata object.
 
 ~~~~~~~~~~~~~~~{.python}
-from cxx_cxx_image_io import read_image
-from cxx_cxx_image_io import ImageMetadata
+from cxx_image_io import read_image
+from cxx_image_io import ImageMetadata
 import numpy as np
 
 image, metadata = read_image('/path/to/image.jpg')
