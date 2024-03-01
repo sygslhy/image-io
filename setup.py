@@ -66,7 +66,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.0.6",
+    version="0.0.7",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -101,7 +101,7 @@ setup(
                       'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
-    python_requires='>=3.10, <=3.12',
+    python_requires='>=3.10',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     packages=find_packages(
