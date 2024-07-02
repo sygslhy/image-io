@@ -178,4 +178,4 @@ write_image('/path/to/image.jpg', image, write_options)
 
 # License
 
-This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md)file for details
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details
