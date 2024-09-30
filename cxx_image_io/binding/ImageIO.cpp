@@ -130,7 +130,7 @@ void init_io(py::module &m) {
     pngWriter
         .def("write",
              [](PngWriter &self, const Image8u &image) { self.write(image); })
-        .def("write", [](PlainWriter &self, const Image16u &image) {
+        .def("write", [](PngWriter &self, const Image16u &image) {
             self.write(image);
         });
 
@@ -163,12 +163,13 @@ void init_io(py::module &m) {
                             self.write(image);
                         });
 
-    py::class_<DngWriter, ImageWriter> dngWriter(m_io, "DngWriter");
-    dngWriter
-        .def("write",
-             [](DngWriter &self, const Image16u &image) { self.write(image); })
-        .def("write",
-             [](DngWriter &self, const Imagef &image) { self.write(image); });
+    // [issue 1] disable dng writer, until the preview image is also available in DNG writing.
+    // py::class_<DngWriter, ImageWriter> dngWriter(m_io, "DngWriter");
+    // dngWriter
+    //     .def("write",
+    //          [](DngWriter &self, const Image16u &image) { self.write(image); })
+    //     .def("write",
+    //          [](DngWriter &self, const Imagef &image) { self.write(image); });
 
     m_io.def("makeWriter", [](const std::string &outputPath,
                               const py::object &write_options) {

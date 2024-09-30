@@ -37,8 +37,10 @@ template <typename T> py::buffer_info defineBufferInfos(Image<T> &m) {
 
     if (m.descriptor().layout.imageLayout == ImageLayout::YUV_420 ||
         m.descriptor().layout.imageLayout == ImageLayout::NV12) {
-        throw std::runtime_error("Cannot support convert the different sizes "
-                                 "planes image to numpy array.");
+        //[Issue 1 TODO], it seems the C++ runtime exception cannot be caught or cannot passed to python,
+        //When it maps the image object to numpy buffer.
+        // normally this code should work, but it doesn't, need much time to do the investigation.
+        throw std::invalid_argument("Cannot support convert the different sizes planes image to numpy array.");
     }
     return py::buffer_info(
         m.data(),                           /* Pointer to buffer */

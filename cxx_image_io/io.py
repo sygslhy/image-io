@@ -1,5 +1,5 @@
 import numpy as np
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout,
                        ImageMetadata, ImageUint8, ImageUint16,
                        PixelRepresentation, io, parser)
 
@@ -38,7 +38,15 @@ def read_image(image_path: str, metadata_path: str = None) -> np.array:
         returned image in numpy array format
 
     """
+
     metadata = parser.readMetadata(image_path, metadata_path)
+
+    #[Fix Issue 1] Currently pybind11 buffer protocol support only memory mapping of the image having
+    # the same size on each planars, so the different sizes on each planars like nv12, yuv are not yet support
+    if metadata:
+        assert metadata.fileInfo.imageLayout not in (ImageLayout.YUV_420, ImageLayout.NV12
+            ), "Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array"
+
     image_reader = io.makeReader(image_path, metadata)
     # Currently don't find a good way to supported completely the std::optional by binding C++ function.
     # So create explicitily an ImageMetadata object when metadata is None.
