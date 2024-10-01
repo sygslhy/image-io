@@ -29,6 +29,8 @@ void init_model(py::module &m) {
         .def_readwrite("orientation", &ExifMetadata::orientation)
         .def_readwrite("software", &ExifMetadata::software)
         .def_readwrite("dateTimeOriginal", &ExifMetadata::dateTimeOriginal)
+        .def_readwrite("brightnessValue", &ExifMetadata::brightnessValue)
+        .def_readwrite("exposureBiasValue", &ExifMetadata::exposureBiasValue)
         .def_readwrite("exposureTime", &ExifMetadata::exposureTime)
         .def_readwrite("fNumber", &ExifMetadata::fNumber)
         .def_readwrite("isoSpeedRatings", &ExifMetadata::isoSpeedRatings)
@@ -47,6 +49,20 @@ void init_model(py::module &m) {
         .def_readwrite("denominator", &ExifMetadata::Rational::denominator)
         .def("asDouble", &ExifMetadata::Rational::asDouble)
         .def("asFloat", &ExifMetadata::Rational::asFloat);
+
+    py::class_<ExifMetadata::SRational>(exifMetadata, "SRational", py::is_final())
+        .def(py::init([](int32_t n, int32_t dn) {
+            std::unique_ptr<ExifMetadata::SRational> srational(
+                new ExifMetadata::SRational());
+            srational->numerator = n;
+            srational->denominator = dn;
+            return srational;
+        }))
+        .def_readwrite("numerator", &ExifMetadata::SRational::numerator)
+        .def_readwrite("denominator", &ExifMetadata::SRational::denominator)
+        .def("asDouble", &ExifMetadata::SRational::asDouble)
+        .def("asFloat", &ExifMetadata::SRational::asFloat);
+
 
     py::class_<ImageMetadata> imageMetadata(m, "ImageMetadata", py::is_final());
     imageMetadata.def(py::init<>())
