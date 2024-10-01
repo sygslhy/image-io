@@ -3,16 +3,16 @@
 CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image,
 These IO interfaces are designed to read and write images in many file formats in generic way and to interact nicely with numpy array.
 
-| Image format  | Read | Write | EXIF | Pixel precision        | Pixel type           | File extension                   |
-|---------------|------|-------|------|------------------------|----------------------|----------------------------------|
-| BMP           | x    | x     |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |
-| CFA           | x    | x     |      | 16 bits                | Bayer                | .cfa                             |
-| DNG           | x    |       | x    | 16 bits, float         | Bayer, RGB           | .dng                             |
-| JPEG          | x    | x     | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |
-| MIPIRAW       | x    | x     |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 |
-| PLAIN         | x    | x     |      | *                      | Bayer                | .plain16,  *                     |
-| PNG           | x    | x     |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |
-| TIFF          | x    | x     | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |
+| Image format  | Read | Write  | EXIF | Pixel precision        | Pixel type           | File extension                   |
+|---------------|------|--------|------|------------------------|----------------------|----------------------------------|
+| BMP           | x    | x      |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |
+| CFA           | x    | x      |      | 16 bits                | Bayer                | .cfa                             |
+| DNG           | x    | Not yet| x    | 16 bits, float         | Bayer, RGB           | .dng                             |
+| JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |
+| MIPIRAW       | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 |
+| PLAIN         | x    | x      |      | *                      | Bayer                | .plain16                         |
+| PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |
+| TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |
 
 # Getting Started
 
