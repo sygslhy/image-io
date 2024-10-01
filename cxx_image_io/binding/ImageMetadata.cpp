@@ -51,10 +51,10 @@ void init_model(py::module &m) {
     py::class_<ImageMetadata> imageMetadata(m, "ImageMetadata", py::is_final());
     imageMetadata.def(py::init<>())
         .def_readwrite("fileInfo", &ImageMetadata::fileInfo)
-        .def_readwrite("cameraControls", &ImageMetadata::cameraControls)
         .def_readwrite("exifMetadata", &ImageMetadata::exifMetadata)
         .def_readwrite("shootingParams", &ImageMetadata::shootingParams)
-        .def_readwrite("calibrationData", &ImageMetadata::calibrationData);
+        .def_readwrite("calibrationData", &ImageMetadata::calibrationData)
+        .def_readwrite("cameraControls", &ImageMetadata::cameraControls);
 
     py::class_<ImageMetadata::ROI>(imageMetadata, "ROI", py::is_final())
         .def(py::init<>())
@@ -86,15 +86,16 @@ void init_model(py::module &m) {
         .def_readwrite("totalGain",
                        &ImageMetadata::ShootingParams::totalGain)
         .def_readwrite("sensorGain", &ImageMetadata::ShootingParams::sensorGain)
-        .def_readwrite("ispGain", &ImageMetadata::ShootingParams::ispGain);
+        .def_readwrite("ispGain", &ImageMetadata::ShootingParams::ispGain)
+        .def_readwrite("zoom", &ImageMetadata::ShootingParams::zoom);
 
     py::class_<ImageMetadata::CalibrationData>(imageMetadata, "CalibrationData",
                                         py::is_final())
         .def(py::init<>())
         .def_readwrite("blackLevel", &ImageMetadata::CalibrationData::blackLevel)
         .def_readwrite("whiteLevel", &ImageMetadata::CalibrationData::whiteLevel)
-        .def_readwrite("luminanceLensShading",
-                       &ImageMetadata::CalibrationData::luminanceLensShading)
+        .def_readwrite("vignetting",
+                       &ImageMetadata::CalibrationData::vignetting)
         .def_readwrite("colorMatrix", &ImageMetadata::CalibrationData::colorMatrix)
         .def_readwrite("colorMatrixTarget", &ImageMetadata::CalibrationData::colorMatrixTarget);
 
@@ -104,8 +105,8 @@ void init_model(py::module &m) {
     cameraControls.def(py::init<>())
         .def_readwrite("whiteBalance",
                        &ImageMetadata::CameraControls::whiteBalance)
-        .def_readwrite("colorLensShading",
-                       &ImageMetadata::CameraControls::colorLensShading)
+        .def_readwrite("colorShading",
+                       &ImageMetadata::CameraControls::colorShading)
         .def_readwrite("faceDetection",
                        &ImageMetadata::CameraControls::faceDetection);
 
@@ -115,11 +116,11 @@ void init_model(py::module &m) {
         .def_readwrite("gainR", &ImageMetadata::WhiteBalance::gainR)
         .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB);
 
-    py::class_<ImageMetadata::ColorLensShading> colorLensShading(
-        imageMetadata, "ColorLensShading", py::is_final());
-    colorLensShading.def(py::init<>())
-        .def_readwrite("gainR", &ImageMetadata::ColorLensShading::gainR)
-        .def_readwrite("gainB", &ImageMetadata::ColorLensShading::gainB);
+    py::class_<ImageMetadata::ColorShading> colorShading(
+        imageMetadata, "ColorShading", py::is_final());
+    colorShading.def(py::init<>())
+        .def_readwrite("gainR", &ImageMetadata::ColorShading::gainR)
+        .def_readwrite("gainB", &ImageMetadata::ColorShading::gainB);
 }
 
 } // namespace cxximg

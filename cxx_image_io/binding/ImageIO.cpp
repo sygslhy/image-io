@@ -77,7 +77,7 @@ void init_io(py::module &m) {
 
     m_io.def("makeReader", [](const std::string &inputPath,
                               const py::object &metadata) {
-        if (metadata != py::none()) {
+        if (!metadata.is(py::none())) {
             ImageMetadata *cls = metadata.cast<ImageMetadata *>();
             std::unique_ptr<ImageReader> imageReader =
                 io::makeReader(inputPath, ImageReader::Options(*cls));
@@ -173,7 +173,7 @@ void init_io(py::module &m) {
 
     m_io.def("makeWriter", [](const std::string &outputPath,
                               const py::object &write_options) {
-        if (write_options != py::none()) {
+        if (!write_options.is(py::none())) {
             ImageWriter::Options *cls =
                 write_options.cast<ImageWriter::Options *>();
             std::unique_ptr<ImageWriter> imageWriter =
