@@ -93,7 +93,11 @@ void init_model(py::module &m) {
         .def_readwrite("pixelRepresentation",
                        &ImageMetadata::FileInfo::pixelRepresentation)
         .def_readwrite("widthAlignment",
-                       &ImageMetadata::FileInfo::widthAlignment);
+                       &ImageMetadata::FileInfo::widthAlignment)
+        .def_readwrite("heightAlignment",
+                       &ImageMetadata::FileInfo::heightAlignment)
+        .def_readwrite("sizeAlignment",
+                       &ImageMetadata::FileInfo::sizeAlignment);
 
     py::class_<ImageMetadata::ShootingParams>(imageMetadata, "ShootingParams",
                                         py::is_final())
