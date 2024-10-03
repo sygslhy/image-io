@@ -71,6 +71,7 @@ void init_model(py::module &m) {
         .def_readwrite("shootingParams", &ImageMetadata::shootingParams)
         .def_readwrite("calibrationData", &ImageMetadata::calibrationData)
         .def_readwrite("cameraControls", &ImageMetadata::cameraControls);
+    imageMetadata.def("synchronize", &ImageMetadata::synchronize);
 
     py::class_<ImageMetadata::ROI>(imageMetadata, "ROI", py::is_final())
         .def(py::init<>())
@@ -99,6 +100,7 @@ void init_model(py::module &m) {
         .def(py::init<>())
         .def_readwrite("aperture", &ImageMetadata::ShootingParams::aperture)
         .def_readwrite("exposureTime", &ImageMetadata::ShootingParams::exposureTime)
+        .def_readwrite("sensitivity", &ImageMetadata::ShootingParams::sensitivity)
         .def_readwrite("totalGain",
                        &ImageMetadata::ShootingParams::totalGain)
         .def_readwrite("sensorGain", &ImageMetadata::ShootingParams::sensorGain)
