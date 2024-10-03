@@ -32,7 +32,7 @@ void init_io(py::module &m) {
              [](ImageReader &self, py::object &metadata) {
                  std::optional<ImageMetadata> cls =
                      metadata.cast<ImageMetadata>();
-                 self.updateMetadata(cls);
+                 self.readMetadata(cls);
                  return py::cast(cls);
              })
         .def("readExif", &ImageReader::readExif);

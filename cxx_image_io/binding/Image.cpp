@@ -20,8 +20,8 @@ template <typename T> std::vector<py::ssize_t> calculBufferDim(Image<T> &m) {
 template <typename T>
 std::vector<py::ssize_t> calculBufferStrides(Image<T> &m) {
     ImageDescriptor<T> imageDescrriptor = m.descriptor();
-    int rowStride = imageDescrriptor.planes[0].rowStride;
-    int pixelStride = imageDescrriptor.planes[0].pixelStride;
+    int rowStride = imageDescrriptor.layout.planes[0].rowStride;
+    int pixelStride = imageDescrriptor.layout.planes[0].pixelStride;
 
     if (m.numPlanes() > 1) {
         return {static_cast<py::ssize_t>(sizeof(T)) * rowStride,
@@ -68,13 +68,12 @@ Image<T> createImageFromPyarray(py::array_t<T> b, PixelType pixelType,
         throw std::runtime_error("Incompatible buffer dimension!");
     }
     /*Create the Image based on the py::array's buffer */
-    ImageDescriptor<T> descriptor(
-        LayoutDescriptor::Builder(info.shape[1], info.shape[0])
+    LayoutDescriptor layout = LayoutDescriptor::Builder(info.shape[1], info.shape[0])
             .pixelPrecision(pixelPrecision)
             .imageLayout(imageLayout)
             .pixelType(pixelType)
-            .build());
-    return Image<T>(descriptor, static_cast<T *>(info.ptr));
+            .build();
+    return Image<T>(layout, static_cast<T *>(info.ptr));
 }
 
 void init_image(py::module &m) {

@@ -27,7 +27,7 @@ include(FetchContent)
 FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/emmcb/cxx-image.git"
-    GIT_TAG "bde012ec47294ce3aad4be44bdcc206c9f621c9b"
+    GIT_TAG "d54987ef7470ed80afd811276de0e2c0fdb1a350"
 )
 FetchContent_MakeAvailable(cxx-image)
 
