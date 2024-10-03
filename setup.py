@@ -29,7 +29,7 @@ class CMakeBuild(build_ext):
             cmake_version = LooseVersion(
                 re.search(r'version\s*([\d.]+)', out.decode()).group(1))
             if cmake_version < '3.10.0':
-                raise RuntimeError("CMake >= 3.10.0 is required on Windows")
+                raise RuntimeError("CMake >= 3.10.0 is required")
 
         for ext in self.extensions:
             if isinstance(ext, CMakeExtension):
@@ -66,7 +66,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.0.8",
+    version="0.0.9",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -78,7 +78,6 @@ setup(
         "Issues": "https://github.com/sygslhy/image-io/issues",
     },
     classifiers=[
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
@@ -101,7 +100,7 @@ setup(
                       'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
-    python_requires='>=3.10',
+    python_requires='>=3.11',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     packages=find_packages(

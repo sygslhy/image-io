@@ -18,7 +18,7 @@ These IO interfaces are designed to read and write images in many file formats i
 
 ## Prerequisites
 
-This projet currently supports only Python 3.11 and 3.12 on Windows system. we are working for supporting Python on Linux nextly.
+This projet currently supports only Python 3.11 and 3.12 on Windows and Linux.
 
 The user need to install python 3.11 or 3.12,
 

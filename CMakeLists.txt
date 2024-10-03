@@ -27,7 +27,7 @@ include(FetchContent)
 FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/emmcb/cxx-image.git"
-    GIT_TAG "75c757a625a5ea13945f5a7ab298351a66c098a7"
+    GIT_TAG "75c757a625a5ea13945f5a7ab298351a66c098a7" #  Sep 16, 2024
 )
 FetchContent_MakeAvailable(cxx-image)
 
@@ -36,7 +36,7 @@ include(FetchContent)
 FetchContent_Declare(
     pybind11
     GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
-    GIT_TAG "v2.12.1"
+    GIT_TAG "v2.13.6"
 )
 FetchContent_MakeAvailable(pybind11)
 
