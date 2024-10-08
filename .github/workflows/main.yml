@@ -42,16 +42,20 @@ jobs:
           make
           sudo make install
 
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
 
     - if: matrix.os == 'windows-latest'
       uses: msys2/setup-msys2@v2
       name: Install Msys2 for g++ and gcc tools on windows
       with:
+        location: D:\
         update: true
         install: >-
-          git
-          cmake
           gcc
+          cmake
           nasm
           make
 
@@ -79,11 +83,6 @@ jobs:
       uses: actions/checkout@v4
 
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-
     - name: Install python dependencies
       run: |
           python -m pip install --upgrade pip
@@ -96,8 +95,12 @@ jobs:
 
     - if: matrix.os == 'windows-latest'
       name: Create the image-io python package for windows
-      shell: msys2 {0}
+      shell: cmd
       run: |
+          "C:\Program Files (x86)\Microsoft Visual Studio\Installer\InstallCleanup.exe"
+          set PATH=D:\msys64\mingw64\bin;%PATH%
+          set PATH=D:\msys64\mingw64;%PATH%
+          set PATH=C:\mingw64\bin;%PATH%
           python setup.py bdist_wheel
 
     - name: Archive production artifacts

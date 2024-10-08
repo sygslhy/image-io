@@ -39,10 +39,15 @@ class CMakeBuild(build_ext):
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
+        cmake_cfg = ['cmake', '-B', self.build_temp, '-S', '.']
 
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(['cmake', '-B', self.build_temp, '-S', '.'])
+        # select windows system build C++ with msys2 gcc even MSVC exists.
+        if os.name == 'nt':
+            msys2_cmake_cfg = ['-D', 'CMAKE_C_COMPILER=gcc', '-D', 'CMAKE_CXX_COMPILER=g++']
+            cmake_cfg+=msys2_cmake_cfg
+        subprocess.check_call(cmake_cfg)
         subprocess.check_call(['cmake', '--build', self.build_temp] +
                               build_args)
         subprocess.check_call(['cmake', '--install', self.build_temp])
