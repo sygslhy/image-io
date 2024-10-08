@@ -1,19 +1,76 @@
 name: Create Python Package
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
 
-jobs:
-  get_libs:
+env:
+  BUILD_TYPE: Release
 
-    runs-on: ubuntu-latest
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+
 
     steps:
     - name: Check out image-io-libs from my repo
-      uses: actions/checkout@master
+      uses: actions/checkout@v4
       with:
         repository: sygslhy/image-io-libs
+        path: image_io_libs
+
+    - if: matrix.os == 'ubuntu-latest'
+      name: Build image io libs with -fPIC and install to /usr/local
+      run : |
+          sudo apt-get remove -y libtiff-dev libpng-dev libturbojpeg-dev libjpeg-dev libexif-dev zlib1g-dev
+          sudo apt-get install -y nasm
+          mkdir  ${{github.workspace}}/image_io_libs/build
+          cd ${{github.workspace}}/image_io_libs/build
+          cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local
+          make
+          sudo make install
+
+    - if: matrix.os == 'windows-latest'
+      name: Build image io libs and install to /usr/local
+      run : |
+          mkdir  ${{github.workspace}}/image_io_libs/build
+          cd ${{github.workspace}}/image_io_libs/build
+          cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local
+          make
+          make install
+
+
+    - name: Check out image-io
+      uses: actions/checkout@v4
+
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install python dependencies
+      run: |
+          python -m pip install --upgrade pip
+          python -m pip install setuptools wheel
+
+    - name: Create the image-io python package
+      run: |
+          python3 setup.py bdist_wheel --plat manylinux_2_24
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist_bdist_wheel_${{ matrix.python-version }}
+        path: dist/*whl
