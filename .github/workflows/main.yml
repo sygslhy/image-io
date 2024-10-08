@@ -12,10 +12,8 @@ permissions:
 env:
   BUILD_TYPE: Release
 
-
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -24,15 +22,20 @@ jobs:
         python-version: ["3.11", "3.12"]
 
     steps:
-    - if: matrix.os == 'ubuntu-latest'
-      name: Check out image-io-libs from my repo
+    - name: Check out image-io-libs from my repo
       uses: actions/checkout@v4
       with:
         repository: sygslhy/image-io-libs
         path: image_io_libs
 
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      id: sp1
+      with:
+        python-version: ${{ matrix.python-version }}
+
     - if: matrix.os == 'ubuntu-latest'
-      name: Build image io libs with -fPIC and install to /usr/local
+      name: Build image io libs with -fPIC and install to /usr/local on ubuntu
       run : |
           sudo apt-get remove -y libtiff-dev libpng-dev libturbojpeg-dev libjpeg-dev libexif-dev zlib1g-dev
           sudo apt-get install -y nasm
@@ -45,44 +48,31 @@ jobs:
 
     - if: matrix.os == 'windows-latest'
       uses: msys2/setup-msys2@v2
-      name: Install Msys2 for g++ and gcc tools on windows
+      name: Install Msys2 mingw64 for g++ and gcc tools on windows
       with:
+        msystem: MINGW64
+        location: D:\
         update: true
-        install: >-
-          git
-          cmake
-          gcc
-          nasm
-          make
-
-    - if: matrix.os == 'windows-latest'
-      uses: actions/checkout@v4
-      name: Checkout image io libs from msys2
-      with:
-        repository: sygslhy/image-io-libs
-        path: image_io_libs
+        install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja mingw-w64-x86_64-tools-git
 
 
 
     - if: matrix.os == 'windows-latest'
-      name: Build image io libs and install to msys64/usr
-      shell: msys2 {0}
+      name: Build image io libs and install to D:\msys64\mingw64
+      shell: powershell
       run : |
-        mkdir D:/a/image-io/image-io/image_io_libs/build
-        cd D:/a/image-io/image-io/image_io_libs/build
-        cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr
-        make
-        make install
 
+        $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
+        $env:Path = 'D:/msys64/mingw64/;' + $env:Path
+        $env:Path
+        mkdir D:/a/image-io/image-io/image_io_libs/build
+        cd  D:/a/image-io/image-io/image_io_libs/build
+        cmake -G 'Ninja' -DCMAKE_C_COMPILER:FILEPATH=D:\msys64\mingw64\bin\gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=D:\msys64\mingw64\bin\g++.exe .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=D:\msys64\mingw64
+        ninja
+        ninja install
 
     - name: Check out image-io
       uses: actions/checkout@v4
-
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
 
     - name: Install python dependencies
       run: |
@@ -92,12 +82,15 @@ jobs:
     - if: matrix.os == 'ubuntu-latest'
       name: Create the image-io python package for Linux
       run: |
-          python3 setup.py bdist_wheel --plat manylinux_2_24
+          python setup.py bdist_wheel --plat manylinux_2_24
 
     - if: matrix.os == 'windows-latest'
       name: Create the image-io python package for windows
-      shell: msys2 {0}
+      shell: pwsh
       run: |
+          $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
+          $env:Path = 'D:/msys64/mingw64;' + $env:Path
+          $env:Path
           python setup.py bdist_wheel
 
     - name: Archive production artifacts

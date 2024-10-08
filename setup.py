@@ -39,10 +39,12 @@ class CMakeBuild(build_ext):
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
-
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(['cmake', '-B', self.build_temp, '-S', '.'])
+        cmake_cfg = ['cmake', '-B', self.build_temp, '-S', '.']
+        if os.name == 'nt':
+            cmake_cfg += ['-G', 'Ninja']
+        subprocess.check_call(cmake_cfg)
         subprocess.check_call(['cmake', '--build', self.build_temp] +
                               build_args)
         subprocess.check_call(['cmake', '--install', self.build_temp])
