@@ -12,6 +12,7 @@ permissions:
 env:
   BUILD_TYPE: Release
 
+
 jobs:
   build:
 
@@ -22,9 +23,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.11", "3.12"]
 
-
     steps:
-    - name: Check out image-io-libs from my repo
+    - if: matrix.os == 'ubuntu-latest'
+      name: Check out image-io-libs from my repo
       uses: actions/checkout@v4
       with:
         repository: sygslhy/image-io-libs
@@ -41,9 +42,37 @@ jobs:
           make
           sudo make install
 
+
     - if: matrix.os == 'windows-latest'
-      name: Build image io libs and install to /usr/local
       uses: msys2/setup-msys2@v2
+      name: Install Msys2 for g++ and gcc tools on windows
+      with:
+        update: true
+        install: >-
+          git
+          cmake
+          gcc
+          nasm
+          make
+
+    - if: matrix.os == 'windows-latest'
+      uses: actions/checkout@v4
+      name: Checkout image io libs from msys2
+      with:
+        repository: sygslhy/image-io-libs
+        path: image_io_libs
+
+
+
+    - if: matrix.os == 'windows-latest'
+      name: Build image io libs and install to msys64/usr
+      shell: msys2 {0}
+      run : |
+        mkdir D:/a/image-io/image-io/image_io_libs/build
+        cd D:/a/image-io/image-io/image_io_libs/build
+        cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr
+        make
+        make install
 
 
     - name: Check out image-io
@@ -60,12 +89,19 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install setuptools wheel
 
-    - name: Create the image-io python package
+    - if: matrix.os == 'ubuntu-latest'
+      name: Create the image-io python package for Linux
       run: |
           python3 setup.py bdist_wheel --plat manylinux_2_24
+
+    - if: matrix.os == 'windows-latest'
+      name: Create the image-io python package for windows
+      shell: msys2 {0}
+      run: |
+          python setup.py bdist_wheel
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist_bdist_wheel_${{ matrix.python-version }}
+        name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
         path: dist/*whl
