@@ -2,9 +2,9 @@ name: Create Python Package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test/test-workflow" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "test/test-workflow" ]
 
 permissions:
   contents: read
@@ -46,6 +46,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+        update-environment: true
 
     - if: matrix.os == 'windows-latest'
       uses: msys2/setup-msys2@v2
@@ -58,6 +59,9 @@ jobs:
           cmake
           nasm
           make
+          git
+          python
+          python-pip
 
     - if: matrix.os == 'windows-latest'
       uses: actions/checkout@v4
@@ -95,13 +99,10 @@ jobs:
 
     - if: matrix.os == 'windows-latest'
       name: Create the image-io python package for windows
-      shell: cmd
+      shell: msys2 {0}
       run: |
-          "C:\Program Files (x86)\Microsoft Visual Studio\Installer\InstallCleanup.exe"
-          set PATH=D:\msys64\mingw64\bin;%PATH%
-          set PATH=D:\msys64\mingw64;%PATH%
-          set PATH=C:\mingw64\bin;%PATH%
-          python setup.py bdist_wheel
+         pip install setuptools wheel --break-system-packages
+         python setup.py bdist_wheel
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
