@@ -61,7 +61,6 @@ jobs:
       name: Build image io libs and install to D:\msys64\mingw64
       shell: powershell
       run : |
-
         $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
         $env:Path = 'D:/msys64/mingw64/;' + $env:Path
         mkdir D:/a/image-io/image-io/image_io_libs/build
@@ -81,7 +80,7 @@ jobs:
     - if: matrix.os == 'ubuntu-latest'
       name: Create the image-io python package for Linux
       run: |
-          python setup.py bdist_wheel --plat manylinux_2_24
+          python setup.py bdist_wheel --plat manylinux_2_24_x86_64
 
     - if: matrix.os == 'windows-latest'
       name: Create the image-io python package for windows
@@ -124,3 +123,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
