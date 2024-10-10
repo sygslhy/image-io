@@ -64,7 +64,6 @@ jobs:
 
         $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
         $env:Path = 'D:/msys64/mingw64/;' + $env:Path
-        $env:Path
         mkdir D:/a/image-io/image-io/image_io_libs/build
         cd  D:/a/image-io/image-io/image_io_libs/build
         cmake -G 'Ninja' -DCMAKE_C_COMPILER:FILEPATH=D:\msys64\mingw64\bin\gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=D:\msys64\mingw64\bin\g++.exe .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=D:\msys64\mingw64
@@ -90,11 +89,38 @@ jobs:
       run: |
           $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
           $env:Path = 'D:/msys64/mingw64;' + $env:Path
-          $env:Path
           python setup.py bdist_wheel
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
-        path: dist/*whl
+        path: dist/
+
+  publish-to-test-pypi:
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/cxx-image-io
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
+        path: dist/
+    - name: Publish distribution to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
