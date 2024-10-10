@@ -42,8 +42,7 @@ namespace cxximg
             .def("__repr__",
                  [](const ExifMetadata &exif)
                  {
-                    return py::str("ExifMetadata example");
-
+                     return py::str("ExifMetadata example");
                  });
 
         py::class_<ExifMetadata::Rational>(exifMetadata, "Rational", py::is_final())
@@ -80,19 +79,24 @@ namespace cxximg
             .def_readwrite("calibrationData", &ImageMetadata::calibrationData)
             .def_readwrite("cameraControls", &ImageMetadata::cameraControls);
         imageMetadata.def("synchronize", &ImageMetadata::synchronize)
-            .def("toDict",
-                [](const ImageMetadata &meta){
-                    auto fileInfo = py::cast(meta.fileInfo);
-                    py::dict dict;
-                    dict["fileInfo"] = fileInfo.attr("toDict")();
-                    return dict;
-                })
+            .def("serialize",
+                 [](const ImageMetadata &meta)
+                 {
+                     auto fileInfo = py::cast(meta.fileInfo);
+                     auto shootingParams = py::cast(meta.shootingParams);
+                     auto cameraControls = py::cast(meta.cameraControls);
+                     py::dict dict;
+                     dict["fileInfo"] = fileInfo.attr("serialize")();
+                     dict["shootingParams"] = shootingParams.attr("serialize")();
+                     dict["cameraControls"] = cameraControls.attr("serialize")();
+                     return dict;
+                 })
             .def("__repr__",
                  [](const ImageMetadata &meta)
                  {
-                    auto obj = py::cast(meta);
-                    auto d = obj.attr("toDict")();
-                    return py::str(d);
+                     auto obj = py::cast(meta);
+                     auto d = obj.attr("serialize")();
+                     return py::str(d);
                  });
 
         py::class_<ImageMetadata::ROI>(imageMetadata, "ROI", py::is_final())
@@ -101,20 +105,21 @@ namespace cxximg
             .def_readwrite("y", &ImageMetadata::ROI::y)
             .def_readwrite("width", &ImageMetadata::ROI::width)
             .def_readwrite("height", &ImageMetadata::ROI::height)
-            .def("toDict",
-                [](const ImageMetadata::ROI &roi){
-                    py::dict dict;
-                    dict["x"] = roi.x;
-                    dict["y"] = roi.y;
-                    dict["width"] = roi.width;
-                    dict["height"] = roi.height;
-                    return dict;
-                })
+            .def("serialize",
+                 [](const ImageMetadata::ROI &roi)
+                 {
+                     py::list list;
+                     list.append(roi.x);
+                     list.append(roi.y);
+                     list.append(roi.width);
+                     list.append(roi.height);
+                     return list;
+                 })
             .def("__repr__",
                  [](const ImageMetadata::ROI &roi)
                  {
-                    auto d = py::cast(roi).attr("toDict")();
-                    return py::str(d);
+                     auto d = py::cast(roi).attr("serialize")();
+                     return py::str(d);
                  });
 
         py::class_<ImageMetadata::FileInfo>(imageMetadata, "FileInfo",
@@ -135,26 +140,37 @@ namespace cxximg
                            &ImageMetadata::FileInfo::heightAlignment)
             .def_readwrite("sizeAlignment",
                            &ImageMetadata::FileInfo::sizeAlignment)
-            .def("toDict",
-                [](const ImageMetadata::FileInfo &fileInfo){
-                    py::dict dict;
-                    dict["width"] = *fileInfo.width;
-                    dict["height"] = *fileInfo.height;
-                    dict["pixelPrecision"] = *fileInfo.pixelPrecision;
-                    dict["fileFormat"] = py::str(cxximg::toString(*fileInfo.fileFormat));
-                    dict["imageLayout"] = py::str(cxximg::toString(*fileInfo.imageLayout));
-                    dict["pixelType"] = py::str(cxximg::toString(*fileInfo.pixelType));
-                    dict["pixelRepresentation"] = py::str(cxximg::toString(*fileInfo.pixelRepresentation));
-                    dict["widthAlignment"] = *fileInfo.widthAlignment;
-                    dict["heightAlignment"] = *fileInfo.heightAlignment;
-                    dict["sizeAlignment"] = *fileInfo.sizeAlignment;
-                    return dict;
-                })
+            .def("serialize",
+                 [](const ImageMetadata::FileInfo &fileInfo)
+                 {
+                     py::dict dict;
+                     if (fileInfo.width)
+                         dict["width"] = *fileInfo.width;
+                     if (fileInfo.height)
+                         dict["height"] = *fileInfo.height;
+                     if (fileInfo.pixelPrecision)
+                         dict["pixelPrecision"] = *fileInfo.pixelPrecision;
+                     if (fileInfo.fileFormat)
+                         dict["fileFormat"] = py::str(cxximg::toString(*fileInfo.fileFormat));
+                     if (fileInfo.imageLayout)
+                         dict["imageLayout"] = py::str(cxximg::toString(*fileInfo.imageLayout));
+                     if (fileInfo.pixelType)
+                         dict["pixelType"] = py::str(cxximg::toString(*fileInfo.pixelType));
+                     if (fileInfo.pixelRepresentation)
+                         dict["pixelRepresentation"] = py::str(cxximg::toString(*fileInfo.pixelRepresentation));
+                     if (fileInfo.widthAlignment)
+                         dict["widthAlignment"] = *fileInfo.widthAlignment;
+                     if (fileInfo.heightAlignment)
+                         dict["heightAlignment"] = *fileInfo.heightAlignment;
+                     if (fileInfo.sizeAlignment)
+                         dict["sizeAlignment"] = *fileInfo.sizeAlignment;
+                     return dict;
+                 })
             .def("__repr__",
                  [](const ImageMetadata::FileInfo &fileInfo)
                  {
-                    auto d = py::cast(fileInfo).attr("toDict")();
-                    return py::str(d);
+                     auto d = py::cast(fileInfo).attr("serialize")();
+                     return py::str(d);
                  });
 
         py::class_<ImageMetadata::ShootingParams>(imageMetadata, "ShootingParams",
@@ -168,23 +184,31 @@ namespace cxximg
             .def_readwrite("sensorGain", &ImageMetadata::ShootingParams::sensorGain)
             .def_readwrite("ispGain", &ImageMetadata::ShootingParams::ispGain)
             .def_readwrite("zoom", &ImageMetadata::ShootingParams::zoom)
-            .def("toDict",
-                [](const ImageMetadata::ShootingParams &shootingParams){
-                    py::dict dict;
-                    dict["aperture"] = *shootingParams.aperture;
-                    dict["exposureTime"] = *shootingParams.exposureTime;
-                    dict["sensitivity"] = *shootingParams.sensitivity;
-                    dict["totalGain"] = *shootingParams.totalGain;
-                    dict["sensorGain"] = *shootingParams.sensorGain;
-                    dict["ispGain"] = *shootingParams.ispGain;
-                    dict["zoom"] = py::cast(shootingParams.zoom).attr("toDict")();
-                    return dict;
-                })
+            .def("serialize",
+                 [](const ImageMetadata::ShootingParams &shootingParams)
+                 {
+                     py::dict dict;
+                     if (shootingParams.aperture)
+                         dict["aperture"] = py::float_(*shootingParams.aperture);
+                     if (shootingParams.exposureTime)
+                         dict["exposureTime"] = py::float_(*shootingParams.exposureTime);
+                     if (shootingParams.sensitivity)
+                         dict["sensitivity"] = py::float_(*shootingParams.sensitivity);
+                     if (shootingParams.totalGain)
+                         dict["totalGain"] = py::float_(*shootingParams.totalGain);
+                     if (shootingParams.sensorGain)
+                         dict["sensorGain"] = py::float_(*shootingParams.sensorGain);
+                     if (shootingParams.ispGain)
+                         dict["ispGain"] = py::float_(*shootingParams.ispGain);
+                     if (shootingParams.zoom)
+                         dict["zoom"] = py::cast(shootingParams.zoom).attr("serialize")();
+                     return dict;
+                 })
             .def("__repr__",
                  [](const ImageMetadata::ShootingParams &shootingParams)
                  {
-                    auto d = py::cast(shootingParams).attr("toDict")();
-                    return py::str(d);
+                     auto d = py::cast(shootingParams).attr("serialize")();
+                     return py::str(d);
                  });
 
         py::class_<ImageMetadata::CalibrationData>(imageMetadata, "CalibrationData",
@@ -205,19 +229,90 @@ namespace cxximg
             .def_readwrite("colorShading",
                            &ImageMetadata::CameraControls::colorShading)
             .def_readwrite("faceDetection",
-                           &ImageMetadata::CameraControls::faceDetection);
+                           &ImageMetadata::CameraControls::faceDetection)
+            .def("serialize",
+                 [](const ImageMetadata::CameraControls &cameraControls)
+                 {
+                     py::dict dict;
+                     dict["whiteBalance"] = py::cast(cameraControls.whiteBalance).attr("serialize")();
+                     dict["colorShading"] = py::cast(cameraControls.colorShading).attr("serialize")();
+
+                     if (cameraControls.faceDetection)
+                     {
+                         py::list faces;
+                         for (const auto &v : *cameraControls.faceDetection)
+                         {
+                             py::list roi = py::cast(v).attr("serialize")();
+                             faces.append(roi);
+                         }
+                         dict["faceDetection"] = faces;
+                     }
+                     return dict;
+                 })
+            .def("__repr__",
+                 [](const ImageMetadata::ShootingParams &shootingParams)
+                 {
+                     auto d = py::cast(shootingParams).attr("serialize")();
+                     return py::str(d);
+                 });
 
         py::class_<ImageMetadata::WhiteBalance> whiteBalance(
             imageMetadata, "WhiteBalance", py::is_final());
         whiteBalance.def(py::init<>())
             .def_readwrite("gainR", &ImageMetadata::WhiteBalance::gainR)
-            .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB);
+            .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB)
+            .def("serialize",
+                 [](const ImageMetadata::WhiteBalance &whiteBalance)
+                 {
+                     py::list list;
+                     list.append(whiteBalance.gainR);
+                     list.append(whiteBalance.gainB);
+                     return list;
+                 })
+            .def("__repr__",
+                 [](const ImageMetadata::WhiteBalance &whiteBalance)
+                 {
+                     auto d = py::cast(whiteBalance).attr("serialize")();
+                     return py::str(d);
+                 });
 
         py::class_<ImageMetadata::ColorShading> colorShading(
             imageMetadata, "ColorShading", py::is_final());
         colorShading.def(py::init<>())
             .def_readwrite("gainR", &ImageMetadata::ColorShading::gainR)
-            .def_readwrite("gainB", &ImageMetadata::ColorShading::gainB);
+            .def_readwrite("gainB", &ImageMetadata::ColorShading::gainB)
+            .def("serialize",
+                 [](const ImageMetadata::ColorShading &colorShading)
+                 {
+                     if (colorShading.gainR.numCols() != colorShading.gainB.numCols() || colorShading.gainR.numRows() != colorShading.gainB.numRows())
+                     {
+                         throw std::runtime_error("color Shading must have the same cols and rows size");
+                     }
+                     py::list listR;
+                     py::list listB;
+                     for (int y = 0; y < colorShading.gainR.numRows(); ++y)
+                     {
+                         py::list lineR;
+                         py::list lineB;
+                         for (int x = 0; x < colorShading.gainR.numCols(); ++x)
+                         {
+                             lineR.append(colorShading.gainR(x, y));
+                             lineB.append(colorShading.gainB(x, y));
+                         }
+                         listR.append(lineR);
+                         listB.append(lineB);
+                     }
+                     py::list listColorShading;
+                     listColorShading.append(listR);
+                     listColorShading.append(listB);
+                     return listColorShading;
+                 })
+            .def("__repr__",
+                 [](const ImageMetadata::ColorShading &colorShading)
+                 {
+                     auto d = py::cast(colorShading).attr("serialize")();
+                     return py::str(d);
+                 });
     }
 
 } // namespace cxximg
