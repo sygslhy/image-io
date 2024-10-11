@@ -158,10 +158,10 @@ namespace cxximg
                      dict["cameraControls"] = py::cast(meta.cameraControls).attr("serialize")();
                      dict["calibrationData"] = py::cast(meta.calibrationData).attr("serialize")();
                      py::list masks;
-                     for (const auto &m : meta.semanticMasks)
+                     for (const auto &pair : meta.semanticMasks)
                      {
-                         auto elem = py::cast(meta.semanticMasks).attr("serialize")();
-                         masks.append(elem);
+                         auto maskData = py::cast(pair.second).attr("serialize")();
+                         masks.append(maskData);
                      }
                      dict["semanticMasks"] = masks;
                      return dict;
@@ -361,8 +361,10 @@ namespace cxximg
                  [](const ImageMetadata::CameraControls &cameraControls)
                  {
                      py::dict dict;
-                     dict["whiteBalance"] = py::cast(cameraControls.whiteBalance).attr("serialize")();
-                     dict["colorShading"] = py::cast(cameraControls.colorShading).attr("serialize")();
+                     if (cameraControls.whiteBalance)
+                        dict["whiteBalance"] = py::cast(cameraControls.whiteBalance).attr("serialize")();
+                     if (cameraControls.colorShading)
+                        dict["colorShading"] = py::cast(cameraControls.colorShading).attr("serialize")();
                      if (cameraControls.faceDetection)
                      {
                          py::list faces;
@@ -376,9 +378,9 @@ namespace cxximg
                      return dict;
                  })
             .def("__repr__",
-                 [](const ImageMetadata::ShootingParams &shootingParams)
+                 [](const ImageMetadata::CameraControls &cameraControls)
                  {
-                     auto d = py::cast(shootingParams).attr("serialize")();
+                     auto d = py::cast(cameraControls).attr("serialize")();
                      return py::str(d);
                  });
 
