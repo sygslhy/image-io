@@ -39,10 +39,47 @@ namespace cxximg
             .def_readwrite("isoSpeedRatings", &ExifMetadata::isoSpeedRatings)
             .def_readwrite("focalLength", &ExifMetadata::focalLength)
             .def_readwrite("focalLengthIn35mmFilm", &ExifMetadata::focalLengthIn35mmFilm)
+            .def("serialize",
+                 [](const ExifMetadata &exif)
+                 {
+                     py::dict dict;
+                     if (exif.imageWidth)
+                         dict["imageWidth"] = *exif.imageWidth;
+                     if (exif.imageHeight)
+                         dict["imageHeight"] = *exif.imageHeight;
+                     if (exif.imageDescription)
+                         dict["imageDescription"] = py::str(*exif.imageDescription);
+                     if (exif.make)
+                         dict["make"] = py::str(*exif.make);
+                     if (exif.model)
+                         dict["model"] = py::str(*exif.model);
+                     if (exif.orientation)
+                         dict["orientation"] = *exif.orientation;
+                     if (exif.software)
+                         dict["software"] = py::str(*exif.software);
+                     if (exif.exposureTime)
+                         dict["exposureTime"] = py::cast(exif.exposureTime).attr("serialize")();
+                     if (exif.fNumber)
+                         dict["fNumber"] = py::cast(exif.fNumber).attr("serialize")();
+                     if (exif.isoSpeedRatings)
+                         dict["isoSpeedRatings"] = *exif.isoSpeedRatings;
+                     if (exif.dateTimeOriginal)
+                         dict["dateTimeOriginal"] = py::str(*exif.dateTimeOriginal);
+                     if (exif.brightnessValue)
+                         dict["brightnessValue"] = py::cast(exif.brightnessValue).attr("serialize")();
+                     if (exif.exposureBiasValue)
+                         dict["exposureBiasValue"] = py::cast(exif.exposureBiasValue).attr("serialize")();
+                     if (exif.focalLength)
+                         dict["focalLength"] = py::cast(exif.focalLength).attr("serialize")();
+                     if (exif.focalLengthIn35mmFilm)
+                         dict["focalLengthIn35mmFilm"] = *exif.focalLengthIn35mmFilm;
+                     return dict;
+                 })
             .def("__repr__",
                  [](const ExifMetadata &exif)
                  {
-                     return py::str("ExifMetadata example");
+                     auto d = py::cast(exif).attr("serialize")();
+                     return py::str(d);
                  });
 
         py::class_<ExifMetadata::Rational>(exifMetadata, "Rational", py::is_final())
@@ -56,7 +93,21 @@ namespace cxximg
             .def_readwrite("numerator", &ExifMetadata::Rational::numerator)
             .def_readwrite("denominator", &ExifMetadata::Rational::denominator)
             .def("asDouble", &ExifMetadata::Rational::asDouble)
-            .def("asFloat", &ExifMetadata::Rational::asFloat);
+            .def("asFloat", &ExifMetadata::Rational::asFloat)
+            .def("serialize",
+                 [](const ExifMetadata::Rational &rational)
+                 {
+                     py::list list;
+                     list.append(rational.numerator);
+                     list.append(rational.denominator);
+                     return list;
+                 })
+            .def("__repr__",
+                 [](const ExifMetadata::Rational &rational)
+                 {
+                     auto d = py::cast(rational).attr("serialize")();
+                     return py::str(d);
+                 });
 
         py::class_<ExifMetadata::SRational>(exifMetadata, "SRational", py::is_final())
             .def(py::init([](int32_t n, int32_t dn)
@@ -69,7 +120,21 @@ namespace cxximg
             .def_readwrite("numerator", &ExifMetadata::SRational::numerator)
             .def_readwrite("denominator", &ExifMetadata::SRational::denominator)
             .def("asDouble", &ExifMetadata::SRational::asDouble)
-            .def("asFloat", &ExifMetadata::SRational::asFloat);
+            .def("asFloat", &ExifMetadata::SRational::asFloat)
+            .def("serialize",
+                 [](const ExifMetadata::SRational &rational)
+                 {
+                     py::list list;
+                     list.append(rational.numerator);
+                     list.append(rational.denominator);
+                     return list;
+                 })
+            .def("__repr__",
+                 [](const ExifMetadata::SRational &rational)
+                 {
+                     auto d = py::cast(rational).attr("serialize")();
+                     return py::str(d);
+                 });
 
         py::class_<ImageMetadata> imageMetadata(m, "ImageMetadata", py::is_final());
         imageMetadata.def(py::init<>())
@@ -82,20 +147,25 @@ namespace cxximg
             .def("serialize",
                  [](const ImageMetadata &meta)
                  {
-                     auto fileInfo = py::cast(meta.fileInfo);
-                     auto shootingParams = py::cast(meta.shootingParams);
-                     auto cameraControls = py::cast(meta.cameraControls);
                      py::dict dict;
-                     dict["fileInfo"] = fileInfo.attr("serialize")();
-                     dict["shootingParams"] = shootingParams.attr("serialize")();
-                     dict["cameraControls"] = cameraControls.attr("serialize")();
+                     dict["fileInfo"] = py::cast(meta.fileInfo).attr("serialize")();
+                     dict["exifMetadata"] = py::cast(meta.exifMetadata).attr("serialize")();
+                     dict["shootingParams"] = py::cast(meta.shootingParams).attr("serialize")();
+                     dict["cameraControls"] = py::cast(meta.cameraControls).attr("serialize")();
+                     dict["calibrationData"] = py::cast(meta.calibrationData).attr("serialize")();
+                     py::list masks;
+                     for (const auto &m : meta.semanticMasks)
+                     {
+                         auto elem = py::cast(meta.semanticMasks).attr("serialize")();
+                         masks.append(elem);
+                     }
+                     dict["semanticMasks"] = masks;
                      return dict;
                  })
             .def("__repr__",
                  [](const ImageMetadata &meta)
                  {
-                     auto obj = py::cast(meta);
-                     auto d = obj.attr("serialize")();
+                     auto d = py::cast(meta).attr("serialize")();
                      return py::str(d);
                  });
 
@@ -119,6 +189,35 @@ namespace cxximg
                  [](const ImageMetadata::ROI &roi)
                  {
                      auto d = py::cast(roi).attr("serialize")();
+                     return py::str(d);
+                 });
+
+        py::enum_<SemanticLabel>(m, "SemanticLabel")
+            .value("NONE", SemanticLabel::NONE)
+            .value("PERSON", SemanticLabel::PERSON)
+            .value("SKIN", SemanticLabel::SKIN)
+            .value("SKY", SemanticLabel::SKY)
+            .value("UNKNOWN", SemanticLabel::UNKNOWN);
+
+        py::class_<ImageMetadata::SemanticMask>(imageMetadata, "SemanticMask",
+                                                py::is_final())
+            .def(py::init<>())
+            .def_readwrite("name", &ImageMetadata::SemanticMask::name)
+            .def_readwrite("label", &ImageMetadata::SemanticMask::label)
+            .def_readwrite("mask", &ImageMetadata::SemanticMask::mask)
+            .def("serialize",
+                 [](const ImageMetadata::SemanticMask &sematicMask)
+                 {
+                     py::dict dict;
+                     dict["name"] = py::str(sematicMask.name);
+                     dict["label"] = py::str(cxximg::toString(sematicMask.label));
+                     dict["mask"] = py::cast(sematicMask.mask).attr("serialize")();
+                     return dict;
+                 })
+            .def("__repr__",
+                 [](const ImageMetadata::SemanticMask &sematicMask)
+                 {
+                     auto d = py::cast(sematicMask).attr("serialize")();
                      return py::str(d);
                  });
 
@@ -219,7 +318,29 @@ namespace cxximg
             .def_readwrite("vignetting",
                            &ImageMetadata::CalibrationData::vignetting)
             .def_readwrite("colorMatrix", &ImageMetadata::CalibrationData::colorMatrix)
-            .def_readwrite("colorMatrixTarget", &ImageMetadata::CalibrationData::colorMatrixTarget);
+            .def_readwrite("colorMatrixTarget", &ImageMetadata::CalibrationData::colorMatrixTarget)
+            .def("serialize",
+                 [](const ImageMetadata::CalibrationData calibData)
+                 {
+                     py::dict dict;
+                     if (calibData.blackLevel)
+                         dict["blackLevel"] = *calibData.blackLevel;
+                     if (calibData.whiteLevel)
+                         dict["whiteLevel"] = *calibData.whiteLevel;
+                     if (calibData.vignetting)
+                         dict["vignetting"] = py::cast(calibData.vignetting).attr("serialize")();
+                     if (calibData.colorMatrix)
+                         dict["colorMatrix"] = py::cast(calibData.colorMatrix).attr("serialize")();
+                     if (calibData.colorMatrixTarget)
+                         dict["colorMatrixTarget"] = py::str(cxximg::toString(*calibData.colorMatrixTarget));
+                     return dict;
+                 })
+            .def("__repr__",
+                 [](const ImageMetadata::CalibrationData &calibData)
+                 {
+                     auto d = py::cast(calibData).attr("serialize")();
+                     return py::str(d);
+                 });
 
         py::class_<ImageMetadata::CameraControls> cameraControls(
             imageMetadata, "CameraControls", py::is_final());
@@ -236,7 +357,6 @@ namespace cxximg
                      py::dict dict;
                      dict["whiteBalance"] = py::cast(cameraControls.whiteBalance).attr("serialize")();
                      dict["colorShading"] = py::cast(cameraControls.colorShading).attr("serialize")();
-
                      if (cameraControls.faceDetection)
                      {
                          py::list faces;
