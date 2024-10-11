@@ -46,8 +46,9 @@ pip install cxx_image_io
 from cxx_image_io import read_image
 from cxx_image_io import ImageMetadata
 import numpy as np
+from pathlib import Path
 
-image, metadata = read_image('/path/to/image.jpg')
+image, metadata = read_image(Path('/path/to/image.jpg'))
 assert isinstance(image, np.ndarray)
 
 print('Type:', image.dtype)
@@ -81,7 +82,7 @@ Some file formats need to know in advance some informations about the image.
 For example, the PLAIN format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data.
 
 ~~~~~~~~~~~~~~~{.python}
-image, metadata = read_image('/path/to/image.plain16')
+image, metadata = read_image(Path('/path/to/image.plain16'))
 ~~~~~~~~~~~~~~~
 
 In this case, user need to have an image sidecar JSON located next to the image file as the same name and path `'/path/to/image.json'`
@@ -122,6 +123,7 @@ In order to call the specific C++ image libraries with them.
 from cxx_image_io import ImageMetadata, ImageWriter, FileFormat, PixelType, ImageLayout
 from cxx_image_io import write_image
 import numpy as np
+from pathlib import Path
 
 metadata = ImageMetadata()
 metadata.fileInfo.pixelType = PixelType.RGB
@@ -130,7 +132,7 @@ metadata.fileInfo.imageLayout = ImageLayout.INTERLEAVED
 write_options = ImageWriter.Options(metadata)
 
 assert isinstance(image, np.ndarray)
-write_image('/path/to/image.jpg', image, write_options)
+write_image(Path('/path/to/image.jpg'), image, write_options)
 ~~~~~~~~~~~~~~~
 
 `write_image` can determine the image format by file extensions, but some formats don't not rely on a specific extension, for example the PLAIN format that allows to directly dump the image buffer to a file. In this case, the format can be specified through ImageWriter.Options.
@@ -140,7 +142,7 @@ write_options = ImageWriter.Options(metadata)
 write_options.fileFormat = FileFormat.PLAIN
 
 assert isinstance(image, np.ndarray)
-write_image('/path/to/image.plain16', image, write_options)
+write_image(Path('/path/to/image.plain16'), image, write_options)
 ~~~~~~~~~~~~~~~
 
 
@@ -153,7 +155,7 @@ If supported, EXIF can be read by calling `read_exif` and be written by calling 
 
 ~~~~~~~~~~~~~~~{.python}
 from cxx_image_io import read_exif, write_exif
-exif = read_exif('/path/to/image.jpg')
+exif = read_exif(Path('/path/to/image.jpg'))
 
 print('model:', exif.model)
 print('make:', exif.make)
@@ -164,16 +166,16 @@ print('focalLength:', exif.focalLength.asDouble())
 print('fNumber:',exif.fNumber.asDouble())
 print('isoSpeedRatings:',exif.isoSpeedRatings)
 
-write_exif('path/to/new_image.jpg', exif)
+write_exif(Path('path/to/new_image.jpg'), exif)
 ~~~~~~~~~~~~~~~
 
 EXIF metadata can be read and written along with an image by specifying them in the ImageMetadata. In this case, the EXIF wil be read and written when calling `read_image` and `write_image`.
 
 ~~~~~~~~~~~~~~~{.python}
-image, metadata = read_image('/path/to/image.jpg')
+image, metadata = read_image(Path('/path/to/image.jpg'))
 metadata.exifMetadata.make = 'Custom'
 write_options = ImageWriter.Options(metadata)
-write_image('/path/to/image.jpg', image, write_options)
+write_image(Path('/path/to/image.jpg'), image, write_options)
 ~~~~~~~~~~~~~~~
 
 # License
