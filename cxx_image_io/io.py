@@ -1,9 +1,12 @@
-import numpy as np
-import sys
-import logging
 from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout,
                        ImageMetadata, ImageUint8, ImageUint16,
                        PixelRepresentation, io, parser)
+
+from pathlib import Path
+
+import numpy as np
+import sys
+import logging
 
 __numpy_array_image_convert_vector = {
     np.dtype('uint16'): ImageUint16,
@@ -28,15 +31,15 @@ def __fill_medatata(image, metadata):
     return metadata
 
 
-def read_image(image_path: str, metadata_path: str = None) -> np.array:
+def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
     """Read different types of image files and return a numpy array,
        Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
 
     Parameters
     ----------
-    image_path : str
+    image_path : Path
         path to image file
-    metadata_path : str, optional
+    metadata_path : Path, optional
         path to sidecar file for raw file case, the API will find automatically .json next to raw file, by default None,
 
     Returns
@@ -46,14 +49,14 @@ def read_image(image_path: str, metadata_path: str = None) -> np.array:
 
     """
     try:
-        metadata = parser.readMetadata(image_path, metadata_path)
+        metadata = parser.readMetadata(str(image_path), metadata_path)
 
         #[Fix Issue 1] Currently pybind11 buffer protocol support only memory mapping of the image having
         # the same size on each planars, so the different sizes on each planars like nv12, yuv are not yet support
         if metadata and metadata.fileInfo.imageLayout in (ImageLayout.YUV_420, ImageLayout.NV12):
             raise Exception("Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array")
 
-        image_reader = io.makeReader(image_path, metadata)
+        image_reader = io.makeReader(str(image_path), metadata)
         # Currently don't find a good way to supported completely the std::optional by binding C++ function.
         # So create explicitily an ImageMetadata object when metadata is None.
         metadata = ImageMetadata() if metadata is None else metadata
@@ -73,12 +76,12 @@ def read_image(image_path: str, metadata_path: str = None) -> np.array:
         __print_image_metadata_info(metadata)
         sys.exit(-1)
 
-def read_exif(image_path: str) -> ExifMetadata:
+def read_exif(image_path: Path) -> ExifMetadata:
     """Read the exif data from image
 
     Parameters
     ----------
-    image_path : str
+    image_path : Path
         path to image file
 
     Returns
@@ -89,22 +92,22 @@ def read_exif(image_path: str) -> ExifMetadata:
     try:
         # By binding parser.readMetadata C++ code, we need to privode explicitely None as metadata path
         # In the case of tif, jpg or dng, we don't need sidecar.
-        metadata = parser.readMetadata(image_path, None)
-        image_reader = io.makeReader(image_path, metadata)
+        metadata = parser.readMetadata(str(image_path), None)
+        image_reader = io.makeReader(str(image_path), metadata)
         return image_reader.readExif()
     except Exception as e:
         logging.error('Exception occurred in reading exif from file {0}: {1}'.format(image_path, e))
         __print_image_metadata_info(metadata)
         sys.exit(-1)
 
-def write_image(output_path: str, image_array: np.array,
+def write_image(output_path: Path, image_array: np.array,
                 write_options: io.ImageWriter.Options):
     """Write a numpy array to different types of image file
        Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
 
     Parameters
     ----------
-    output_path : str
+    output_path : Path
         path to image file
     image_array : np.array
         numpy array image to write
@@ -127,7 +130,7 @@ def write_image(output_path: str, image_array: np.array,
             options.metadata.fileInfo.imageLayout,
             options.metadata.fileInfo.pixelPrecision)
 
-        image_writer = io.makeWriter(output_path, options)
+        image_writer = io.makeWriter(str(output_path), options)
         image_writer.write(image)
     except Exception as e:
         logging.error('Exception occurred in writing image to file {0}: {1}'.format(output_path, e))
@@ -135,18 +138,18 @@ def write_image(output_path: str, image_array: np.array,
         sys.exit(-1)
 
 
-def write_exif(image_path: str, exif: ExifMetadata = None):
+def write_exif(image_path: Path, exif: ExifMetadata = None):
     """Write the exif data from image
 
     Parameters
     ----------
-    image_path : str
+    image_path : Path
         path to image file
     exif : ExifMetadata
         exif data to write
     """
     try:
-        image_writer = io.makeWriter(image_path, io.ImageWriter.Options())
+        image_writer = io.makeWriter(str(image_path), io.ImageWriter.Options())
         image_writer.writeExif(exif)
     except Exception as e:
         logging.error('Exception occurred in writing exif to file {0}: {1}'.format(image_path, e))
