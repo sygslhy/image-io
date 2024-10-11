@@ -2,8 +2,11 @@
 
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
+#include "pybind11/stl_bind.h"
 
 namespace py = pybind11;
+
+PYBIND11_MAKE_OPAQUE(cxximg::ImageMetadata::SemanticMasks);
 
 namespace cxximg
 {
@@ -142,7 +145,8 @@ namespace cxximg
             .def_readwrite("exifMetadata", &ImageMetadata::exifMetadata)
             .def_readwrite("shootingParams", &ImageMetadata::shootingParams)
             .def_readwrite("calibrationData", &ImageMetadata::calibrationData)
-            .def_readwrite("cameraControls", &ImageMetadata::cameraControls);
+            .def_readwrite("cameraControls", &ImageMetadata::cameraControls)
+            .def_readwrite("semanticMasks", &ImageMetadata::semanticMasks);
         imageMetadata.def("synchronize", &ImageMetadata::synchronize)
             .def("serialize",
                  [](const ImageMetadata &meta)
@@ -198,6 +202,8 @@ namespace cxximg
             .value("SKIN", SemanticLabel::SKIN)
             .value("SKY", SemanticLabel::SKY)
             .value("UNKNOWN", SemanticLabel::UNKNOWN);
+
+        py::bind_map<ImageMetadata::SemanticMasks>(m, "UnorderdMapSemanticMasks");
 
         py::class_<ImageMetadata::SemanticMask>(imageMetadata, "SemanticMask",
                                                 py::is_final())
