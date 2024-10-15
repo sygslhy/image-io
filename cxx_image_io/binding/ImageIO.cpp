@@ -72,7 +72,7 @@ void init_io(py::module &m) {
 
     py::class_<DngReader, ImageReader> dngReader(m_io, "DngReader");
     dngReader.def("read16u", &DngReader::read16u)
-        .def("read16u", &DngReader::read8u)
+        .def("readf", &DngReader::readf)
         .def("readExif", &DngReader::readExif);
 
     m_io.def("makeReader", [](const std::string &inputPath,
@@ -164,12 +164,10 @@ void init_io(py::module &m) {
                         });
 
     // [issue 1] disable dng writer, until the preview image is also available in DNG writing.
-    // py::class_<DngWriter, ImageWriter> dngWriter(m_io, "DngWriter");
-    // dngWriter
-    //     .def("write",
-    //          [](DngWriter &self, const Image16u &image) { self.write(image); })
-    //     .def("write",
-    //          [](DngWriter &self, const Imagef &image) { self.write(image); });
+    py::class_<DngWriter, ImageWriter> dngWriter(m_io, "DngWriter");
+    dngWriter
+        .def("write",
+             [](DngWriter &self, const Image16u &image) { self.write(image); });
 
     m_io.def("makeWriter", [](const std::string &outputPath,
                               const py::object &write_options) {

@@ -7,7 +7,7 @@ These IO interfaces are designed to read and write images in many file formats i
 |---------------|------|--------|------|------------------------|----------------------|----------------------------------|
 | BMP           | x    | x      |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |
 | CFA           | x    | x      |      | 16 bits                | Bayer                | .cfa                             |
-| DNG           | x    | Not yet| x    | 16 bits, float         | Bayer, RGB           | .dng                             |
+| DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |
 | JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |
 | MIPIRAW       | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 |
 | PLAIN         | x    | x      |      | *                      | Bayer                | .plain16                         |

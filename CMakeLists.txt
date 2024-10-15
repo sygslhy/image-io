@@ -26,8 +26,8 @@ include(FetchContent)
 
 FetchContent_Declare(
     cxx-image
-    GIT_REPOSITORY "https://github.com/emmcb/cxx-image.git"
-    GIT_TAG "75c757a625a5ea13945f5a7ab298351a66c098a7" #  Sep 16, 2024
+    GIT_REPOSITORY "https://github.com/sygslhy/cxx-image.git"
+    GIT_TAG "feature/pov-dng-preview" #  Sep 16, 2024
 )
 FetchContent_MakeAvailable(cxx-image)
 
