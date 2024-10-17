@@ -1,5 +1,5 @@
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout,
-                       ImageMetadata, ImageUint8, ImageUint16,
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
+                       ImageLayout, ImageMetadata, ImageUint8, ImageUint16,
                        PixelRepresentation, io, parser)
 
 from pathlib import Path
@@ -16,11 +16,14 @@ __numpy_array_image_convert_vector = {
     np.dtype('int'): ImageInt
 }
 
+
 # internal function to print image essentiel infos for debugging
 def __print_image_metadata_info(metadata):
-    print('Image Type:', metadata.fileInfo.pixelType)
-    print('Image Precision:', metadata.fileInfo.pixelPrecision)
-    print('Image Layout:', metadata.fileInfo.imageLayout)
+    if metadata.fileInfo is not None:
+        print('Image Type:', metadata.fileInfo.pixelType)
+        print('Image Precision:', metadata.fileInfo.pixelPrecision)
+        print('Image Layout:', metadata.fileInfo.imageLayout)
+
 
 # fill the image critical information to metadata that could be used otherwhere.
 def __fill_medatata(image, metadata):
@@ -53,8 +56,11 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
 
         #[Fix Issue 1] Currently pybind11 buffer protocol support only memory mapping of the image having
         # the same size on each planars, so the different sizes on each planars like nv12, yuv are not yet support
-        if metadata and metadata.fileInfo.imageLayout in (ImageLayout.YUV_420, ImageLayout.NV12):
-            raise Exception("Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array")
+        if metadata and metadata.fileInfo.imageLayout in (ImageLayout.YUV_420,
+                                                          ImageLayout.NV12):
+            raise Exception(
+                "Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array"
+            )
 
         image_reader = io.makeReader(str(image_path), metadata)
         # Currently don't find a good way to supported completely the std::optional by binding C++ function.
@@ -72,9 +78,12 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
         metadata = __fill_medatata(image, metadata)
         return np.array(image, copy=False), metadata
     except Exception as e:
-        logging.error('Exception occurred in reading image from file {0}: {1}'.format(image_path, e))
+        logging.error(
+            'Exception occurred in reading image from file {0}: {1}'.format(
+                image_path, e))
         __print_image_metadata_info(metadata)
         sys.exit(-1)
+
 
 def read_exif(image_path: Path) -> ExifMetadata:
     """Read the exif data from image
@@ -96,9 +105,12 @@ def read_exif(image_path: Path) -> ExifMetadata:
         image_reader = io.makeReader(str(image_path), metadata)
         return image_reader.readExif()
     except Exception as e:
-        logging.error('Exception occurred in reading exif from file {0}: {1}'.format(image_path, e))
+        logging.error(
+            'Exception occurred in reading exif from file {0}: {1}'.format(
+                image_path, e))
         __print_image_metadata_info(metadata)
         sys.exit(-1)
+
 
 def write_image(output_path: Path, image_array: np.array,
                 write_options: io.ImageWriter.Options):
@@ -133,7 +145,9 @@ def write_image(output_path: Path, image_array: np.array,
         image_writer = io.makeWriter(str(output_path), options)
         image_writer.write(image)
     except Exception as e:
-        logging.error('Exception occurred in writing image to file {0}: {1}'.format(output_path, e))
+        logging.error(
+            'Exception occurred in writing image to file {0}: {1}'.format(
+                output_path, e))
         __print_image_metadata_info(options.metadata)
         sys.exit(-1)
 
@@ -152,5 +166,7 @@ def write_exif(image_path: Path, exif: ExifMetadata = None):
         image_writer = io.makeWriter(str(image_path), io.ImageWriter.Options())
         image_writer.writeExif(exif)
     except Exception as e:
-        logging.error('Exception occurred in writing exif to file {0}: {1}'.format(image_path, e))
+        logging.error(
+            'Exception occurred in writing exif to file {0}: {1}'.format(
+                image_path, e))
         sys.exit(-1)
