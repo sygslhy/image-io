@@ -16,5 +16,12 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "eeyore.yapf",
         "editor.formatOnType": false
+    },
+    "files.associations": {
+        "iosfwd": "cpp",
+        "iostream": "cpp",
+        "array": "cpp",
+        "optional": "cpp",
+        "string": "cpp"
     }
 }

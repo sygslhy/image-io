@@ -68,7 +68,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.0.11",
+    version="0.0.12",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -109,4 +109,4 @@ setup(
         exclude=["*.test", "*.test.*", "test.*", "test", "setup.py"]),
     package_dir={'cxx-image-io': 'cxx_image_io'},
     package_data={'cxx_image_io': ['*.pyd']},
-    install_requires=['numpy>=1.26'])
+    install_requires=['numpy>=1.26.4'])

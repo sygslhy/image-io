@@ -13,7 +13,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -45,7 +45,6 @@ jobs:
           make
           sudo make install
 
-
     - if: matrix.os == 'windows-latest'
       uses: msys2/setup-msys2@v2
       name: Install Msys2 mingw64 for g++ and gcc tools on windows
@@ -54,8 +53,6 @@ jobs:
         location: D:\
         update: true
         install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja mingw-w64-x86_64-tools-git
-
-
 
     - if: matrix.os == 'windows-latest'
       name: Build image io libs and install to D:\msys64\mingw64
@@ -75,7 +72,7 @@ jobs:
     - name: Install python dependencies
       run: |
           python -m pip install --upgrade pip
-          python -m pip install setuptools wheel
+          python -m pip install setuptools wheel pytest numpy
 
     - if: matrix.os == 'ubuntu-latest'
       name: Create the image-io python package for Linux
@@ -90,40 +87,43 @@ jobs:
           $env:Path = 'D:/msys64/mingw64;' + $env:Path
           python setup.py bdist_wheel
 
+    - if: matrix.os == 'ubuntu-latest'
+      name : Install cxx-image-io and pytest on Linux
+      run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --no-index --find-links=${{github.workspace}}/dist/ cxx-image-io
+
+    - if: matrix.os == 'windows-latest'
+      name : Install cxx-image-io and pytest on Windows
+      run: |
+          python -m pip install --upgrade pip
+          cd D:\a\image-io\image-io\
+          python -m pip install --no-index --find-links=dist/ cxx-image-io
+
+    - if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+      name: Check out test-image-io from my repo
+      uses: actions/checkout@v4
+      with:
+        repository: sygslhy/test-cxx-image-io
+        path: test-cxx-image-io
+
+    - if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+      name: Run NRT test for image-io
+      run: |
+        cd ${{github.workspace}}/test-cxx-image-io/
+        pwd
+      # pytest
+
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
         path: dist/
 
-  run-nrt-test:
-    if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
-    needs:
-    - build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.12"]
-
-    steps:
-        - name: Check out test-image-io from my repo
-          uses: actions/checkout@v4
-          with:
-            repository: sygslhy/test-image-io
-            path: test-image-io
-
-        - name: Run NRT test for image-io
-          run: |
-              python -m pip install --upgrade pip
-              python -m pip install pytest
-            # pytest
-
   publish-to-test-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
     needs:
-    - build
+    - build_and_test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
