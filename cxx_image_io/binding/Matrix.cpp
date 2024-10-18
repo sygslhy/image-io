@@ -110,7 +110,7 @@ namespace cxximg
                          py::list line;
                          for (int x = 0; x < m.numCols(); ++x)
                          {
-                             line.append(m(x, y));
+                             line.append(m(y, x));
                          }
                          list2D.append(line);
                      }
@@ -139,7 +139,7 @@ namespace cxximg
                          py::list line;
                          for (int x = 0; x < m.numCols(); ++x)
                          {
-                             line.append(m(x, y));
+                             line.append(m(y, x));
                          }
                          list2D.append(line);
                      }
