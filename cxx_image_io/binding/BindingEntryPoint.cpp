@@ -29,7 +29,7 @@ PYBIND11_MODULE(cxx_image, m) {
     // because loguru default value is Verbosity_OFF, it suppprts only configure
     // it by command line. since binding call is thourgh program directly, not
     // through command line, so this setting is necessary.
-    loguru::g_stderr_verbosity = loguru::Verbosity_OFF;
+    loguru::g_stderr_verbosity = loguru::Verbosity_WARNING;
 
     // initialize all the binding submodules.
     init_math(m);
