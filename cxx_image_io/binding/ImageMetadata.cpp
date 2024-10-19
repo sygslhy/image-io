@@ -24,16 +24,14 @@ namespace cxximg
             .value("UINT16", PixelRepresentation::UINT16)
             .value("FLOAT", PixelRepresentation::FLOAT);
 
-
-
-        py::class_<ImageMetadata> imageMetadata(m, "ImageMetadata", py::is_final());
+        py::class_<ImageMetadata> imageMetadata(m, "ImageMetadata", py::is_final(), "Image Metadata, see class detail with help(ImageMetadata)");
         imageMetadata.def(py::init<>())
             .def_readwrite("fileInfo", &ImageMetadata::fileInfo, "class ImageMetadata.FileInfo: File Information")
             .def_readwrite("exifMetadata", &ImageMetadata::exifMetadata, "class ExifMetadata: Exif metadata")
             .def_readwrite("shootingParams", &ImageMetadata::shootingParams, "class ImageMetadata.ShootingParams: Shooting params")
-            .def_readwrite("calibrationData", &ImageMetadata::calibrationData)
-            .def_readwrite("cameraControls", &ImageMetadata::cameraControls)
-            .def_readwrite("semanticMasks", &ImageMetadata::semanticMasks);
+            .def_readwrite("calibrationData", &ImageMetadata::calibrationData, "class ImageMetadata.Calibration: Calibration data")
+            .def_readwrite("cameraControls", &ImageMetadata::cameraControls, "class ImageMetadata.CameraControls: Camera controls")
+            .def_readwrite("semanticMasks", &ImageMetadata::semanticMasks, "class ImageMetadata.SemanticMasks: Semantic masks");
         imageMetadata.def("synchronize", &ImageMetadata::synchronize)
             .def("serialize",
                  [](const ImageMetadata &meta)
@@ -60,12 +58,12 @@ namespace cxximg
                      return py::str(d);
                  });
 
-        py::class_<ImageMetadata::ROI>(imageMetadata, "ROI", py::is_final())
+        py::class_<ImageMetadata::ROI>(imageMetadata, "ROI", py::is_final(), "ROI see class detail with help(ImageMetadata.ROI)")
             .def(py::init<>())
-            .def_readwrite("x", &ImageMetadata::ROI::x)
-            .def_readwrite("y", &ImageMetadata::ROI::y)
-            .def_readwrite("width", &ImageMetadata::ROI::width)
-            .def_readwrite("height", &ImageMetadata::ROI::height)
+            .def_readwrite("x", &ImageMetadata::ROI::x, "float: x for ROI")
+            .def_readwrite("y", &ImageMetadata::ROI::y, "float: y for ROI")
+            .def_readwrite("width", &ImageMetadata::ROI::width, "float: width for ROI")
+            .def_readwrite("height", &ImageMetadata::ROI::height, "float: height for ROI")
             .def("serialize",
                  [](const ImageMetadata::ROI &roi)
                  {
@@ -114,24 +112,24 @@ namespace cxximg
                      return py::str(d);
                  });
 
-        py::class_<ImageMetadata::FileInfo>(imageMetadata, "FileInfo",
+        py::class_<ImageMetadata::FileInfo>(imageMetadata, "FileInfo", "File Information, see class detail with help(ImageMetadata.FileInfo)",
                                             py::is_final())
             .def(py::init<>())
-            .def_readwrite("width", &ImageMetadata::FileInfo::width)
-            .def_readwrite("height", &ImageMetadata::FileInfo::height)
+            .def_readwrite("width", &ImageMetadata::FileInfo::width, "uint16: Image width")
+            .def_readwrite("height", &ImageMetadata::FileInfo::height, "uint16: Image height")
             .def_readwrite("pixelPrecision",
-                           &ImageMetadata::FileInfo::pixelPrecision)
-            .def_readwrite("fileFormat", &ImageMetadata::FileInfo::fileFormat)
-            .def_readwrite("imageLayout", &ImageMetadata::FileInfo::imageLayout)
-            .def_readwrite("pixelType", &ImageMetadata::FileInfo::pixelType)
+                           &ImageMetadata::FileInfo::pixelPrecision, "uint8: Bit precision of pixel")
+            .def_readwrite("fileFormat", &ImageMetadata::FileInfo::fileFormat, "enum FileFormat: File format")
+            .def_readwrite("imageLayout", &ImageMetadata::FileInfo::imageLayout, "enum ImageLayout: Image layout")
+            .def_readwrite("pixelType", &ImageMetadata::FileInfo::pixelType, "enum PixelType: Pixel type")
             .def_readwrite("pixelRepresentation",
-                           &ImageMetadata::FileInfo::pixelRepresentation)
+                           &ImageMetadata::FileInfo::pixelRepresentation, "enum PixelRepresentation: Pixel representation")
             .def_readwrite("widthAlignment",
-                           &ImageMetadata::FileInfo::widthAlignment)
+                           &ImageMetadata::FileInfo::widthAlignment, "uint16:  Width alignment (must be a power of 2)")
             .def_readwrite("heightAlignment",
-                           &ImageMetadata::FileInfo::heightAlignment)
+                           &ImageMetadata::FileInfo::heightAlignment, "uint16: Height alignment (must be a power of 2)" )
             .def_readwrite("sizeAlignment",
-                           &ImageMetadata::FileInfo::sizeAlignment)
+                           &ImageMetadata::FileInfo::sizeAlignment, "uint16:  Buffer size alignment (must be a power of 2)")
             .def("serialize",
                  [](const ImageMetadata::FileInfo &fileInfo)
                  {
@@ -165,17 +163,17 @@ namespace cxximg
                      return py::str(d);
                  });
 
-        py::class_<ImageMetadata::ShootingParams>(imageMetadata, "ShootingParams",
+        py::class_<ImageMetadata::ShootingParams>(imageMetadata, "ShootingParams", "Shooting Params, see class detail with help(ImageMetadata.ShootingParams)",
                                                   py::is_final())
             .def(py::init<>())
-            .def_readwrite("aperture", &ImageMetadata::ShootingParams::aperture)
-            .def_readwrite("exposureTime", &ImageMetadata::ShootingParams::exposureTime)
-            .def_readwrite("sensitivity", &ImageMetadata::ShootingParams::sensitivity)
+            .def_readwrite("aperture", &ImageMetadata::ShootingParams::aperture, "float: Aperture")
+            .def_readwrite("exposureTime", &ImageMetadata::ShootingParams::exposureTime, "float: Exposure time")
+            .def_readwrite("sensitivity", &ImageMetadata::ShootingParams::sensitivity, "float: Standard ISO sensitivity")
             .def_readwrite("totalGain",
-                           &ImageMetadata::ShootingParams::totalGain)
-            .def_readwrite("sensorGain", &ImageMetadata::ShootingParams::sensorGain)
-            .def_readwrite("ispGain", &ImageMetadata::ShootingParams::ispGain)
-            .def_readwrite("zoom", &ImageMetadata::ShootingParams::zoom)
+                           &ImageMetadata::ShootingParams::totalGain,"float: Total applied gain (= sensorGain * ispgain)")
+            .def_readwrite("sensorGain", &ImageMetadata::ShootingParams::sensorGain, "float: Sensor gain")
+            .def_readwrite("ispGain", &ImageMetadata::ShootingParams::ispGain, "float: ISP gain")
+            .def_readwrite("zoom", &ImageMetadata::ShootingParams::zoom, "class ImageMetadata.ROI: Zoom ROI")
             .def("serialize",
                  [](const ImageMetadata::ShootingParams &shootingParams)
                  {
@@ -203,15 +201,15 @@ namespace cxximg
                      return py::str(d);
                  });
 
-        py::class_<ImageMetadata::CalibrationData>(imageMetadata, "CalibrationData",
+        py::class_<ImageMetadata::CalibrationData>(imageMetadata, "CalibrationData", "Calibration data, see class detail with help(ImageMetadata.CalibrationData)",
                                                    py::is_final())
             .def(py::init<>())
-            .def_readwrite("blackLevel", &ImageMetadata::CalibrationData::blackLevel)
-            .def_readwrite("whiteLevel", &ImageMetadata::CalibrationData::whiteLevel)
+            .def_readwrite("blackLevel", &ImageMetadata::CalibrationData::blackLevel, "int or float: Black level")
+            .def_readwrite("whiteLevel", &ImageMetadata::CalibrationData::whiteLevel, "int or float: White level")
             .def_readwrite("vignetting",
-                           &ImageMetadata::CalibrationData::vignetting)
-            .def_readwrite("colorMatrix", &ImageMetadata::CalibrationData::colorMatrix)
-            .def_readwrite("colorMatrixTarget", &ImageMetadata::CalibrationData::colorMatrixTarget)
+                           &ImageMetadata::CalibrationData::vignetting, "DynamicMatrix: Luminance lens shading correction map")
+            .def_readwrite("colorMatrix", &ImageMetadata::CalibrationData::colorMatrix, "Matrix3: Color matrix")
+            .def_readwrite("colorMatrixTarget", &ImageMetadata::CalibrationData::colorMatrixTarget, "enum RgbColorSpace: Target color space of color matrix")
             .def("serialize",
                  [](const ImageMetadata::CalibrationData calibData)
                  {
@@ -236,14 +234,14 @@ namespace cxximg
                  });
 
         py::class_<ImageMetadata::CameraControls> cameraControls(
-            imageMetadata, "CameraControls", py::is_final());
+            imageMetadata, "CameraControls", "Camera Controls, see class detail with help(ImageMetadata.CameraControls)", py::is_final());
         cameraControls.def(py::init<>())
             .def_readwrite("whiteBalance",
-                           &ImageMetadata::CameraControls::whiteBalance)
+                           &ImageMetadata::CameraControls::whiteBalance, "class ImageMetadata.WhiteBalance: White balance scales")
             .def_readwrite("colorShading",
-                           &ImageMetadata::CameraControls::colorShading)
+                           &ImageMetadata::CameraControls::colorShading, "class ImageMetadata.ColorShading: Color lens shading correction maps")
             .def_readwrite("faceDetection",
-                           &ImageMetadata::CameraControls::faceDetection)
+                           &ImageMetadata::CameraControls::faceDetection, "UnorderdMapSemanticMasks: Array of face ROI")
             .def("serialize",
                  [](const ImageMetadata::CameraControls &cameraControls)
                  {
@@ -272,10 +270,10 @@ namespace cxximg
                  });
 
         py::class_<ImageMetadata::WhiteBalance> whiteBalance(
-            imageMetadata, "WhiteBalance", py::is_final());
+            imageMetadata, "WhiteBalance", "White balance scales, see class detail with help(ImageMetadata.WhiteBalance)", py::is_final());
         whiteBalance.def(py::init<>())
-            .def_readwrite("gainR", &ImageMetadata::WhiteBalance::gainR)
-            .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB)
+            .def_readwrite("gainR", &ImageMetadata::WhiteBalance::gainR, "float: White balance R/G scale")
+            .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB, "float: White balance B/G scale")
             .def("serialize",
                  [](const ImageMetadata::WhiteBalance &whiteBalance)
                  {
@@ -292,10 +290,10 @@ namespace cxximg
                  });
 
         py::class_<ImageMetadata::ColorShading> colorShading(
-            imageMetadata, "ColorShading", py::is_final());
+            imageMetadata, "ColorShading", "Color lens shading correction maps, see class detail with help(ImageMetadata.ColorShading)", py::is_final());
         colorShading.def(py::init<>())
-            .def_readwrite("gainR", &ImageMetadata::ColorShading::gainR)
-            .def_readwrite("gainB", &ImageMetadata::ColorShading::gainB)
+            .def_readwrite("gainR", &ImageMetadata::ColorShading::gainR, "class DynamicMatrix: Color lens shading R/G correction map")
+            .def_readwrite("gainB", &ImageMetadata::ColorShading::gainB, "class DynamicMatrix: Color lens shading B/G correction map")
             .def("serialize",
                  [](const ImageMetadata::ColorShading &colorShading)
                  {

@@ -6,8 +6,10 @@ cur_file_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(cur_file_dir)
 # Then import cxx_image from .pyd file.
 from cxx_image import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
-                       PixelType, PixelRepresentation, RgbColorSpace, SemanticLabel,
-                       UnorderdMapSemanticMasks, DynamicMatrix, Matrix3)
+                       PixelType, PixelRepresentation, RgbColorSpace,
+                       SemanticLabel, UnorderdMapSemanticMasks, DynamicMatrix,
+                       Matrix3)
+
 from cxx_image.io import ImageReader, ImageWriter
 
 # Exposure the public APIs

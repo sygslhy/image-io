@@ -60,16 +60,12 @@ Shape: (551, 603, 3)
 ImageMetadata is the information about the image, including the pixel type, pixel precision and image layout, which define fundamentally how the pixels arranged in buffer.
 
 ~~~~~~~~~~~~~~~{.python}
-print('Type:', metadata.fileInfo.pixelType)
-print('Precision:', metadata.fileInfo.pixelPrecision)
-print('Layout:', metadata.fileInfo.imageLayout)
+print(metadata.fileInfo)
 ~~~~~~~~~~~~~~~
 
 The result could be like this:
 ~~~~~~~~~~~~~~~{.sh}
-Type: PixelType.RGB
-Precision: 8
-Layout: ImageLayout.INTERLEAVED
+{'pixelPrecision': 8, 'imageLayout': 'interleaved', 'pixelType': 'rgb'}
 ~~~~~~~~~~~~~~~
 
 Some file formats need to know in advance some informations about the image.
@@ -95,11 +91,9 @@ In this case, user need to have an image sidecar JSON located next to the image 
 
 After image reading, the information in JSON sidecar is parsed in ImageMetadata object.
 
-The result could be like this:
+The result of `print(metadata.fileInfo)`could be like this:
 ~~~~~~~~~~~~~~~{.sh}
-Type: PixelType.BAYER_GBRG
-Precision: 16
-Layout: ImageLayout.PLANAR
+{'width': 4080, 'height': 3072, 'pixelPrecision': 16, 'imageLayout': 'planar', 'pixelType': 'bayer_gbrg'}
 ~~~~~~~~~~~~~~~
 
 Image sidecar is not mandatory, for the other formats which have already image information in their header, like jpg, png, tif, cfa. we don't need to provide image metadata.
