@@ -7,6 +7,7 @@ namespace py = pybind11;
 
 namespace cxximg {
 
+void init_exif(py::module &);
 void init_math(py::module &);
 void init_model(py::module &);
 
@@ -32,6 +33,7 @@ PYBIND11_MODULE(cxx_image, m) {
     loguru::g_stderr_verbosity = loguru::Verbosity_WARNING;
 
     // initialize all the binding submodules.
+    init_exif(m);
     init_math(m);
     init_model(m);
     image::init_image(m);

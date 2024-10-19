@@ -94,6 +94,7 @@ setup(
         Extension(name='cxx_image_io',
                   sources=[
                       'cxx_image_io/binding/BindingEntryPoint.cpp',
+                      'cxx_image_io/binding/ExifMetadata.cpp',
                       'cxx_image_io/binding/Image.cpp',
                       'cxx_image_io/binding/ImageIO.cpp',
                       'cxx_image_io/binding/ImageMetadata.cpp',

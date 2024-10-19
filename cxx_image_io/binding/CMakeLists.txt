@@ -1,6 +1,7 @@
 
 
 add_library(cxx_image_bind STATIC
+	ExifMetadata.cpp
 	Image.cpp
 	ImageIO.cpp
 	ImageMetadata.cpp

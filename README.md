@@ -149,19 +149,20 @@ If supported, EXIF can be read by calling `read_exif` and be written by calling 
 
 ~~~~~~~~~~~~~~~{.python}
 from cxx_image_io import read_exif, write_exif
+from pathlib import Path
+
 exif = read_exif(Path('/path/to/image.jpg'))
 
-print('model:', exif.model)
-print('make:', exif.make)
-print('exposureTime:', exif.exposureTime.asDouble())
-print('focalLength:', exif.focalLength.asDouble())
-print('exposureTime:', exif.exposureTime.asDouble())
-print('focalLength:', exif.focalLength.asDouble())
-print('fNumber:',exif.fNumber.asDouble())
-print('isoSpeedRatings:',exif.isoSpeedRatings)
+print(exif)
 
 write_exif(Path('path/to/new_image.jpg'), exif)
 ~~~~~~~~~~~~~~~
+
+`print(exif)` will give the following output like:
+~~~~~~~~~~~~~~~{.sh}
+{'make': 'Canon', 'model': 'Canon EOS 40D', 'orientation': 1, 'software': 'GIMP 2.4.5', 'exposureTime': [1, 160], 'fNumber': [71, 10], 'isoSpeedRatings': 100, 'dateTimeOriginal': '2008:05:30 15:56:01', 'exposureBiasValue': [0, 1], 'focalLength': [135, 1]}
+~~~~~~~~~~~~~~~
+user can use `help(exif)` to see the definition of Exif metdata.
 
 EXIF metadata can be read and written along with an image by specifying them in the ImageMetadata. In this case, the EXIF wil be read and written when calling `read_image` and `write_image`.
 
