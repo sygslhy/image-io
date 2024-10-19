@@ -37,10 +37,21 @@ template <typename T> py::buffer_info defineBufferInfos(Image<T> &m) {
 
     if (m.descriptor().layout.imageLayout == ImageLayout::YUV_420 ||
         m.descriptor().layout.imageLayout == ImageLayout::NV12) {
-        //[Issue 1 TODO], it seems the C++ runtime exception cannot be caught or cannot passed to python,
-        //When it maps the image object to numpy buffer.
-        // normally this code should work, but it doesn't, need much time to do the investigation.
-        throw std::invalid_argument("Cannot support convert the different sizes planes image to numpy array.");
+
+        ImageDescriptor<T> imageDescrriptor = m.descriptor();
+        int rowStride = imageDescrriptor.layout.planes[0].rowStride;
+        int pixelStride = imageDescrriptor.layout.planes[0].pixelStride;
+        return py::buffer_info(
+            m.data(),                           /* Pointer to buffer */
+            sizeof(T),                          /* Size of one scalar */
+            py::format_descriptor<T>::format(), /* Python struct-style format
+                                                   descriptor */
+            2,                                  /* Number of dimensions */
+            {3 * m.height() / 2, m.width()},    /* Buffer dimensions */
+            {static_cast<py::ssize_t>(rowStride * sizeof(T)),
+             static_cast<py::ssize_t>(pixelStride * sizeof(T))}
+            /* Strides (in bytes) for each index */
+        );
     }
     return py::buffer_info(
         m.data(),                           /* Pointer to buffer */
@@ -67,8 +78,20 @@ Image<T> createImageFromPyarray(py::array_t<T> b, PixelType pixelType,
     if (info.ndim > 3 || info.ndim < 2) {
         throw std::runtime_error("Incompatible buffer dimension!");
     }
+
+    if (imageLayout == ImageLayout::YUV_420 ||
+        imageLayout == ImageLayout::NV12) {
+        LayoutDescriptor layout =
+            LayoutDescriptor::Builder(info.shape[1], info.shape[0] * 2 / 3)
+                .pixelPrecision(pixelPrecision)
+                .imageLayout(imageLayout)
+                .pixelType(pixelType)
+                .build();
+        return Image<T>(layout, static_cast<T *>(info.ptr));
+    }
     /*Create the Image based on the py::array's buffer */
-    LayoutDescriptor layout = LayoutDescriptor::Builder(info.shape[1], info.shape[0])
+    LayoutDescriptor layout =
+        LayoutDescriptor::Builder(info.shape[1], info.shape[0])
             .pixelPrecision(pixelPrecision)
             .imageLayout(imageLayout)
             .pixelType(pixelType)

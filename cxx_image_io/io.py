@@ -56,11 +56,11 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
 
         #[Fix Issue 1] Currently pybind11 buffer protocol support only memory mapping of the image having
         # the same size on each planars, so the different sizes on each planars like nv12, yuv are not yet support
-        if metadata and metadata.fileInfo.imageLayout in (ImageLayout.YUV_420,
-                                                          ImageLayout.NV12):
-            raise Exception(
-                "Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array"
-            )
+        # if metadata and metadata.fileInfo.imageLayout in (ImageLayout.YUV_420,
+        #                                                   ImageLayout.NV12):
+        #     raise Exception(
+        #         "Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array"
+        #     )
 
         image_reader = io.makeReader(str(image_path), metadata)
         # Currently don't find a good way to supported completely the std::optional by binding C++ function.
