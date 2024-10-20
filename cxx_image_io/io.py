@@ -19,7 +19,7 @@ __numpy_array_image_convert_vector = {
 
 # internal function to print image essentiel infos for debugging
 def __print_image_metadata_info(metadata):
-    if metadata.fileInfo is not None:
+    if metadata and metadata.fileInfo:
         print('Image Type:', metadata.fileInfo.pixelType)
         print('Image Precision:', metadata.fileInfo.pixelPrecision)
         print('Image Layout:', metadata.fileInfo.imageLayout)
@@ -51,17 +51,10 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
         returned image in numpy array format
 
     """
+    assert image_path.exists(), "Image file {0} not found".format(
+        str(image_path))
     try:
         metadata = parser.readMetadata(str(image_path), metadata_path)
-
-        #[Fix Issue 1] Currently pybind11 buffer protocol support only memory mapping of the image having
-        # the same size on each planars, so the different sizes on each planars like nv12, yuv are not yet support
-        # if metadata and metadata.fileInfo.imageLayout in (ImageLayout.YUV_420,
-        #                                                   ImageLayout.NV12):
-        #     raise Exception(
-        #         "Cannot support convert the different sizes planes image, like nv12 and yuv to numpy array"
-        #     )
-
         image_reader = io.makeReader(str(image_path), metadata)
         # Currently don't find a good way to supported completely the std::optional by binding C++ function.
         # So create explicitily an ImageMetadata object when metadata is None.
@@ -98,6 +91,9 @@ def read_exif(image_path: Path) -> ExifMetadata:
     ExifMetadata
         returned exif data
     """
+
+    assert image_path.exists(), "Image file {0} not found".format(
+        str(image_path))
     try:
         # By binding parser.readMetadata C++ code, we need to privode explicitely None as metadata path
         # In the case of tif, jpg or dng, we don't need sidecar.
