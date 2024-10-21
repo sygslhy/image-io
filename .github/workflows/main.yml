@@ -100,19 +100,20 @@ jobs:
           cd D:\a\image-io\image-io\
           python -m pip install --no-index --find-links=dist/ cxx-image-io
 
-    - if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    - if: contains(github.event.head_commit.message,'[NRT]')  # only run test to PyPI when [NRT] in commit message
       name: Check out test-image-io from my repo
       uses: actions/checkout@v4
       with:
+        lfs: 'true'
         repository: sygslhy/test-cxx-image-io
         path: test-cxx-image-io
 
-    - if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    - if: contains(github.event.head_commit.message,'[NRT]')  # only run test when [NRT] in commit message
       name: Run NRT test for image-io
       run: |
         cd ${{github.workspace}}/test-cxx-image-io/
         pwd
-      # pytest
+        pytest -s
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4

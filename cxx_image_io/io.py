@@ -1,5 +1,5 @@
 from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
-                       ImageLayout, ImageMetadata, ImageUint8, ImageUint16,
+                       ImageMetadata, ImageUint8, ImageUint16,
                        PixelRepresentation, io, parser)
 
 from pathlib import Path
@@ -21,8 +21,9 @@ __numpy_array_image_convert_vector = {
 def __print_image_metadata_info(metadata):
     if metadata and metadata.fileInfo:
         print('Image Type:', metadata.fileInfo.pixelType)
-        print('Image Precision:', metadata.fileInfo.pixelPrecision)
+        print('Pixel Precision:', metadata.fileInfo.pixelPrecision)
         print('Image Layout:', metadata.fileInfo.imageLayout)
+        print('Pixel Representation:', metadata.fileInfo.pixelRepresentation)
 
 
 # fill the image critical information to metadata that could be used otherwhere.
@@ -62,10 +63,13 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
         metadata = image_reader.readMetadata(metadata)
         if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
             image = image_reader.read8u()
+            metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT8
         elif image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
             image = image_reader.read16u()
+            metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT16
         elif image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
             image = image_reader.readf()
+            metadata.fileInfo.pixelRepresentation = PixelRepresentation.FLOAT
         else:
             raise Exception('Unsupported image type!')
         metadata = __fill_medatata(image, metadata)
