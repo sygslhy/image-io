@@ -32,6 +32,8 @@ def __fill_medatata(image, metadata):
     metadata.fileInfo.pixelType = image.pixelType()
     metadata.fileInfo.pixelPrecision = image.pixelPrecision()
     metadata.fileInfo.imageLayout = image.imageLayout()
+    metadata.fileInfo.width = image.width()
+    metadata.fileInfo.height = image.height()
     return metadata
 
 
@@ -63,15 +65,14 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
         metadata = image_reader.readMetadata(metadata)
         if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
             image = image_reader.read8u()
-            metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT8
         elif image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
             image = image_reader.read16u()
-            metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT16
         elif image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
             image = image_reader.readf()
-            metadata.fileInfo.pixelRepresentation = PixelRepresentation.FLOAT
         else:
             raise Exception('Unsupported image type!')
+        metadata.fileInfo.pixelRepresentation = image_reader.pixelRepresentation(
+        )
         metadata = __fill_medatata(image, metadata)
         return np.array(image, copy=False), metadata
     except Exception as e:

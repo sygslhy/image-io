@@ -14,3 +14,4 @@ from cxx_image.io import ImageReader, ImageWriter
 
 # Exposure the public APIs
 from .io import read_exif, read_image, write_exif, write_image
+from .utils import split_image_channels

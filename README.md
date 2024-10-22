@@ -98,6 +98,42 @@ The result of `print(metadata.fileInfo)`could be like this:
 
 Image sidecar is not mandatory, for the other formats which have already image information in their header, like jpg, png, tif, cfa. we don't need to provide image metadata.
 
+## Split image channels
+After calling `read_image`, `cxx-image-io` provides a public API `split_image_channels` which helps to split to different colors channels. the function return type is a dictionary which contains the different color channel name as keys, and the value in numpy array of one single channel.
+
+~~~~~~~~~~~~~~~{.python}
+from cxx_image_io import read_image, split_image_channels
+import numpy as np
+from pathlib import Path
+
+image, metadata = read_image(Path('rgb_8bit.jpg'))
+
+channels = split_image_channels(image, metadata)
+
+print(channels['r'])  # Red channel
+print(channels['g'])  # Green channel
+print(channels['b'])  # Blue channel
+
+image, metadata = read_image(Path('bayer_16bit.plain16'))
+
+cfa = split_image_channels(image, metadata)
+
+print(cfa['gr'])  # Bayer Gr pixels
+print(cfa['r'])  # Bayer R pixels
+print(cfa['b'])  # Bayer B pixels
+print(cfa['gb'])  # Bayer Gb pixels
+
+image, metadata = read_image(Path('raw.nv12'))
+
+channels = split_image_channels(image, metadata)
+
+print(channels['y'])  # Y plane
+print(channels['u'])  # U plane
+print(channels['v'])  # V plane
+
+~~~~~~~~~~~~~~~
+
+
 
 ## Image writing
 

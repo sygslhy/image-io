@@ -127,7 +127,9 @@ void init_image(py::module &m) {
     py::class_<ImageView<int>>(m, "ImageViewInt")
         .def("pixelType", &ImageView<int>::pixelType)
         .def("pixelPrecision", &ImageView<int>::pixelPrecision)
-        .def("imageLayout", &ImageView<int>::imageLayout);
+        .def("imageLayout", &ImageView<int>::imageLayout)
+        .def("width", &ImageView<int>::width)
+        .def("height", &ImageView<int>::height);
 
     py::class_<Image<int>, ImageView<int>>(m, "ImageInt", py::buffer_protocol())
         .def(py::init([](py::array_t<int> b, PixelType pixelType,
@@ -142,7 +144,9 @@ void init_image(py::module &m) {
     py::class_<ImageView<float>>(m, "ImageViewFloat")
         .def("pixelType", &ImageView<float>::pixelType)
         .def("pixelPrecision", &ImageView<float>::pixelPrecision)
-        .def("imageLayout", &ImageView<float>::imageLayout);
+        .def("imageLayout", &ImageView<float>::imageLayout)
+        .def("width", &ImageView<float>::width)
+        .def("height", &ImageView<float>::height);
 
     py::class_<Image<float>, ImageView<float>>(m, "ImageFloat",
                                                py::buffer_protocol())
@@ -158,7 +162,9 @@ void init_image(py::module &m) {
     py::class_<ImageView<uint8_t>>(m, "ImageViewUint8")
         .def("pixelType", &ImageView<uint8_t>::pixelType)
         .def("pixelPrecision", &ImageView<uint8_t>::pixelPrecision)
-        .def("imageLayout", &ImageView<uint8_t>::imageLayout);
+        .def("imageLayout", &ImageView<uint8_t>::imageLayout)
+        .def("width", &ImageView<uint8_t>::width)
+        .def("height", &ImageView<uint8_t>::height);
 
     py::class_<Image<uint8_t>, ImageView<uint8_t>>(m, "ImageUint8",
                                                    py::buffer_protocol())
@@ -174,7 +180,9 @@ void init_image(py::module &m) {
     py::class_<ImageView<uint16_t>>(m, "ImageViewUint16")
         .def("pixelType", &ImageView<uint16_t>::pixelType)
         .def("pixelPrecision", &ImageView<uint16_t>::pixelPrecision)
-        .def("imageLayout", &ImageView<uint16_t>::imageLayout);
+        .def("imageLayout", &ImageView<uint16_t>::imageLayout)
+        .def("width", &ImageView<uint16_t>::width)
+        .def("height", &ImageView<uint16_t>::height);
 
     py::class_<Image<uint16_t>, ImageView<uint16_t>>(m, "ImageUint16",
                                                      py::buffer_protocol())
@@ -190,7 +198,10 @@ void init_image(py::module &m) {
     py::class_<ImageView<double>>(m, "ImageViewDouble")
         .def("pixelType", &ImageView<double>::pixelType)
         .def("pixelPrecision", &ImageView<double>::pixelPrecision)
-        .def("imageLayout", &ImageView<double>::imageLayout);
+        .def("imageLayout", &ImageView<double>::imageLayout)
+        .def("width", &ImageView<double>::width)
+        .def("height", &ImageView<double>::height);
+
 
     py::class_<Image<double>, ImageView<double>>(m, "ImageDouble",
                                                  py::buffer_protocol())
