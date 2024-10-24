@@ -122,7 +122,7 @@ jobs:
         path: dist/
 
   publish-to-test-pypi:
-    if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit message
     needs:
     - build_and_test
     runs-on: ubuntu-latest
@@ -151,3 +151,34 @@ jobs:
         repository-url: https://test.pypi.org/legacy/
         verbose: true
         skip-existing: true
+
+  publish-to-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    needs:
+    - publish-to-test-pypi
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+
+    environment:
+      name: pypi
+      url: https://pypi.org/project/cxx-image-io/
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
+        path: dist/
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verbose: true
