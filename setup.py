@@ -80,7 +80,6 @@ setup(
         "Issues": "https://github.com/sygslhy/image-io/issues",
     },
     classifiers=[
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "License :: OSI Approved :: MIT License",
@@ -104,7 +103,7 @@ setup(
                       'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
-    python_requires='>=3.11',
+    python_requires='>=3.12',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     packages=find_packages(
