@@ -68,7 +68,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.0.16",
+    version="0.0.17",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -80,11 +80,18 @@ setup(
         "Issues": "https://github.com/sygslhy/image-io/issues",
     },
     classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: C++",
         "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX :: Linux",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development",
     ],
     ext_modules=[
         # This CmakeExtension take care build the binding projet
@@ -103,7 +110,7 @@ setup(
                       'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
-    python_requires='>=3.12',
+    python_requires='>=3.10',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     packages=find_packages(
