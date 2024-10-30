@@ -1,0 +1,59 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-15]
+
+    steps:
+      - name: Check out test-image-io from my repo
+        uses: actions/checkout@v4
+        with:
+          lfs: 'true'
+          repository: sygslhy/test-cxx-image-io
+          path: test-cxx-image-io
+
+      - name: Build third-party libs with -fPIC and install to /usr/local # remove firstly the installed libs from linux
+        run : |
+          brew install nasm
+          sudo rm -rf /Library/Frameworks/Mono.framework
+          brew uninstall --ignore-dependencies jpeg-turbo libpng libtiff
+
+      - name: Check out image-io
+        uses: actions/checkout@v4
+
+
+      - name: Install cibuildwheel
+        run: |
+          python3 -m pip install --upgrade pip --break-system-packages
+          python3 -m pip install setuptools wheel pytest numpy --break-system-packages
+          python3 -m pip install cibuildwheel==2.21.3 --break-system-packages
+
+      - name: Build wheels
+        run: python3 -m cibuildwheel --output-dir wheelhouse
+        # to supply options, put them in 'env', like:
+        env:
+          CIBW_BEFORE_ALL: >
+            git clone https://github.com/sygslhy/image-io-libs.git &&
+            mkdir -p image-io-libs/build &&
+            cd image-io-libs/build &&
+            cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
+            make &&
+            sudo make install
+          CIBW_BEFORE_TEST: >
+            ls ${{github.workspace}}/wheelhouse &&
+            python3 -m pip install --no-index --find-links=${{github.workspace}}/wheelhouse/ cxx-image-io --break-system-packages
+          CIBW_TEST_COMMAND: >
+            cd test-cxx-image-io &&
+            pytest -s
+          CIBW_BUILD_VERBOSITY: 1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
