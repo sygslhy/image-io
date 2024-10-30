@@ -1,0 +1,157 @@
+name: Create Python Package for Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build_and_test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.10", "3.11","3.12", "3.13"]
+
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      id: sp1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Msys2 mingw64 for g++ and gcc tools on windows
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        location: D:\
+        update: true
+        install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja mingw-w64-x86_64-tools-git
+
+    - name: Check out image-io-libs from my repo
+      uses: actions/checkout@v4
+      with:
+        repository: sygslhy/image-io-libs
+        path: image_io_libs
+
+    - name: Build image io libs and install to D:\msys64\mingw64
+      shell: powershell
+      run : |
+          $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
+          $env:Path = 'D:/msys64/mingw64/;' + $env:Path
+          mkdir D:/a/image-io/image-io/image_io_libs/build
+          cd  D:/a/image-io/image-io/image_io_libs/build
+          cmake -G 'Ninja' -DCMAKE_C_COMPILER:FILEPATH=D:\msys64\mingw64\bin\gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=D:\msys64\mingw64\bin\g++.exe .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=D:\msys64\mingw64
+          ninja
+          ninja install
+
+    - name: Check out image-io
+      uses: actions/checkout@v4
+
+    - name: Install python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install setuptools wheel pytest numpy
+
+    - name: Create the image-io python package for windows
+      shell: pwsh
+      run: |
+         $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
+         $env:Path = 'D:/msys64/mingw64;' + $env:Path
+         python setup.py bdist_wheel
+
+    - name : Install cxx-image-io on Windows
+      run: |
+        cd D:\a\image-io\image-io\
+        python -m pip install --no-index --find-links=dist/ cxx-image-io
+
+    - if: contains(github.event.head_commit.message,'[NRT]')  # only checkout test repo when [NRT] in commit message
+      name: Check out test-image-io from my repo
+      uses: actions/checkout@v4
+      with:
+        lfs: 'true'
+        repository: sygslhy/test-cxx-image-io
+        path: test-cxx-image-io
+
+    - if: contains(github.event.head_commit.message,'[NRT]')  # only run test  when [NRT] in commit message
+      name: Run NRT test for image-io
+      run: |
+        cd ${{github.workspace}}/test-cxx-image-io/
+        pwd
+        pytest -s
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
+        path: dist/
+
+  publish-to-test-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit message
+    needs:
+    - build_and_test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.10", "3.11","3.12", "3.13"]
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/cxx-image-io
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
+        path: dist/
+    - name: Publish distribution to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        verbose: true
+        skip-existing: true
+
+  publish-to-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    needs:
+    - publish-to-test-pypi
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11","3.12", "3.13"]
+
+    environment:
+      name: pypi
+      url: https://pypi.org/project/cxx-image-io/
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
+        path: dist/
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verbose: true

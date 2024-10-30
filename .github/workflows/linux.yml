@@ -1,4 +1,4 @@
-name: Create Python Package
+name: Create Python Package for Linux
 
 on:
   push:
@@ -18,24 +18,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: ["3.10", "3.11","3.12", "3.13"]
 
     steps:
-    - name: Check out image-io-libs from my repo
-      uses: actions/checkout@v4
-      with:
-        repository: sygslhy/image-io-libs
-        path: image_io_libs
-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       id: sp1
       with:
         python-version: ${{ matrix.python-version }}
 
-    - if: matrix.os == 'ubuntu-latest'
-      name: Build image io libs with -fPIC and install to /usr/local on ubuntu
+    - name: Check out image-io-libs from my repo
+      uses: actions/checkout@v4
+      with:
+        repository: sygslhy/image-io-libs
+        path: image_io_libs
+
+    - name: Build third-party libs with -fPIC and install to /usr/local # remove firstly the installed libs from linux
       run : |
           sudo apt-get remove -y libtiff-dev libpng-dev libturbojpeg-dev libjpeg-dev libexif-dev zlib1g-dev
           sudo apt-get install -y nasm
@@ -45,27 +44,6 @@ jobs:
           make
           sudo make install
 
-    - if: matrix.os == 'windows-latest'
-      uses: msys2/setup-msys2@v2
-      name: Install Msys2 mingw64 for g++ and gcc tools on windows
-      with:
-        msystem: MINGW64
-        location: D:\
-        update: true
-        install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja mingw-w64-x86_64-tools-git
-
-    - if: matrix.os == 'windows-latest'
-      name: Build image io libs and install to D:\msys64\mingw64
-      shell: powershell
-      run : |
-        $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
-        $env:Path = 'D:/msys64/mingw64/;' + $env:Path
-        mkdir D:/a/image-io/image-io/image_io_libs/build
-        cd  D:/a/image-io/image-io/image_io_libs/build
-        cmake -G 'Ninja' -DCMAKE_C_COMPILER:FILEPATH=D:\msys64\mingw64\bin\gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=D:\msys64\mingw64\bin\g++.exe .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=D:\msys64\mingw64
-        ninja
-        ninja install
-
     - name: Check out image-io
       uses: actions/checkout@v4
 
@@ -74,33 +52,16 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install setuptools wheel pytest numpy
 
-    - if: matrix.os == 'ubuntu-latest'
-      name: Create the image-io python package for Linux
+    - name: Create the image-io python package for Linux
       run: |
           python setup.py bdist_wheel --plat manylinux_2_24_x86_64
 
-    - if: matrix.os == 'windows-latest'
-      name: Create the image-io python package for windows
-      shell: pwsh
-      run: |
-          $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
-          $env:Path = 'D:/msys64/mingw64;' + $env:Path
-          python setup.py bdist_wheel
-
-    - if: matrix.os == 'ubuntu-latest'
-      name : Install cxx-image-io and pytest on Linux
+    - name : Install cxx-image-io on Linux
       run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install --no-index --find-links=${{github.workspace}}/dist/ cxx-image-io
 
-    - if: matrix.os == 'windows-latest'
-      name : Install cxx-image-io and pytest on Windows
-      run: |
-          python -m pip install --upgrade pip
-          cd D:\a\image-io\image-io\
-          python -m pip install --no-index --find-links=dist/ cxx-image-io
-
-    - if: contains(github.event.head_commit.message,'[NRT]')  # only run test to PyPI when [NRT] in commit message
+    - if: contains(github.event.head_commit.message,'[NRT]')  # only checkout test repo when [NRT] in commit message
       name: Check out test-image-io from my repo
       uses: actions/checkout@v4
       with:
@@ -129,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: ["3.10", "3.11","3.12", "3.13"]
 
     environment:
