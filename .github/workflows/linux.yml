@@ -54,7 +54,7 @@ jobs:
 
     - name: Create the image-io python package for Linux
       run: |
-          python setup.py bdist_wheel --plat manylinux_2_24_x86_64
+          python3 setup.py bdist_wheel --plat manylinux_2_24_x86_64
 
     - name : Install cxx-image-io on Linux
       run: |

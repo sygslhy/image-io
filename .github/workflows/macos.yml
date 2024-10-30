@@ -38,7 +38,7 @@ jobs:
       run : |
         brew install nasm
         sudo rm -rf /Library/Frameworks/Mono.framework
-        brew uninstall --ignore-dependencies libpng libtiff
+        brew uninstall --ignore-dependencies jpeg-turbo libpng libtiff
         mkdir  ${{github.workspace}}/image_io_libs/build
         cd ${{github.workspace}}/image_io_libs/build
         cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local
@@ -53,9 +53,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install setuptools wheel pytest numpy
 
-    - name: Create the image-io python package for macOs
+    - name: Create the image-io python package for macOS
       run: |
-        python setup.py bdist_wheel
+        python3 setup.py bdist_wheel
 
     - name : Install cxx-image-io on MacOS
       run: |
