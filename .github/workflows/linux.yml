@@ -113,10 +113,33 @@ jobs:
         verbose: true
         skip-existing: true
 
+  test-download-package:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
+    needs:
+    - publish-to-test-pypi
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11","3.12", "3.13"]
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      id: sp1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install cxx-image-io from test pypi
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy
+        pip install -i https://test.pypi.org/simple/ cxx-image-io
+        python3 -c "import cxx_image_io; help(cxx_image_io.ImageMetadata)"
+
   publish-to-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
     needs:
-    - publish-to-test-pypi
+    - test-download-package
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

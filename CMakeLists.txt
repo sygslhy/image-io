@@ -31,8 +31,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cxx-image)
 
-include(FetchContent)
-
 FetchContent_Declare(
     pybind11
     GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
