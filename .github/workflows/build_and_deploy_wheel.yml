@@ -1,4 +1,4 @@
-name: Build
+name: Build and upload to PyPI
 
 on: [push, pull_request]
 
@@ -8,17 +8,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-15]
+        os: [macos-13, macos-14]
 
     steps:
-      - name: Check out test-image-io from my repo
-        uses: actions/checkout@v4
-        with:
-          lfs: 'true'
-          repository: sygslhy/test-cxx-image-io
-          path: test-cxx-image-io
-
-      - name: Build third-party libs with -fPIC and install to /usr/local # remove firstly the installed libs from linux
+      - name: Remove firstly the installed libs from linux
         run : |
           brew install nasm
           sudo rm -rf /Library/Frameworks/Mono.framework
@@ -26,7 +19,6 @@ jobs:
 
       - name: Check out image-io
         uses: actions/checkout@v4
-
 
       - name: Install cibuildwheel
         run: |
@@ -38,6 +30,7 @@ jobs:
         run: python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
+          MACOSX_DEPLOYMENT_TARGET: 11.0
           CIBW_BEFORE_ALL: >
             git clone https://github.com/sygslhy/image-io-libs.git &&
             mkdir -p image-io-libs/build &&
@@ -45,12 +38,10 @@ jobs:
             cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
             make &&
             sudo make install
-          CIBW_BEFORE_TEST: >
-            ls ${{github.workspace}}/wheelhouse &&
-            python3 -m pip install --no-index --find-links=${{github.workspace}}/wheelhouse/ cxx-image-io --break-system-packages
           CIBW_TEST_COMMAND: >
-            cd test-cxx-image-io &&
+            cd ${{github.workspace}}
             pytest -s
+          CIBW_SKIP: pp*
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4
