@@ -31,17 +31,17 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 include(FetchContent)
 
 FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
+    GIT_TAG "v2.9.2"
+)
+FetchContent_MakeAvailable(pybind11)
+
+FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/sygslhy/cxx-image.git"
     GIT_TAG "feature/pov-dng-preview" #  Sep 16, 2024
 )
 FetchContent_MakeAvailable(cxx-image)
-
-FetchContent_Declare(
-    pybind11
-    GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
-    GIT_TAG "v2.13.6"
-)
-FetchContent_MakeAvailable(pybind11)
 
 add_subdirectory(cxx_image_io/binding)

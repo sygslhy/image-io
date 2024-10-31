@@ -8,10 +8,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [ubuntu-24.04]
 
     steps:
-      - name: Remove firstly the installed libs from linux
+      # - if: matrix.os == 'ubuntu-24.04'
+      #   name: Remove firstly the installed libs from Linux
+      #   run : |
+      #     sudo apt-get install -y nasm
+      #     sudo apt-get remove -y libtiff-dev libpng-dev libturbojpeg-dev libjpeg-dev libexif-dev zlib1g-dev
+      #     sudo apt-get install -y python3-dev
+      #     python3 --version
+
+      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
+        name: Remove firstly the installed libs from MacOS
         run : |
           brew install nasm
           sudo rm -rf /Library/Frameworks/Mono.framework
@@ -20,13 +29,43 @@ jobs:
       - name: Check out image-io
         uses: actions/checkout@v4
 
-      - name: Install cibuildwheel
+      - if: matrix.os == 'ubuntu-24.04'
+        name: Install cibuildwheel for Linux
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install setuptools wheel pytest numpy
+          python3 -m pip install cibuildwheel==2.21.3
+
+      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
+        name: Install cibuildwheel for MacOS
         run: |
           python3 -m pip install --upgrade pip --break-system-packages
           python3 -m pip install setuptools wheel pytest numpy --break-system-packages
           python3 -m pip install cibuildwheel==2.21.3 --break-system-packages
 
-      - name: Build wheels
+      - if: matrix.os == 'ubuntu-24.04'
+        name: Build wheels for Linux
+        run: python3 -m cibuildwheel --output-dir wheelhouse
+        # to supply options, put them in 'env', like:
+        env:
+          CIBW_BEFORE_ALL: >
+            git clone https://github.com/sygslhy/image-io-libs.git &&
+            mkdir -p image-io-libs/build &&
+            cd image-io-libs/build &&
+            cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
+            make install
+          CIBW_BEFORE_BUILD: >
+            echo $PATH &&
+            ls /usr/local/bin
+          CIBW_TEST_COMMAND: >
+            cd ${{github.workspace}}
+            pytest -s
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
+          CIBW_BUILD_VERBOSITY: 1
+
+
+      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
+        name: Build wheels for MacOS
         run: python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
@@ -36,12 +75,11 @@ jobs:
             mkdir -p image-io-libs/build &&
             cd image-io-libs/build &&
             cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
-            make &&
             sudo make install
           CIBW_TEST_COMMAND: >
             cd ${{github.workspace}}
             pytest -s
-          CIBW_SKIP: pp*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4
