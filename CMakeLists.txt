@@ -23,7 +23,7 @@ endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-march=haswell>")
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
+    # add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
 endif()
 
 SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
@@ -33,7 +33,7 @@ include(FetchContent)
 FetchContent_Declare(
     pybind11
     GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
-    GIT_TAG "v2.9.2"
+    GIT_TAG "v2.13.6"
 )
 FetchContent_MakeAvailable(pybind11)
 

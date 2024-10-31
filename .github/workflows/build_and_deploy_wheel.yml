@@ -11,13 +11,6 @@ jobs:
         os: [ubuntu-24.04]
 
     steps:
-      # - if: matrix.os == 'ubuntu-24.04'
-      #   name: Remove firstly the installed libs from Linux
-      #   run : |
-      #     sudo apt-get install -y nasm
-      #     sudo apt-get remove -y libtiff-dev libpng-dev libturbojpeg-dev libjpeg-dev libexif-dev zlib1g-dev
-      #     sudo apt-get install -y python3-dev
-      #     python3 --version
 
       - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
         name: Remove firstly the installed libs from MacOS
@@ -28,6 +21,8 @@ jobs:
 
       - name: Check out image-io
         uses: actions/checkout@v4
+        with:
+         lfs: 'true'
 
       - if: matrix.os == 'ubuntu-24.04'
         name: Install cibuildwheel for Linux
@@ -48,19 +43,24 @@ jobs:
         run: python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
+          CIBW_ARCHS: x86_64
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL: >
+            auditwheel --version &&
+            yum install -y nasm &&
             git clone https://github.com/sygslhy/image-io-libs.git &&
             mkdir -p image-io-libs/build &&
             cd image-io-libs/build &&
             cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
             make install
           CIBW_BEFORE_BUILD: >
-            echo $PATH &&
-            ls /usr/local/bin
+            rm -rf /usr/local/bin/python3*
+          CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd ${{github.workspace}}
+            cd /project &&
             pytest -s
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
 
 
@@ -76,8 +76,9 @@ jobs:
             cd image-io-libs/build &&
             cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
             sudo make install
+          CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd ${{github.workspace}}
+            cd ${{github.workspace}} &&
             pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
