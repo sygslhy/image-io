@@ -1,0 +1,1 @@
+*.plain16 filter=lfs diff=lfs merge=lfs -text
