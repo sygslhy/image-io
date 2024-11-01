@@ -23,13 +23,15 @@ endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-march=haswell>")
-    # add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
 endif()
 
 SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
-include(FetchContent)
+# WR for CI pass the M_PI missing issue
+add_definitions(-D_USE_MATH_DEFINES)
 
+include(FetchContent)
 FetchContent_Declare(
     pybind11
     GIT_REPOSITORY "https://github.com/pybind/pybind11.git"
@@ -40,8 +42,9 @@ FetchContent_MakeAvailable(pybind11)
 FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/sygslhy/cxx-image.git"
-    GIT_TAG "feature/pov-dng-preview" #  Sep 16, 2024
+    GIT_TAG "test-msys" #  Sep 16, 2024
 )
 FetchContent_MakeAvailable(cxx-image)
+
 
 add_subdirectory(cxx_image_io/binding)

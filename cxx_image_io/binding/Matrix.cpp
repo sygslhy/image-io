@@ -1,4 +1,6 @@
-#include "model/ImageMetadata.h"
+#include "math/ColorSpace.h"
+#include "math/DynamicMatrix.h"
+#include "math/Matrix.h"
 
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"

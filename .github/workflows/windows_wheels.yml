@@ -1,4 +1,4 @@
-name: Create Python Package for Windows
+name: Build and upload to PyPI Windows
 
 on:
   push:
@@ -55,6 +55,8 @@ jobs:
 
     - name: Check out image-io
       uses: actions/checkout@v4
+      with:
+        lfs: 'true'
 
     - name: Install python dependencies
       run: |
@@ -64,35 +66,23 @@ jobs:
     - name: Create the image-io python package for windows
       shell: pwsh
       run: |
+         cat D:/msys64/mingw64/include/math.h
+         ls -l D:/msys64/mingw64/include/c++
          $env:Path = 'D:/msys64/mingw64/bin;' + $env:Path
          $env:Path = 'D:/msys64/mingw64;' + $env:Path
          python setup.py bdist_wheel
 
-    - name : Install cxx-image-io on Windows
+    - name : Install cxx-image-io on Windows and run test
       run: |
         cd D:\a\image-io\image-io\
         python -m pip install --no-index --find-links=dist/ cxx-image-io
-
-    - if: contains(github.event.head_commit.message,'[NRT]')  # only checkout test repo when [NRT] in commit message
-      name: Check out test-image-io from my repo
-      uses: actions/checkout@v4
-      with:
-        lfs: 'true'
-        repository: sygslhy/test-cxx-image-io
-        path: test-cxx-image-io
-
-    - if: contains(github.event.head_commit.message,'[NRT]')  # only run test  when [NRT] in commit message
-      name: Run NRT test for image-io
-      run: |
-        cd ${{github.workspace}}/test-cxx-image-io/
-        pwd
         pytest -s
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dist_bdist_wheel_${{ matrix.os }}_${{ matrix.python-version }}
-        path: dist/
+        path: ./dist/*.whl
 
   publish-to-test-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
