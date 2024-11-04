@@ -1,0 +1,2 @@
+exclude test/test_image_io.py
+exclude test/test_utils.py

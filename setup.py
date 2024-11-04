@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import subprocess
+import pathlib
 from distutils.version import LooseVersion
 
 from setuptools import Extension, find_packages, setup
@@ -57,8 +58,9 @@ class CMakeBuild(build_ext):
         # copy D:\Work\image-io\cxx_image_io\cxx_image.cp312-win_amd64.pyd to
         # build\lib.win-amd64-cpython-312\cxx_image_io\cxx_image.cp312-win_amd64.pyd
         pyd_name = os.path.basename(self.get_outputs()[0])
-        pyd_target_path = os.path.join(os.path.dirname(self.get_outputs()[0]),
-                                       'cxx_image_io', pyd_name)
+        build_temp_path = os.path.join(ext.sourcedir, os.path.dirname(self.get_outputs()[0]))
+        pathlib.Path(build_temp_path).mkdir(parents=True, exist_ok=True)
+        pyd_target_path = os.path.join(build_temp_path, 'cxx_image_io', pyd_name)
         pyd_origin_path = os.path.join(ext.sourcedir, 'cxx_image_io', pyd_name)
         self.copy_file(pyd_origin_path, pyd_target_path, level=self.verbose)
 
@@ -114,8 +116,6 @@ setup(
     python_requires='>=3.10',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
-    packages=find_packages(
-        exclude=["*.test", "*.test.*", "test.*", "test", "setup.py"]),
+    packages = find_packages(),
     package_dir={'cxx-image-io': 'cxx_image_io'},
-    package_data={'cxx_image_io': ['*.pyd']},
     install_requires=['numpy>=1.26.4'])
