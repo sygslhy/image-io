@@ -3,7 +3,7 @@ name: Build and upload to PyPI
 on: [push, pull_request]
 
 jobs:
-  build_wheels:
+  build_and_test:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -125,5 +125,71 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: cibw-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: python3 setup.py sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
+  publish-to-test-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
+    needs: [build_and_test, build_sdist]
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/cxx-image-io
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish distribution to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
+
+  test-download-package:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
+    needs:
+    - publish-to-test-pypi
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2019, ubuntu-20.04, ubuntu-22.04, macos-15]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: 'true'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: |
+            3.10
+            3.11
+            3.12
+            3.13
+    - name: Install cxx-image-io from test pypi and rapid test importing
+      run: |
+        python -c "import sys; print(sys.version)"
+        python -m pip install --upgrade pip
+        python -m pip install numpy pytest
+        pip install -i https://test.pypi.org/simple/ cxx-image-io
+        pwd
+        pytest
