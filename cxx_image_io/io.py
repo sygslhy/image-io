@@ -142,7 +142,7 @@ def write_image(output_path: Path, image_array: np.array,
             image_array, options.metadata.fileInfo.pixelType,
             options.metadata.fileInfo.imageLayout,
             options.metadata.fileInfo.pixelPrecision)
-
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         image_writer = io.makeWriter(str(output_path), options)
         image_writer.write(image)
     except Exception as e:

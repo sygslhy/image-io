@@ -11,6 +11,10 @@ jobs:
         os: [windows-2022, ubuntu-24.04, macos-13, macos-14]
 
     steps:
+      - name: Check out image-io
+        uses: actions/checkout@v4
+        with:
+         lfs: 'true'
 
       - if: matrix.os == 'windows-2022'
         name: Install Msys2 mingw64 for g++ and gcc tools on windows
@@ -21,18 +25,6 @@ jobs:
           update: true
           install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja
 
-      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
-        name: Remove firstly the installed libs from MacOS
-        run : |
-          brew install nasm
-          sudo rm -rf /Library/Frameworks/Mono.framework
-          brew uninstall --ignore-dependencies jpeg-turbo libpng libtiff
-
-      - name: Check out image-io
-        uses: actions/checkout@v4
-        with:
-         lfs: 'true'
-
       - if: matrix.os == 'windows-2022'
         name: Install cibuildwheel for Windows
         run: |
@@ -40,21 +32,7 @@ jobs:
           python -m pip install setuptools wheel pytest numpy
           python -m pip install cibuildwheel==2.21.3
 
-      - if: matrix.os == 'ubuntu-24.04'
-        name: Install cibuildwheel for Linux
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install setuptools wheel pytest numpy
-          python3 -m pip install cibuildwheel==2.21.3
-
-      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
-        name: Install cibuildwheel for MacOS
-        run: |
-          python3 -m pip install --upgrade pip --break-system-packages
-          python3 -m pip install setuptools wheel pytest numpy --break-system-packages
-          python3 -m pip install cibuildwheel==2.21.3 --break-system-packages
-
-      - if : matrix.os == 'windows-2022'
+      - if: matrix.os == 'windows-2022'
         name: Build wheels for Windows
         run: python -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
@@ -80,6 +58,21 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           # CIBW_BUILD_VERBOSITY: 1
 
+
+      - if: matrix.os == 'ubuntu-24.04'
+        name: Upload the source code to artifact for using later
+        uses: actions/upload-artifact@v4
+        with:
+          name: git-repo
+          path: ./*
+
+      - if: matrix.os == 'ubuntu-24.04'
+        name: Install cibuildwheel for Linux
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install setuptools wheel pytest numpy
+          python3 -m pip install cibuildwheel==2.21.3
+
       - if: matrix.os == 'ubuntu-24.04'
         name: Build wheels for Linux
         run: python3 -m cibuildwheel --output-dir wheelhouse
@@ -92,7 +85,7 @@ jobs:
             git clone https://github.com/sygslhy/image-io-libs.git &&
             mkdir -p image-io-libs/build &&
             cd image-io-libs/build &&
-            cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local &&
             make install
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
@@ -105,6 +98,20 @@ jobs:
           # CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
+        name: Remove firstly the installed libs from MacOS
+        run : |
+          brew install nasm
+          sudo rm -rf /Library/Frameworks/Mono.framework
+          brew uninstall --ignore-dependencies jpeg-turbo libpng libtiff
+
+      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
+        name: Install cibuildwheel for MacOS
+        run: |
+          python3 -m pip install --upgrade pip --break-system-packages
+          python3 -m pip install setuptools wheel pytest numpy --break-system-packages
+          python3 -m pip install cibuildwheel==2.21.3 --break-system-packages
+
+      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
         name: Build wheels for MacOS
         run: python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
@@ -114,7 +121,7 @@ jobs:
             git clone https://github.com/sygslhy/image-io-libs.git &&
             mkdir -p image-io-libs/build &&
             cd image-io-libs/build &&
-            cmake .. -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr/local &&
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local &&
             sudo make install
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
@@ -132,7 +139,8 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout cxx-image-io code
+        uses: actions/checkout@v4
 
       - name: Build sdist
         run: python3 setup.py sdist
@@ -174,22 +182,51 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2019, ubuntu-20.04, ubuntu-22.04, macos-15]
+        python-version: ["3.10", "3.11","3.12", "3.13"]
     steps:
-    - uses: actions/checkout@v4
+    - name: Download git repo code
+      uses: actions/download-artifact@v4
       with:
-        lfs: 'true'
+        pattern: git-repo
+        path: image_io
+
     - uses: actions/setup-python@v5
       with:
-        python-version: |
-            3.10
-            3.11
-            3.12
-            3.13
-    - name: Install cxx-image-io from test pypi and rapid test importing
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install cxx-image-io from test pypi and run NRT test
       run: |
         python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
         python -m pip install numpy pytest
         pip install -i https://test.pypi.org/simple/ cxx-image-io
-        pwd
-        pytest
+        cd image_io/git-repo/
+        mkdir -p test/_outputs
+        pytest -s
+
+  publish-to-pypi:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
+    needs:
+    - test-download-package
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/cxx-image-io/
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
+
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        verbose: true
