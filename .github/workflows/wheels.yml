@@ -53,7 +53,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /d D:\a\image-io\image-io &&
-            pytest
+            pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           # CIBW_BUILD_VERBOSITY: 1
@@ -92,7 +92,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /project &&
-            pytest
+            pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           # CIBW_BUILD_VERBOSITY: 1
@@ -126,7 +126,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd ${{github.workspace}} &&
-            pytest
+            pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           # CIBW_BUILD_VERBOSITY: 1
 
