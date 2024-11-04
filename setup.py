@@ -70,7 +70,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.0.20",
+    version="0.1.0",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -82,6 +82,7 @@ setup(
         "Issues": "https://github.com/sygslhy/image-io/issues",
     },
     classifiers=[
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.10",
