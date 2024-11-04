@@ -93,6 +93,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX :: Linux",
+        "Operating System :: MacOS",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development",
     ],
