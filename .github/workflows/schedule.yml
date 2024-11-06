@@ -1,10 +1,8 @@
 name: Test the PYPI package in all the platforms
 
-on: [push, pull_request]
-
-# on:
-#   schedule:
-#     - cron: '30 8 * * 1,4'
+on:
+  schedule:
+    - cron: '30 8 * * 1,4'
 
 jobs:
   checkout-code:
@@ -23,7 +21,7 @@ jobs:
 
   test-download-package:
     needs: checkout-code
-    name: Test the pypi packages
+    name: Test package
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
