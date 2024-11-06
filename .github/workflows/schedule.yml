@@ -1,0 +1,52 @@
+name: Test the PYPI package in all the platforms
+
+on: [push, pull_request]
+
+# on:
+#   schedule:
+#     - cron: '30 8 * * 1,4'
+
+jobs:
+  checkout-code:
+    name: Checkout source code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+      with:
+        lfs: 'true'
+    - name: Upload the source code to artifact for using later
+      uses: actions/upload-artifact@v4
+      with:
+        name: git-repo
+        path: ./*
+
+  test-download-package:
+    needs: checkout-code
+    name: Test the pypi packages
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-2019, windows-2022, ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, macos-13, macos-14, macos-15]
+        python-version: ["3.10", "3.11","3.12", "3.13"]
+
+    steps:
+    - name: Download git repo code
+      uses: actions/download-artifact@v4
+      with:
+        pattern: git-repo
+        path: image_io
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install cxx-image-io from test pypi and run NRT test
+      run: |
+        python -c "import sys; print(sys.version)"
+        python -m pip install --upgrade pip
+        python -m pip install numpy pytest
+        pip install  cxx-image-io
+        cd image_io/git-repo/
+        mkdir -p test/_outputs
+        pytest -s
