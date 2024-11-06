@@ -4,14 +4,15 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from test import root_dir
 from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
                           PixelRepresentation, RgbColorSpace, ImageWriter,
                           Matrix3, UnorderdMapSemanticMasks, PixelType,
                           read_exif, read_image, write_exif, write_image)
 
-test_images_dir = Path('./test/images/')
-test_npy_dir = Path('./test/npy/')
-test_outputs_dir = Path('./test/_outputs/')
+test_images_dir = Path(root_dir, 'images/')
+test_npy_dir = Path(root_dir, 'npy/')
+test_outputs_dir = Path(root_dir, '_outputs/')
 
 test_data = {
     'raw': {

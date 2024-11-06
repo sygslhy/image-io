@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from test import root_dir
 from cxx_image_io import (ImageLayout, ImageMetadata, PixelRepresentation,
                           PixelType)
 from cxx_image_io import read_image, split_image_channels, merge_image_channels
@@ -159,7 +160,7 @@ def test_split_and_merge_channels(array, metadata, order, ref_values):
 @pytest.mark.parametrize('image_path',
                          ['rgb_8bit.jpg', 'bayer_16bit.plain16', 'raw.nv12'])
 def test_split_and_merge_images(image_path):
-    test_images_dir = Path('./test/images/')
+    test_images_dir = Path(root_dir, 'images/')
     image, metadata = read_image(test_images_dir / image_path)
     channels = split_image_channels(image, metadata)
     image_post = merge_image_channels(channels, metadata)

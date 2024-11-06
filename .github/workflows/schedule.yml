@@ -1,8 +1,11 @@
 name: Test the PYPI package in all the platforms
 
+
+# on: [push, pull_request]
+
 on:
   schedule:
-    - cron: '30 8 * * 1,4'
+    - cron: '30 10 * * 1,4'
 
 jobs:
   checkout-code:
@@ -16,8 +19,8 @@ jobs:
     - name: Upload the source code to artifact for using later
       uses: actions/upload-artifact@v4
       with:
-        name: git-repo
-        path: ./*
+        name: test
+        path: ./test/
 
   test-download-package:
     needs: checkout-code
@@ -32,8 +35,8 @@ jobs:
     - name: Download git repo code
       uses: actions/download-artifact@v4
       with:
-        pattern: git-repo
-        path: image_io
+        pattern: test
+        path: image_io/
 
     - uses: actions/setup-python@v5
       with:
@@ -45,6 +48,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install numpy pytest
         pip install  cxx-image-io
-        cd image_io/git-repo/
+        cd image_io/
         mkdir -p test/_outputs
         pytest -s
