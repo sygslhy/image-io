@@ -27,10 +27,10 @@ This projet currently supports Python from 3.10 to 3.13 on
 
 ## Installation
 
-The python package `cxx_image_io` is to be installed by `pip`
+The python package `cxx-image-io` is to be installed by `pip`
 
 ```sh
-pip install cxx_image_io
+pip install cxx-image-io
 ```
 
 # Usage example
