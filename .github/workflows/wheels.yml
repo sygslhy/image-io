@@ -40,13 +40,6 @@ jobs:
           CIBW_ARCHS: AMD64
           CIBW_ENVIRONMENT_WINDOWS: >
             PATH="D:\\msys64\\mingw64\\bin;D:\\msys64\\mingw64;$PATH"
-          CIBW_BEFORE_ALL: >
-            git clone https://github.com/sygslhy/image-io-libs.git &&
-            mkdir -p image-io-libs\build &&
-            cd image-io-libs\build &&
-            cmake -G Ninja -DCMAKE_C_COMPILER:FILEPATH=D:\msys64\mingw64\bin\gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=D:\msys64\mingw64\bin\g++.exe .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=D:\msys64\mingw64
-            ninja &&
-            ninja install
           CIBW_BEFORE_BUILD: >
             rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\python3.exe &&
             rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\libs\\python39.lib
@@ -80,13 +73,6 @@ jobs:
         env:
           CIBW_ARCHS: x86_64
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          CIBW_BEFORE_ALL: >
-            yum install -y nasm &&
-            git clone https://github.com/sygslhy/image-io-libs.git &&
-            mkdir -p image-io-libs/build &&
-            cd image-io-libs/build &&
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local &&
-            make install
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
@@ -117,12 +103,6 @@ jobs:
         # to supply options, put them in 'env', like:
         env:
           MACOSX_DEPLOYMENT_TARGET: 11.0
-          CIBW_BEFORE_ALL: >
-            git clone https://github.com/sygslhy/image-io-libs.git &&
-            mkdir -p image-io-libs/build &&
-            cd image-io-libs/build &&
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local &&
-            sudo make install
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd ${{github.workspace}} &&
