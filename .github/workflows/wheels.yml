@@ -49,7 +49,7 @@ jobs:
             pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
-          # CIBW_BUILD_VERBOSITY: 1
+          CIBW_BUILD_VERBOSITY: 1
 
 
       - if: matrix.os == 'ubuntu-24.04'
@@ -81,7 +81,7 @@ jobs:
             pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
-          # CIBW_BUILD_VERBOSITY: 1
+          CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
         name: Remove firstly the installed libs from MacOS
@@ -108,7 +108,7 @@ jobs:
             cd ${{github.workspace}} &&
             pytest -s
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
-          # CIBW_BUILD_VERBOSITY: 1
+          CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4
         with:
