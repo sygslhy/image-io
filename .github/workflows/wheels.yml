@@ -85,7 +85,6 @@ jobs:
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_SKIP: "*-*linux_{aarch64,ppc64le,s390x,armv7l}"
           CIBW_TEST_COMMAND: >
             cd /project &&
             pytest -s

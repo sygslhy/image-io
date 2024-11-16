@@ -24,7 +24,9 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR "${CMAKE_CXX_COMPILER_ID}
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-march=haswell>")
+    if(CMAKE_SYSTEM_PROCESSOR_LC MATCHES "x86_64")
+        add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-march=haswell>")
+    endif()
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
 endif()
 
