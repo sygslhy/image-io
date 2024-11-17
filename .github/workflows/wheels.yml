@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-24.04, macos-13, macos-14]
+        os: [windows-2022, ubuntu-24.04, ubuntu-22.04, macos-13, macos-14]
 
     steps:
       - name: Check out image-io
@@ -59,13 +59,13 @@ jobs:
           name: git-repo
           path: ./*
 
-      - if: matrix.os == 'ubuntu-24.04'
-        name: Set up QEMU
+      - if: matrix.os == 'ubuntu-22.04'
+        name: Set up QEMU for arm linux simulation
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
 
-      - if: matrix.os == 'ubuntu-24.04'
+      - if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-22.04'
         name: Install cibuildwheel for Linux
         run: |
           python3 -m pip install --upgrade pip
@@ -73,12 +73,30 @@ jobs:
           python3 -m pip install cibuildwheel==2.21.3
 
       - if: matrix.os == 'ubuntu-24.04'
-        name: Build wheels for Linux
+        name: Build wheels for x86_64 Linux
         run: python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
-          CIBW_ARCHS_LINUX: x86_64, aarch64
+          CIBW_ARCHS_LINUX: x86_64
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_BEFORE_ALL: >
+            yum install -y nasm
+          CIBW_BEFORE_BUILD: >
+            rm -rf /usr/local/bin/python3*
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: >
+            cd /project &&
+            pytest -s
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_BUILD_VERBOSITY: 1
+
+      - if: matrix.os == 'ubuntu-22.04'
+        name: Build wheels for arm Linux
+        run: python3 -m cibuildwheel --output-dir wheelhouse
+        # to supply options, put them in 'env', like:
+        env:
+          CIBW_ARCHS_LINUX: aarch64
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL: >
             yum install -y nasm
