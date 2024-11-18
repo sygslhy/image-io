@@ -95,8 +95,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
-add_library(pybind11_test ALIAS pybind11_headers)
-
 FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/sygslhy/cxx-image.git"
