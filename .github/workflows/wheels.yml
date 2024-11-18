@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-24.04, ubuntu-22.04, macos-13, macos-14]
+        os: [windows-2022, ubuntu-24.04, ubuntu-latest, macos-13, macos-14]
 
     steps:
       - name: Check out image-io
@@ -64,13 +64,13 @@ jobs:
           name: git-repo
           path: ./*
 
-      - if: matrix.os == 'ubuntu-22.04'
+      - if: matrix.os == 'ubuntu-latest'
         name: Set up QEMU for arm linux simulation
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
 
-      - if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-22.04'
+      - if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-latest'
         name: Install cibuildwheel for Linux
         run: |
           python3 -m pip install --upgrade pip
@@ -96,7 +96,7 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
 
-      - if: matrix.os == 'ubuntu-22.04'
+      - if: matrix.os == 'ubuntu-latest'
         name: Build wheels for arm Linux
         run: python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
@@ -194,7 +194,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, ubuntu-20.04, ubuntu-22.04, macos-15]
+        os: [windows-2019, ubuntu-20.04, ubuntu-latest, macos-15]
         python-version: ["3.10", "3.11","3.12", "3.13"]
     steps:
     - name: Download git repo code
