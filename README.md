@@ -22,7 +22,7 @@ These IO interfaces are designed to read and write images in many file formats i
 
 This projet currently supports Python from 3.10 to 3.13 on
 - Windows: x86_64
-- Linux: x86_64, glibc 2.28+
+- Linux: x86_64 and aarch64, glibc 2.28+
 - MacOS: x86_64 and arm64, 11.0+
 
 ## Installation
