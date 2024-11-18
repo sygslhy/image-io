@@ -46,7 +46,7 @@ class CMakeBuild(build_ext):
         if os.name == 'nt':
             cmake_cfg += ['-G', 'Ninja']
         subprocess.check_call(cmake_cfg)
-        subprocess.check_call(['cmake', '--build', self.build_temp] +
+        subprocess.check_call(['cmake', '--build', self.build_temp, '-j8'] +
                               build_args)
         subprocess.check_call(['cmake', '--install', self.build_temp])
 
@@ -58,9 +58,11 @@ class CMakeBuild(build_ext):
         # copy D:\Work\image-io\cxx_image_io\cxx_image.cp312-win_amd64.pyd to
         # build\lib.win-amd64-cpython-312\cxx_image_io\cxx_image.cp312-win_amd64.pyd
         pyd_name = os.path.basename(self.get_outputs()[0])
-        build_temp_path = os.path.join(ext.sourcedir, os.path.dirname(self.get_outputs()[0]))
+        build_temp_path = os.path.join(ext.sourcedir,
+                                       os.path.dirname(self.get_outputs()[0]))
         pathlib.Path(build_temp_path).mkdir(parents=True, exist_ok=True)
-        pyd_target_path = os.path.join(build_temp_path, 'cxx_image_io', pyd_name)
+        pyd_target_path = os.path.join(build_temp_path, 'cxx_image_io',
+                                       pyd_name)
         pyd_origin_path = os.path.join(ext.sourcedir, 'cxx_image_io', pyd_name)
         self.copy_file(pyd_origin_path, pyd_target_path, level=self.verbose)
 
@@ -70,7 +72,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="0.1.0",
+    version="1.0.0",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description="Python image IO module with binding cxx image code",
@@ -82,7 +84,6 @@ setup(
         "Issues": "https://github.com/sygslhy/image-io/issues",
     },
     classifiers=[
-        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.10",
@@ -118,6 +119,6 @@ setup(
     python_requires='>=3.10',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
-    packages = find_packages(),
+    packages=find_packages(exclude=["test"]),
     package_dir={'cxx-image-io': 'cxx_image_io'},
-    install_requires=['numpy>=1.26.4'])
+    install_requires=['numpy>=2.1.0', 'ninja>=1.11.1'])

@@ -18,7 +18,7 @@ These IO interfaces are designed to read and write images in many file formats i
 
 ## Prerequisites
 
-- numpy >= 1.26.4 is necessary
+- numpy >= 2.1.0 is necessary
 
 This projet currently supports Python from 3.10 to 3.13 on
 - Windows: x86_64

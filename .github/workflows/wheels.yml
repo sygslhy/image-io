@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2022, ubuntu-24.04, ubuntu-latest, macos-13, macos-14]
+        os: [windows-latest, ubuntu-24.04, ubuntu-latest, macos-13, macos-14]
 
     steps:
       - name: Check out image-io
@@ -21,7 +21,7 @@ jobs:
         with:
          lfs: 'true'
 
-      - if: matrix.os == 'windows-2022'
+      - if: matrix.os == 'windows-latest'
         name: Install Msys2 mingw64 for g++ and gcc tools on windows
         uses: msys2/setup-msys2@v2
         with:
@@ -30,14 +30,14 @@ jobs:
           update: true
           install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja
 
-      - if: matrix.os == 'windows-2022'
+      - if: matrix.os == 'windows-latest'
         name: Install cibuildwheel for Windows
         run: |
           python -m pip install --upgrade pip
           python -m pip install setuptools wheel pytest numpy
           python -m pip install cibuildwheel==2.21.3
 
-      - if: matrix.os == 'windows-2022'
+      - if: matrix.os == 'windows-latest'
         name: Build wheels for Windows
         run: python -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
@@ -51,7 +51,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /d D:\a\image-io\image-io &&
-            pytest -s
+            pytest -sv
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
@@ -61,8 +61,8 @@ jobs:
         name: Upload the source code to artifact for using later
         uses: actions/upload-artifact@v4
         with:
-          name: git-repo
-          path: ./*
+          name: test
+          path: ./test/
 
       - if: matrix.os == 'ubuntu-latest'
         name: Set up QEMU for arm linux simulation
@@ -91,7 +91,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /project &&
-            pytest -s
+            pytest -sv
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
@@ -110,7 +110,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /project &&
-            pytest -s
+            pytest -sv
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
@@ -138,7 +138,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd ${{github.workspace}} &&
-            pytest -s
+            pytest -sv
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
 
@@ -194,14 +194,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, ubuntu-20.04, ubuntu-latest, macos-15]
+        os: [windows-2019, ubuntu-22.04, ubuntu-latest, macos-15]
         python-version: ["3.10", "3.11","3.12", "3.13"]
     steps:
     - name: Download git repo code
       uses: actions/download-artifact@v4
       with:
-        pattern: git-repo
-        path: image_io
+        pattern: test
+        path: image_io/
 
     - uses: actions/setup-python@v5
       with:
@@ -213,9 +213,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install numpy pytest
         pip install -i https://test.pypi.org/simple/ cxx-image-io
-        cd image_io/git-repo/
+        cd image_io/
         mkdir -p test/_outputs
-        pytest -s
+        pytest -sv
 
   publish-to-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
