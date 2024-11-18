@@ -1,9 +1,14 @@
 name: Build and upload to PyPI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build_and_test:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -143,6 +148,7 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_sdist:
+    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
