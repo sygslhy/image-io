@@ -29,8 +29,8 @@ class CMakeBuild(build_ext):
         if platform.system() == "Windows":
             cmake_version = LooseVersion(
                 re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-            if cmake_version < '3.10.0':
-                raise RuntimeError("CMake >= 3.10.0 is required")
+            if cmake_version < '3.11.0':
+                raise RuntimeError("CMake >= 3.11.0 is required")
 
         for ext in self.extensions:
             if isinstance(ext, CMakeExtension):
@@ -71,10 +71,11 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="1.0.0",
+    version="1.0.1",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
-    description="Python image IO module with binding cxx image code",
+    description=
+    "Image IO Interfaces for wide range image formats (jpg, png, tif, dng, yuv and RAWs), with Exif support, interact nicely with numpy array.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sygslhy/image-io",
