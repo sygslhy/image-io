@@ -71,7 +71,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cxx-image-io",
-    version="1.0.1",
+    version="1.0.2",
     author="Yuan SUN",
     author_email="sunyuan860510@gmail.com",
     description=
