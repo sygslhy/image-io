@@ -217,7 +217,7 @@ def test_read_image(image_type, ref_numpy_info, ref_image_info):
          False),
         ('bmp', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
         ('jpg', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
-        ('png', PixelType.RGBA, ImageLayout.INTERLEAVED, 0, None, True),
+        ('png', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
         ('tif', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
         ('cfa', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, True),
         ('rawmipi12', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None,
