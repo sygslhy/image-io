@@ -1,4 +1,4 @@
-name: Build and test wheels with the latest python version (v3.13)
+name: Build and test wheels with the latest python 3.13
 
 on: [push, pull_request]
 
@@ -46,19 +46,11 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /d D:\a\image-io\image-io &&
-            pytest -s
+            pytest -sv
           CIBW_BUILD: cp313-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
-
-
-      - if: matrix.os == 'ubuntu-24.04'
-        name: Upload the source code to artifact for using later
-        uses: actions/upload-artifact@v4
-        with:
-          name: git-repo
-          path: ./*
 
       - if: matrix.os == 'ubuntu-latest'
         name: Set up QEMU for arm linux simulation
@@ -81,13 +73,14 @@ jobs:
           CIBW_ARCHS_LINUX: x86_64
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL: >
-            yum install -y nasm
+            yum install -y nasm &&
+            yum install -y ninja-build
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /project &&
-            pytest -s
+            pytest -sv
           CIBW_BUILD: cp313-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
@@ -101,13 +94,14 @@ jobs:
           CIBW_ARCHS_LINUX: aarch64
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_BEFORE_ALL: >
-            yum install -y nasm
+            yum install -y nasm &&
+            yum install -y ninja-build
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd /project &&
-            pytest -s
+            pytest -sv
           CIBW_BUILD: cp313-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
@@ -116,7 +110,7 @@ jobs:
       - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
         name: Remove firstly the installed libs from MacOS
         run : |
-          brew install nasm
+          brew install nasm ninja
           sudo rm -rf /Library/Frameworks/Mono.framework
           brew uninstall --ignore-dependencies jpeg-turbo libpng libtiff
 
@@ -136,7 +130,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd ${{github.workspace}} &&
-            pytest -s
+            pytest -sv
           CIBW_BUILD: cp313-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
