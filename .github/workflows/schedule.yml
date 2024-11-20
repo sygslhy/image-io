@@ -5,7 +5,7 @@ name: Test the PYPI package in all the platforms
 
 on:
   schedule:
-    - cron: '30 10 * * 1,3,5'
+    - cron: '30 10 * * 1'
 
 jobs:
   checkout-code:
