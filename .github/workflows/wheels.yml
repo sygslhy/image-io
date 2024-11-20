@@ -7,8 +7,50 @@ on:
     branches: [ "main" ]
 
 jobs:
+  checkout-code:
+    name: Checkout source code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout cxx-image-io source code
+      uses: actions/checkout@v4
+      with:
+        lfs: 'true'
+    - name: Upload the source code to artifact for build in matrix later
+      uses: actions/upload-artifact@v4
+      with:
+        name: source
+        path: .
+
+    - name: Upload the test code to artifact for using later
+      uses: actions/upload-artifact@v4
+      with:
+        name: test
+        path: ./test/
+
+
+  build_sdist:
+    needs: checkout-code
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download source code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: source
+          path: .
+
+      - name: Build sdist
+        run: |
+          cd source &&
+          python3 setup.py sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: source/dist/*.tar.gz
+
   build_and_test:
-    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
+    needs: checkout-code
     name: Build wheels on ${{ matrix.os }} and ${{matrix.cp-version}}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -17,10 +59,11 @@ jobs:
         cp-version: ["cp310", "cp311","cp312", "cp313"]
 
     steps:
-      - name: Check out image-io
-        uses: actions/checkout@v4
+      - name: Download source code artifact
+        uses: actions/download-artifact@v4
         with:
-         lfs: 'true'
+          pattern: source
+          path: .
 
       - if: matrix.os == 'windows-latest'
         name: Install Msys2 mingw64 for g++ and gcc tools on windows
@@ -40,7 +83,9 @@ jobs:
 
       - if: matrix.os == 'windows-latest'
         name: Build wheels for Windows
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: |
+          cd source &&
+          python -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
           CIBW_ARCHS: AMD64
@@ -48,22 +93,15 @@ jobs:
             PATH="D:\\msys64\\mingw64\\bin;D:\\msys64\\mingw64;$PATH"
           CIBW_BEFORE_BUILD: >
             rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\python3.exe &&
-            rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\libs\\python39.lib
+            rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\libs\\python39.lib &&
+            git config --system core.longpaths true
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /d D:\a\image-io\image-io &&
+            cd /d D:\a\image-io\image-io\source &&
             pytest -sv
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
-
-
-      - if: matrix.os == 'ubuntu-24.04' && matrix.cp-version == 'cp310'
-        name: Upload the source code to artifact for using later
-        uses: actions/upload-artifact@v4
-        with:
-          name: test
-          path: ./test/
 
       - if: matrix.os == 'ubuntu-latest'
         name: Set up QEMU for arm linux simulation
@@ -80,7 +118,9 @@ jobs:
 
       - if: matrix.os == 'ubuntu-24.04'
         name: Build wheels for x86_64 Linux
-        run: python3 -m cibuildwheel --output-dir wheelhouse
+        run: |
+          cd source &&
+          python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
           CIBW_ARCHS_LINUX: x86_64
@@ -100,7 +140,9 @@ jobs:
 
       - if: matrix.os == 'ubuntu-latest'
         name: Build wheels for arm Linux
-        run: python3 -m cibuildwheel --output-dir wheelhouse
+        run: |
+          cd source &&
+          python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
           CIBW_ARCHS_LINUX: aarch64
@@ -135,13 +177,15 @@ jobs:
 
       - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
         name: Build wheels for MacOS
-        run: python3 -m cibuildwheel --output-dir wheelhouse
+        run: |
+          cd source &&
+          python3 -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
           MACOSX_DEPLOYMENT_TARGET: 11.0
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd ${{github.workspace}} &&
+            cd ${{github.workspace}}/source &&
             pytest -sv
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
@@ -150,23 +194,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ matrix.cp-version }}
-          path: ./wheelhouse/*.whl
+          path: ./source/wheelhouse/*.whl
 
-  build_sdist:
-    if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
-    name: Build source distribution
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout cxx-image-io code
-        uses: actions/checkout@v4
 
-      - name: Build sdist
-        run: python3 setup.py sdist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cibw-sdist
-          path: dist/*.tar.gz
 
   publish-to-test-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
