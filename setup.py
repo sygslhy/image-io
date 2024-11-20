@@ -43,7 +43,7 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         cmake_cfg = ['cmake', '-B', self.build_temp, '-S', '.']
-        cmake_cfg += ['-G', 'Ninja']
+        # cmake_cfg += ['-G', 'Ninja']
         subprocess.check_call(cmake_cfg)
         subprocess.check_call(['cmake', '--build', self.build_temp] +
                               build_args)
