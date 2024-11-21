@@ -1,10 +1,12 @@
 name: Build and test wheels then upload to PyPI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
+
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
 
 jobs:
   checkout-code:
@@ -49,13 +51,13 @@ jobs:
           name: cibw-sdist
           path: source/dist/*.tar.gz
 
-  build_and_test:
+  build_and_test_windows:
     needs: checkout-code
-    name: Build wheels on ${{ matrix.os }} and ${{matrix.cp-version}}
+    name: Windows wheel ${{ matrix.os }} and ${{matrix.cp-version}}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-24.04, ubuntu-latest, macos-13, macos-14]
+        os: [windows-latest]
         cp-version: ["cp310", "cp311","cp312", "cp313"]
 
     steps:
@@ -65,8 +67,7 @@ jobs:
           pattern: source
           path: .
 
-      - if: matrix.os == 'windows-latest'
-        name: Install Msys2 mingw64 for g++ and gcc tools on windows
+      - name: Install Msys2 mingw64 for g++ and gcc tools on windows
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
@@ -74,15 +75,13 @@ jobs:
           update: true
           install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja
 
-      - if: matrix.os == 'windows-latest'
-        name: Install cibuildwheel for Windows
+      - name: Install cibuildwheel for Windows
         run: |
           python -m pip install --upgrade pip
           python -m pip install setuptools wheel pytest numpy
           python -m pip install cibuildwheel==2.21.3
 
-      - if: matrix.os == 'windows-latest'
-        name: Build wheels for Windows
+      - name: Build wheels for Windows AMD64
         run: |
           cd source &&
           python -m cibuildwheel --output-dir wheelhouse
@@ -103,21 +102,43 @@ jobs:
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ matrix.cp-version }}
+          path: ./source/wheelhouse/*.whl
+
+
+  build_and_test_linux:
+    needs: checkout-code
+    name: Linux wheel on ${{ matrix.os }} and ${{matrix.cp-version}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, ubuntu-latest]
+        cp-version: ["cp310", "cp311","cp312", "cp313"]
+        linux: ["manylinux", "musllinux"]
+
+    steps:
+      - name: Download source code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: source
+          path: .
+
       - if: matrix.os == 'ubuntu-latest'
-        name: Set up QEMU for arm linux simulation
+        name: Set up QEMU for aarch64 linux simulation
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
 
-      - if: matrix.os == 'ubuntu-24.04' || matrix.os == 'ubuntu-latest'
-        name: Install cibuildwheel for Linux
+      - name: Install cibuildwheel for Linux
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install setuptools wheel pytest numpy
           python3 -m pip install cibuildwheel==2.21.3
 
-      - if: matrix.os == 'ubuntu-24.04'
-        name: Build wheels for x86_64 Linux
+      - if: matrix.os == 'ubuntu-24.04' && matrix.linux == 'manylinux'
+        name: wheels x86_64 Many Linux
         run: |
           cd source &&
           python3 -m cibuildwheel --output-dir wheelhouse
@@ -138,8 +159,30 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
 
-      - if: matrix.os == 'ubuntu-latest'
-        name: Build wheels for arm Linux
+      - if: matrix.os == 'ubuntu-24.04' && matrix.linux == 'musllinux'
+        name: wheels x86_64 musllinux
+        run: |
+          cd source &&
+          python3 -m cibuildwheel --output-dir wheelhouse
+        # to supply options, put them in 'env', like:
+        env:
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_MUSLLINUX_X86_64_IMAGE: musllinux_1_2
+          CIBW_BEFORE_ALL: >
+            apk add --update nasm samurai
+          CIBW_BEFORE_BUILD: >
+            rm -rf /usr/local/bin/python3*
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: >
+            cd /project &&
+            pytest -sv
+          CIBW_BUILD: ${{matrix.cp-version}}-*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_BUILD_VERBOSITY: 1
+
+      - if: matrix.os == 'ubuntu-latest' && matrix.linux == 'manylinux'
+        name: wheels aarch64 manylinux
         run: |
           cd source &&
           python3 -m cibuildwheel --output-dir wheelhouse
@@ -160,23 +203,64 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
           CIBW_BUILD_VERBOSITY: 1
 
+      - if: matrix.os == 'ubuntu-latest' && matrix.linux == 'musllinux'
+        name: wheels aarch64 musllinux
+        run: |
+          cd source &&
+          python3 -m cibuildwheel --output-dir wheelhouse
+        # to supply options, put them in 'env', like:
+        env:
+          CIBW_ARCHS_LINUX: aarch64
+          CIBW_MANYLINUX_AARCH64_IMAGE: musllinux_1_2
+          CIBW_BEFORE_ALL: >
+            apk add --update nasm samurai
+          CIBW_BEFORE_BUILD: >
+            rm -rf /usr/local/bin/python3*
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: >
+            cd /project &&
+            pytest -sv
+          CIBW_BUILD: ${{matrix.cp-version}}-*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_BUILD_VERBOSITY: 1
 
-      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
-        name: Remove firstly the installed libs from MacOS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ matrix.cp-version }}-${{matrix.linux}}
+          path: ./source/wheelhouse/*.whl
+
+
+  build_and_test_macos:
+    needs: checkout-code
+    name: Windows wheel ${{ matrix.os }} and ${{matrix.cp-version}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-13, macos-14]
+        cp-version: ["cp310", "cp311","cp312", "cp313"]
+
+    steps:
+
+      - name: Download source code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: source
+          path: .
+
+      - name: Remove firstly the installed libs from MacOS
         run : |
           brew install nasm ninja
           sudo rm -rf /Library/Frameworks/Mono.framework
           brew uninstall --ignore-dependencies jpeg-turbo libpng libtiff
 
-      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
-        name: Install cibuildwheel for MacOS
+      - name: Install cibuildwheel for MacOS
         run: |
           python3 -m pip install --upgrade pip --break-system-packages
           python3 -m pip install setuptools wheel pytest numpy --break-system-packages
           python3 -m pip install cibuildwheel==2.21.3 --break-system-packages
 
-      - if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
-        name: Build wheels for MacOS
+      - name: wheels MacOS
         run: |
           cd source &&
           python3 -m cibuildwheel --output-dir wheelhouse
@@ -200,7 +284,7 @@ jobs:
 
   publish-to-test-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
-    needs: [build_and_test, build_sdist]
+    needs: [build_and_test_windows, build_and_test_linux, build_and_test_macos, build_sdist]
     environment:
       name: testpypi
       url: https://test.pypi.org/project/cxx-image-io
