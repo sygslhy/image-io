@@ -70,35 +70,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="cxx_image_io",
-    version="1.0.3",
-    author="Yuan SUN",
-    author_email="sunyuan860510@gmail.com",
-    description=
-    "Image IO Interfaces for wide range image formats (jpg, png, tif, dng, yuv and RAWs), with Exif support, interact nicely with numpy array.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/sygslhy/image-io",
-    project_urls={
-        "Homepage": "https://github.com/sygslhy/image-io",
-        "Issues": "https://github.com/sygslhy/image-io/issues",
-    },
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3.13",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: C++",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX :: Linux",
-        "Operating System :: MacOS",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Software Development",
-    ],
+    long_description = long_description,
     ext_modules=[
         # This CmakeExtension take care build the binding projet
         # by cmake to generate pyd file.
@@ -116,9 +88,7 @@ setup(
                       'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
-    python_requires='>=3.10',
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
     packages=find_packages(exclude=["test"]),
-    package_dir={'cxx-image-io': 'cxx_image_io'},
-    install_requires=['numpy>=2.1.0', 'ninja>=1.11.1'])
+    package_dir={'cxx-image-io': 'cxx_image_io'})
