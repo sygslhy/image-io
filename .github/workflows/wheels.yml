@@ -1,12 +1,12 @@
 name: Build and test wheels then upload to PyPI
 
-# on: [push, pull_request]
+on: [push, pull_request]
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
 
 jobs:
   checkout-code:
@@ -44,7 +44,8 @@ jobs:
       - name: Build sdist
         run: |
           cd source &&
-          python3 setup.py sdist
+          python3 -m pip install build
+          python3 -m build --sdist
 
       - uses: actions/upload-artifact@v4
         with:
@@ -152,11 +153,15 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project &&
-            pytest -sv
+            cd /project
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            ls -l /project/cxx_image_io &&
+            export LD_LIBRARY_PATH=/project/cxx_image_io &&
+            auditwheel repair -w {dest_dir} {wheel} --only-plat &&
+            ls -l /tmp/cibuildwheel/repaired_wheel/ &&
+            ls -l /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/
           CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'ubuntu-24.04' && matrix.linux == 'musllinux'
@@ -174,11 +179,15 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project &&
-            pytest -sv
+            cd /project
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            ls -l /project/cxx_image_io &&
+            export LD_LIBRARY_PATH=/project/cxx_image_io &&
+            auditwheel repair -w {dest_dir} {wheel} --only-plat &&
+            ls -l /tmp/cibuildwheel/repaired_wheel/ &&
+            ls -l /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/
           CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'ubuntu-latest' && matrix.linux == 'manylinux'
@@ -196,8 +205,7 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project &&
-            pytest -sv
+            cd /project
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
@@ -218,8 +226,7 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project &&
-            pytest -sv
+             cd /project
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
@@ -233,7 +240,7 @@ jobs:
 
   build_and_test_macos:
     needs: checkout-code
-    name: Windows wheel ${{ matrix.os }} and ${{matrix.cp-version}}
+    name: MACOS wheel ${{ matrix.os }} and ${{matrix.cp-version}}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

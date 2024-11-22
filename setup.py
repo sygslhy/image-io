@@ -37,27 +37,44 @@ class CMakeBuild(build_ext):
                 self.build_extension(ext)
 
     def build_extension(self, ext):
-
-        cfg = 'Debug' if self.debug else 'Release'
-        build_args = ['--config', cfg]
-        build_lib_path = os.path.join(ext.sourcedir,
-                                       os.path.dirname(self.get_outputs()[0]))
-
+        build_args = ['-DCMAKE_BUILD_TYPE=Release']
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        cmake_cfg = ['cmake', '-B', self.build_temp, '-S', ext.sourcedir, '--install-prefix', build_lib_path]
-        cmake_cfg += ['-G', 'Ninja']
+        cmake_cfg = [
+            'cmake', '-B', self.build_temp, '-S', ext.sourcedir, '-G', 'Ninja'
+        ] + build_args
         subprocess.check_call(cmake_cfg)
-        subprocess.check_call(['cmake', '--build', self.build_temp] +
-                              build_args)
+        subprocess.check_call(['cmake', '--build', self.build_temp])
         subprocess.check_call(['cmake', '--install', self.build_temp])
+
+        # WA, the build backend script search first the package and associated data,
+        # then build the C++ codes, but before build C++ code there wasn't the .pyd file
+        # which provide the binding interface.
+        # So the solution is to copy explicitly the pyd file to build_lib folder,
+        # so that the install_lib in build backend will take care of it.
+        # copy D:\Work\image-io\cxx_image_io\cxx_image.cp312-win_amd64.pyd to
+        # build\lib.win-amd64-cpython-312\cxx_image_io\cxx_image.cp312-win_amd64.pyd
+        build_lib_path = os.path.join(ext.sourcedir,
+                                      os.path.dirname(self.get_outputs()[0]))
+        all_files = []
+        source_dir = pathlib.Path(ext.sourcedir, 'cxx_image_io')
+        for ext in ['*.so', '*.dll', '*.pyd', '*dylib']:
+            all_files.extend(source_dir.glob(ext))
+
+        print('found files to install', all_files)
+        for ori_path in all_files:
+            filename = ori_path.name
+            pathlib.Path(build_lib_path).mkdir(parents=True, exist_ok=True)
+            target_path = os.path.join(build_lib_path, 'cxx_image_io',
+                                       filename)
+            self.copy_file(ori_path, target_path, level=self.verbose)
 
 
 with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    long_description = long_description,
+    long_description=long_description,
     ext_modules=[
         # This CmakeExtension take care build the binding projet
         # by cmake to generate pyd file.
@@ -66,12 +83,9 @@ setup(
         Extension(name='cxx_image_io',
                   sources=[
                       'binding/BindingEntryPoint.cpp',
-                      'binding/ExifMetadata.cpp',
-                      'binding/Image.cpp',
-                      'binding/ImageIO.cpp',
-                      'binding/ImageMetadata.cpp',
-                      'binding/Matrix.cpp',
-                      'binding/MetadataParser.cpp',
+                      'binding/ExifMetadata.cpp', 'binding/Image.cpp',
+                      'binding/ImageIO.cpp', 'binding/ImageMetadata.cpp',
+                      'binding/Matrix.cpp', 'binding/MetadataParser.cpp',
                       'binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
@@ -80,6 +94,6 @@ setup(
     packages=find_packages(exclude=["test"]),
     include_package_data=True,
     package_data={
-      '': ['*.dll', '*.dylib', '*.so'],
+        '': ['*.dll', '*.dylib', '*.so'],
     },
     package_dir={'cxx-image-io': 'cxx_image_io'})

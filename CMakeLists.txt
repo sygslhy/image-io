@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" CACHE PATH "install path")
 project(image-io)
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  SET(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "default install path" FORCE)
+  SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" CACHE PATH "default install path" FORCE)
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 # Needed for clang-tidy post process
@@ -57,8 +57,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(EXIF)
 add_library(EXIF::EXIF ALIAS exif)
 install(TARGETS exif
-    COMPONENT python
-    RUNTIME DESTINATION "cxx_image_io"
+    LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/cxx_image_io"
 )
 
 FetchContent_Declare(
