@@ -232,4 +232,4 @@ In addition, this project has the dependencies of the following libraries by cma
 - libexif: https://libexif.github.io/
 - adobe dng sdk: https://helpx.adobe.com/camera-raw/digital-negative.html
 - pybind11: https://github.com/pybind/pybind11
-- cxx-image
+- cxx-image: https://github.com/emmcb/cxx-image

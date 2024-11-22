@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
+SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" CACHE PATH "install path")
 project(image-io)
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  SET(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "default install path" FORCE)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 # Needed for clang-tidy post process
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -24,8 +28,6 @@ endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
 endif()
-
-SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 # WR for CI pass the M_PI missing issue
 add_definitions(-D_USE_MATH_DEFINES)
@@ -54,6 +56,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(EXIF)
 add_library(EXIF::EXIF ALIAS exif)
+install(TARGETS exif
+    COMPONENT python
+    RUNTIME DESTINATION "cxx_image_io"
+)
 
 FetchContent_Declare(
     PNG
