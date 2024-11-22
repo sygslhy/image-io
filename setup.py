@@ -3,7 +3,7 @@ import platform
 import re
 import subprocess
 import pathlib
-from distutils.version import LooseVersion
+from packaging import version
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
@@ -27,9 +27,9 @@ class CMakeBuild(build_ext):
                 ", ".join(e.name for e in self.extensions))
 
         if platform.system() == "Windows":
-            cmake_version = LooseVersion(
+            cmake_version = version.Version(
                 re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-            if cmake_version < '3.11.0':
+            if str(cmake_version) < '3.11.0':
                 raise RuntimeError("CMake >= 3.11.0 is required")
 
         for ext in self.extensions:
@@ -78,14 +78,14 @@ setup(
         # This Extension take care only to save the source C++ code.
         Extension(name='cxx_image_io',
                   sources=[
-                      'cxx_image_io/binding/BindingEntryPoint.cpp',
-                      'cxx_image_io/binding/ExifMetadata.cpp',
-                      'cxx_image_io/binding/Image.cpp',
-                      'cxx_image_io/binding/ImageIO.cpp',
-                      'cxx_image_io/binding/ImageMetadata.cpp',
-                      'cxx_image_io/binding/Matrix.cpp',
-                      'cxx_image_io/binding/MetadataParser.cpp',
-                      'cxx_image_io/binding/CMakeLists.txt', 'CMakeLists.txt'
+                      'binding/BindingEntryPoint.cpp',
+                      'binding/ExifMetadata.cpp',
+                      'binding/Image.cpp',
+                      'binding/ImageIO.cpp',
+                      'binding/ImageMetadata.cpp',
+                      'binding/Matrix.cpp',
+                      'binding/MetadataParser.cpp',
+                      'binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
     cmdclass={'build_ext': CMakeBuild},

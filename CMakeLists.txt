@@ -97,4 +97,4 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cxx-image)
 
-add_subdirectory(cxx_image_io/binding)
+add_subdirectory(binding)
