@@ -224,12 +224,17 @@ write_image(Path('/path/to/image.jpg'), image, write_options)
 
 This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
 
+## Dependencies
+
 In addition, this project has the dependencies of the following libraries by cmake FetchContent:
+
+### Statically linked
 - libjpeg: https://libjpeg.sourceforge.net/
 - libpng: http://www.libpng.org/pub/png/libpng.html
-- libz: https://www.zlib.net/
 - libtiff: https://libtiff.gitlab.io/libtiff/
-- libexif: https://libexif.github.io/
 - adobe dng sdk: https://helpx.adobe.com/camera-raw/digital-negative.html
-- pybind11: https://github.com/pybind/pybind11
-- cxx-image: https://github.com/emmcb/cxx-image
+- pybind11 (BSD-2): https://github.com/pybind/pybind11
+- cxx-image (Apache 2.0): https://github.com/emmcb/cxx-image
+
+### Dynamically linked
+- libexif (LGPL v2.1) : https://libexif.github.io/

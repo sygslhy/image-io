@@ -80,6 +80,6 @@ setup(
     packages=find_packages(exclude=["test"]),
     include_package_data=True,
     package_data={
-      '': ['*.dll'],
+      '': ['*.dll', '*.dylib', '*.so'],
     },
     package_dir={'cxx-image-io': 'cxx_image_io'})
