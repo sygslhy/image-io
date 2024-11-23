@@ -51,12 +51,13 @@ add_library(JPEG::JPEG ALIAS jpeg-static)
 FetchContent_Declare(
     EXIF
     GIT_REPOSITORY "https://github.com/sygslhy/libexif.git"
-    GIT_TAG "master"
+    GIT_TAG "dynamic"
     OVERRIDE_FIND_PACKAGE
 )
 FetchContent_MakeAvailable(EXIF)
 add_library(EXIF::EXIF ALIAS exif)
 install(TARGETS exif
+    COMPONENT cxx-image-io
     LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/cxx_image_io"
 )
 

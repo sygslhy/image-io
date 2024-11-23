@@ -15,6 +15,6 @@ pybind11_add_module(cxx_image BindingEntryPoint.cpp)
 target_link_libraries(cxx_image PRIVATE cxx_image_bind pybind11::pybind11 loguru::loguru)
 
 install(TARGETS cxx_image
-	COMPONENT python
+	COMPONENT cxx-image-io
 	LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/cxx_image_io"
 )
