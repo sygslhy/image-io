@@ -153,15 +153,13 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project
+            cd /project &&
+            pip show cxx-image-io -f
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            ls -l /project/cxx_image_io &&
             export LD_LIBRARY_PATH=/project/cxx_image_io &&
-            auditwheel repair -w {dest_dir} {wheel} --only-plat &&
-            ls -l /tmp/cibuildwheel/repaired_wheel/ &&
-            ls -l /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/
+            auditwheel repair -w {dest_dir} {wheel} --only-plat
           CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'ubuntu-24.04' && matrix.linux == 'musllinux'
@@ -179,15 +177,13 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project
+            cd /project &&
+            pip show cxx-image-io  -f
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            ls -l /project/cxx_image_io &&
             export LD_LIBRARY_PATH=/project/cxx_image_io &&
-            auditwheel repair -w {dest_dir} {wheel} --only-plat &&
-            ls -l /tmp/cibuildwheel/repaired_wheel/ &&
-            ls -l /tmp/cibuildwheel/repaired_wheel /tmp/cibuildwheel/built_wheel/
+            auditwheel repair -w {dest_dir} {wheel} --only-plat
           CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'ubuntu-latest' && matrix.linux == 'manylinux'
@@ -205,10 +201,13 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-            cd /project
+            cd /project &&
+            pytest -sv
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            export LD_LIBRARY_PATH=/project/cxx_image_io
+            auditwheel repair -w {dest_dir} {wheel} --only-plat
           CIBW_BUILD_VERBOSITY: 1
 
       - if: matrix.os == 'ubuntu-latest' && matrix.linux == 'musllinux'
@@ -226,10 +225,13 @@ jobs:
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
-             cd /project
+             cd /project &&
+             pytest -sv
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair -w {dest_dir} {wheel} --only-plat"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            export LD_LIBRARY_PATH=/project/cxx_image_io &&
+            auditwheel repair -w {dest_dir} {wheel} --only-plat
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4
@@ -277,9 +279,11 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: >
             cd ${{github.workspace}}/source &&
-            pytest -sv
+            pip show cxx-image-io -f
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
+            DYLD_LIBRARY_PATH=${{github.workspace}}/source/cxx_image_io delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4

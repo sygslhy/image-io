@@ -55,10 +55,23 @@ FetchContent_Declare(
     OVERRIDE_FIND_PACKAGE
 )
 FetchContent_MakeAvailable(EXIF)
+
+Set(CMAKE_INSTALL_BINDIR "")
+Set(CMAKE_INSTALL_LIBDIR "")
+
+message(STATUS "CMAKE_INSTALL_BINDIR = ${CMAKE_INSTALL_BINDIR}")
+message(STATUS "INSTALL_BIN_DIR = ${INSTALL_BIN_DIR}")
+message(STATUS "CMAKE_INSTALL_LIBIR = ${CMAKE_INSTALL_LIBDIR}")
+message(STATUS "INSTALL_LIB_DIR = ${INSTALL_LIB_DIR}")
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+
+
+
 add_library(EXIF::EXIF ALIAS exif)
 install(TARGETS exif
     COMPONENT cxx-image-io
-    LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}/cxx_image_io"
+    LIBRARY DESTINATION cxx_image_io
+    RUNTIME DESTINATION cxx_image_io
 )
 
 FetchContent_Declare(
