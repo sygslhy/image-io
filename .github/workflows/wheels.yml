@@ -210,7 +210,7 @@ jobs:
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
-            export LD_LIBRARY_PATH=/project/cxx_image_io
+            export LD_LIBRARY_PATH=/project/cxx_image_io &&
             auditwheel repair -w {dest_dir} {wheel} --only-plat
           CIBW_BUILD_VERBOSITY: 1
 

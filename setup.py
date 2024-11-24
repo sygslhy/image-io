@@ -44,7 +44,7 @@ class CMakeBuild(build_ext):
             'cmake', '-B', self.build_temp, '-S', ext.sourcedir, '-G', 'Ninja'
         ] + build_args
         subprocess.check_call(cmake_cfg)
-        subprocess.check_call(['cmake', '--build', self.build_temp])
+        subprocess.check_call(['ninja', '-C', self.build_temp])
         subprocess.check_call(['cmake', '--install', self.build_temp])
 
         # WA, the build backend script search first the package and associated data,
@@ -94,6 +94,6 @@ setup(
     packages=find_packages(exclude=["test"]),
     include_package_data=True,
     package_data={
-        '': ['*.dll', '*.dylib', '*.so'],
+        '': ['libexif.dll', 'libexif.dylib', 'libexif.so'],
     },
     package_dir={'cxx-image-io': 'cxx_image_io'})
