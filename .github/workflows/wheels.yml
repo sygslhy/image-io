@@ -79,8 +79,14 @@ jobs:
       - name: Install cibuildwheel for Windows
         run: |
           python -m pip install --upgrade pip
-          python -m pip install setuptools wheel pytest numpy
+          python -m pip install setuptools wheel numpy
           python -m pip install cibuildwheel==2.21.3
+
+      - name: Download test code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test
+          path: ./test-cxx-image-io
 
       - name: Build wheels for Windows AMD64
         run: |
@@ -96,9 +102,7 @@ jobs:
             rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\libs\\python39.lib &&
             git config --system core.longpaths true
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: >
-            cd /d D:\a\image-io\image-io\source &&
-            pytest -sv
+          CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
@@ -138,6 +142,12 @@ jobs:
           python3 -m pip install setuptools wheel pytest numpy
           python3 -m pip install cibuildwheel==2.21.3
 
+      - name: Download test code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test
+          path: ./source/test-cxx-image-io
+
       - if: matrix.os == 'ubuntu-24.04' && matrix.linux == 'manylinux'
         name: wheels x86_64 Many Linux
         run: |
@@ -152,9 +162,7 @@ jobs:
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: >
-            cd /project &&
-            pip show cxx-image-io -f
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -176,9 +184,7 @@ jobs:
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: >
-            cd /project &&
-            pip show cxx-image-io  -f
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -200,9 +206,7 @@ jobs:
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: >
-            cd /project &&
-            pytest -sv
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -224,9 +228,7 @@ jobs:
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: >
-             cd /project &&
-             pytest -sv
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -266,8 +268,14 @@ jobs:
       - name: Install cibuildwheel for MacOS
         run: |
           python3 -m pip install --upgrade pip --break-system-packages
-          python3 -m pip install setuptools wheel pytest numpy --break-system-packages
+          python3 -m pip install setuptools wheel numpy --break-system-packages
           python3 -m pip install cibuildwheel==2.21.3 --break-system-packages
+
+      - name: Download test code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test
+          path: ./test-cxx-image-io
 
       - name: wheels MacOS
         run: |
@@ -277,9 +285,7 @@ jobs:
         env:
           MACOSX_DEPLOYMENT_TARGET: 11.0
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: >
-            cd ${{github.workspace}}/source &&
-            pip show cxx-image-io -f
+          CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
