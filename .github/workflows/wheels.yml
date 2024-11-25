@@ -30,9 +30,9 @@ jobs:
         path: ./test/
 
 
-  build_sdist:
+  build_and_test_sdist:
     needs: checkout-code
-    name: Build source distribution
+    name: Build and test source distribution
     runs-on: ubuntu-latest
     steps:
       - name: Download source code artifact
@@ -41,11 +41,32 @@ jobs:
           pattern: source
           path: .
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Build sdist
         run: |
           cd source &&
-          python3 -m pip install build
+          python3 -m pip install build pytest
           python3 -m build --sdist
+
+      - name: Installation from sdist
+        run: |
+          sudo apt install nasm -y
+          cd source &&
+          pip install dist/*tar.gz --break-system-packages
+
+      - name: Download test code artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test
+          path: ./source/test-cxx-image-io
+
+      - name: Test installed package
+        run: |
+          cd source/test-cxx-image-io &&
+          pytest -sv
 
       - uses: actions/upload-artifact@v4
         with:
@@ -301,7 +322,7 @@ jobs:
 
   publish-to-test-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to Test PyPI when [Release] in commit
-    needs: [build_and_test_windows, build_and_test_linux, build_and_test_macos, build_sdist]
+    needs: [build_and_test_windows, build_and_test_linux, build_and_test_macos, build_and_test_sdist]
     environment:
       name: testpypi
       url: https://test.pypi.org/project/cxx-image-io
