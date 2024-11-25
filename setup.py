@@ -38,13 +38,14 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         build_args = ['-DCMAKE_BUILD_TYPE=Release']
+        if os.name == 'nt':
+            build_args += ['-G', 'Ninja']
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        cmake_cfg = [
-            'cmake', '-B', self.build_temp, '-S', ext.sourcedir, '-G', 'Ninja'
-        ] + build_args
+        cmake_cfg = ['cmake', '-B', self.build_temp, '-S', ext.sourcedir
+                     ] + build_args
         subprocess.check_call(cmake_cfg)
-        subprocess.check_call(['ninja', '-C', self.build_temp])
+        subprocess.check_call(['cmake', '--build', self.build_temp, '-j4'])
         subprocess.check_call(['cmake', '--install', self.build_temp])
 
         # WA, the build backend script search first the package and associated data,
