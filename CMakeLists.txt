@@ -56,16 +56,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(EXIF)
 
+
+# Set on purpose for no subdirectory of dll and pyd installations
 Set(CMAKE_INSTALL_BINDIR "")
 Set(CMAKE_INSTALL_LIBDIR "")
-
-message(STATUS "CMAKE_INSTALL_BINDIR = ${CMAKE_INSTALL_BINDIR}")
-message(STATUS "INSTALL_BIN_DIR = ${INSTALL_BIN_DIR}")
-message(STATUS "CMAKE_INSTALL_LIBIR = ${CMAKE_INSTALL_LIBDIR}")
-message(STATUS "INSTALL_LIB_DIR = ${INSTALL_LIB_DIR}")
 message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-
-
 
 add_library(EXIF::EXIF ALIAS exif)
 install(TARGETS exif

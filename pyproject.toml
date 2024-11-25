@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "cxx-image-io"
 version = "1.0.4"
 dependencies = [
-  "numpy>=2.1.0", "packaging>=23.2"
+  "numpy>=2.1.0", "ninja>=1.11.1", "packaging>=23.2"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]

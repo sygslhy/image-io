@@ -10,16 +10,13 @@ These IO interfaces are designed to read and write images in many file formats i
 | DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |
 | JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |
 | MIPIRAW       | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 |
-| PLAIN         | x    | x      |      | *                      | *                    | .plain16, .nv12, *               |
+| PLAIN         | x    | x      |      | *                      | *                    | .plain16, .nv12, yuv*            |
 | PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |
 | TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |
 
 # Getting Started
 
 ## Prerequisites
-
-- numpy >= 2.1.0
-- ninja >= 1.11.1
 
 This projet currently supports Python from 3.10 to 3.13 on
 - Windows: x86_64
@@ -61,7 +58,8 @@ Type: uint8
 Shape: (551, 603, 3)
 ~~~~~~~~~~~~~~~
 
-ImageMetadata is the information about the image, including the pixel type, pixel precision and image layout, which define fundamentally how the pixels arranged in buffer.
+`ImageMetadata` is the information about the image, the component `fileInfo` including the pixel type, pixel precision and image layout, which define fundamentally how the pixels arranged in buffer.
+
 
 ~~~~~~~~~~~~~~~{.python}
 print(metadata.fileInfo)
@@ -71,6 +69,11 @@ The result could be like this:
 ~~~~~~~~~~~~~~~{.sh}
 {'pixelPrecision': 8, 'imageLayout': 'interleaved', 'pixelType': 'rgb'}
 ~~~~~~~~~~~~~~~
+
+`ImageMetadata` has more components than `fileInfo`, it also includes `ExifMetadata`, `help(ImageMetadata)` will show the details.
+
+
+## Image reading with sidecar JSON
 
 Some file formats need to know in advance some informations about the image.
 For example, the PLAIN format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data.
@@ -93,7 +96,7 @@ In this case, user need to have an image sidecar JSON located next to the image 
 }
 ~~~~~~~~~~~~~~~
 
-After image reading, the information in JSON sidecar is parsed in ImageMetadata object.
+After image reading, the information in JSON sidecar is parsed in `ImageMetadata` object.
 
 The result of `print(metadata.fileInfo)`could be like this:
 ~~~~~~~~~~~~~~~{.sh}
@@ -101,6 +104,7 @@ The result of `print(metadata.fileInfo)`could be like this:
 ~~~~~~~~~~~~~~~
 
 Image sidecar is not mandatory, for the other formats which have already image information in their header, like jpg, png, tif, cfa. we don't need to provide image metadata.
+
 
 ## Split and merge image channels
 After calling `read_image`, `cxx-image-io` provides a public API `split_image_channels` which helps to split to different colors channels, so that user can do the different processes on them.  The function return type is a dictionary which contains the different color channel name as keys, and the value in numpy array of one single channel.
@@ -116,9 +120,9 @@ rgb, metadata = read_image(Path('rgb_8bit.jpg'))
 
 channels = split_image_channels(rgb, metadata)
 
-# print(channels['r'])  # Red channel
-# print(channels['g'])  # Green channel
-# print(channels['b'])  # Blue channel
+# print(channels['r'])  # Red channel in numpy array
+# print(channels['g'])  # Green channel in numpy array
+# print(channels['b'])  # Blue channel in numpy array
 
 rgb_post = merge_image_channels(channels, metadata)
 
@@ -128,10 +132,10 @@ cfa, metadata = read_image(Path('bayer_16bit.plain16'))
 
 channels = split_image_channels(cfa, metadata)
 
-# print(channels['gr'])  # Bayer Gr pixels
-# print(channels['r'])  # Bayer R pixels
-# print(channels['b'])  # Bayer B pixels
-# print(channels['gb'])  # Bayer Gb pixels
+# print(channels['gr'])  # Bayer Gr pixels in numpy array
+# print(channels['r'])  # Bayer R pixels in numpy array
+# print(channels['b'])  # Bayer B pixels in numpy array
+# print(channels['gb'])  # Bayer Gb pixels in numpy array
 
 cfa_post = merge_image_channels(channels, metadata)
 
@@ -141,14 +145,13 @@ yuv, metadata = read_image(Path('raw.nv12'))
 
 channels = split_image_channels(yuv, metadata)
 
-# print(channels['y'])  # Y plane
-# print(channels['u'])  # U plane
-# print(channels['v'])  # V plane
+# print(channels['y'])  # Y plane in numpy array
+# print(channels['u'])  # U plane in numpy array
+# print(channels['v'])  # V plane in numpy array
 
 yuv_post = merge_image_channels(channels, metadata)
 
 np.array_equal(yuv, yuv_post)
-
 
 ~~~~~~~~~~~~~~~
 
@@ -209,7 +212,7 @@ write_exif(Path('path/to/new_image.jpg'), exif)
 ~~~~~~~~~~~~~~~{.sh}
 {'make': 'Canon', 'model': 'Canon EOS 40D', 'orientation': 1, 'software': 'GIMP 2.4.5', 'exposureTime': [1, 160], 'fNumber': [71, 10], 'isoSpeedRatings': 100, 'dateTimeOriginal': '2008:05:30 15:56:01', 'exposureBiasValue': [0, 1], 'focalLength': [135, 1]}
 ~~~~~~~~~~~~~~~
-user can use `help(exif)` to see the definition of Exif metdata.
+user can use `help(exif)` to see the definition of `ExifMetdata`.
 
 EXIF metadata can be read and written along with an image by specifying them in the ImageMetadata. In this case, the EXIF wil be read and written when calling `read_image` and `write_image`.
 
