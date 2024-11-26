@@ -22,9 +22,9 @@ jobs:
         name: test
         path: ./test/
 
-  test-download-package:
+  test-x86_64-package:
     needs: checkout-code
-    name: Test package
+    name: Test package ${{ matrix.os }} ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -51,3 +51,71 @@ jobs:
         cd image_io/
         mkdir -p test/_outputs
         pytest -sv
+
+  test-arm64-package:
+    needs: checkout-code
+    name: Test package on ${{ matrix.distro }} ${{ matrix.arch }}
+     # The host should always be linux
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ubuntu_latest, bookworm, fedora_latest, alpine_latest, archarm_latest]
+        arch: [aarch64]
+
+    steps:
+    - name: Download git repo code
+      uses: actions/download-artifact@v4
+      with:
+        pattern: test
+        path: image_io/
+
+    # Run steps on a matrix of 4 arch/distro combinations
+    - uses: uraimo/run-on-arch-action@v2
+      name: Build artifact
+      id: build
+      with:
+        arch: ${{ matrix.arch }}
+        distro: ${{ matrix.distro }}
+
+        # Not required, but speeds up builds
+        githubToken: ${{ github.token }}
+        # Mount the image_io/test directory as /test in the container
+        dockerRunArgs: |
+          --volume "${PWD}/image_io/test:/test"
+        # Pass some environment variables to the container
+        env: | # YAML, but pipe character is necessary
+          artifact_name: pytest-${{ matrix.distro }}_${{ matrix.arch }}
+        # The shell to run commands with in the container
+        shell: /bin/sh
+        # Install some dependencies in the container. This speeds up builds if
+        # you are also using githubToken. Any dependencies installed here will
+        # be part of the container image that gets cached, so subsequent
+        # builds don't have to re-install them. The image layer is cached
+        # publicly in your project's package repository, so it is vital that
+        # no secrets are present in the container state or logs.
+        install: |
+          case "${{ matrix.distro }}" in
+            ubuntu*|bookworm)
+              apt-get update -q -y
+              apt-get install -q -y git ninja-build nasm python3 python3-pip python3-pytest cmake
+              ;;
+            fedora*)
+              dnf -y update
+              dnf -y install git which ninja-build nasm python3 python3-pip python3-pytest cmake
+              ;;
+            alpine*)
+              apk update
+              apk add git nasm samurai python3 py3-pip py3-pytest cmake
+              ;;
+            archarm*)
+              pacman -Sy --needed --noconfirm glibc
+              pacman -Sy --needed --noconfirm git base-devel expat cmake ninja python-pip python-pytest
+              ;;
+          esac
+        # Produce a binary artifact and place it in the mounted volume
+        run: |
+          cd /test
+          pip install cxx-image-io --break-system-packages
+          mkdir -p /test/_outputs
+          pytest -sv
