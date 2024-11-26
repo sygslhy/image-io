@@ -13,9 +13,10 @@ maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 description = "Image IO APIs for wide range image formats (jpg, png, tif, dng, bmp, yuv, nv12 and RAWs), support Exif, interact nicely with numpy array."
 requires-python = ">=3.10"
 readme = {file = "README.md", content-type = "text/markdown"}
-license = {file = "LICENSE.md"}
+license = {text = "MIT License"}
 keywords = ["image", "io", "imageio", "image-io", "numpy", "Image IO", "bmp", "raw", "dng", "jpg", "png", "tif", "exif", "yuv", "nv12"]
 classifiers = [
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
