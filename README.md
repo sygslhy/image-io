@@ -210,7 +210,18 @@ write_exif(Path('path/to/new_image.jpg'), exif)
 
 `print(exif)` will give the following output like:
 ~~~~~~~~~~~~~~~{.sh}
-{'make': 'Canon', 'model': 'Canon EOS 40D', 'orientation': 1, 'software': 'GIMP 2.4.5', 'exposureTime': [1, 160], 'fNumber': [71, 10], 'isoSpeedRatings': 100, 'dateTimeOriginal': '2008:05:30 15:56:01', 'exposureBiasValue': [0, 1], 'focalLength': [135, 1]}
+{
+  'make': 'Canon',
+  'model': 'Canon EOS 40D',
+  'orientation': 1,
+  'software': 'GIMP 2.4.5',
+  'exposureTime': [1, 160],
+  'fNumber': [71, 10],
+  'isoSpeedRatings': 100,
+  'dateTimeOriginal': '2008:05:30 15:56:01',
+  'exposureBiasValue': [0, 1],
+  'focalLength': [135, 1]
+}
 ~~~~~~~~~~~~~~~
 user can use `help(exif)` to see the definition of `ExifMetdata`.
 
@@ -223,15 +234,11 @@ write_options = ImageWriter.Options(metadata)
 write_image(Path('/path/to/image.jpg'), image, write_options)
 ~~~~~~~~~~~~~~~
 
-# License
+# Dependencies
 
-This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
+This project has the dependencies of the following libraries by cmake FetchContent:
 
-## Dependencies
-
-In addition, this project has the dependencies of the following libraries by cmake FetchContent:
-
-### Statically linked
+## Statically linked
 - libjpeg: https://libjpeg.sourceforge.net/
 - libpng: http://www.libpng.org/pub/png/libpng.html
 - libtiff: https://libtiff.gitlab.io/libtiff/
@@ -239,5 +246,10 @@ In addition, this project has the dependencies of the following libraries by cma
 - pybind11 (BSD-2): https://github.com/pybind/pybind11
 - cxx-image (Apache 2.0): https://github.com/emmcb/cxx-image
 
-### Dynamically linked
+## Dynamically linked
 - libexif (LGPL v2.1) : https://libexif.github.io/
+
+
+# License
+
+This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
