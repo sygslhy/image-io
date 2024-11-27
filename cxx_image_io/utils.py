@@ -201,6 +201,7 @@ def split_image_channels(image: np.array, metadata: ImageMetadata) -> dict:
         the value is the numpy array.
     """
     assert metadata, "metadata is necessary to split channels"
+    assert isinstance(image, np.ndarray), "image must be numpy array."
 
     # parse image width and height
     (width, height) = (None, None)

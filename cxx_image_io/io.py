@@ -54,8 +54,15 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
         returned image in numpy array format
 
     """
+    assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
     assert image_path.exists(), "Image file {0} not found".format(
         str(image_path))
+    if metadata_path:
+        assert isinstance(metadata_path, Path), "Metadata path must be pathlib.Path type."
+        assert metadata_path.exists(), "Metadata file {0} not found".format(
+            str(metadata_path))
+        metadata_path = str(metadata_path)
+
     try:
         metadata = parser.readMetadata(str(image_path), metadata_path)
         image_reader = io.makeReader(str(image_path), metadata)
@@ -80,7 +87,7 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
             'Exception occurred in reading image from file {0}: {1}'.format(
                 image_path, e))
         __print_image_metadata_info(metadata)
-        sys.exit(-1)
+        sys.exit("Exception caught in reading image, check the error log.")
 
 
 def read_exif(image_path: Path) -> ExifMetadata:
@@ -96,7 +103,7 @@ def read_exif(image_path: Path) -> ExifMetadata:
     ExifMetadata
         returned exif data
     """
-
+    assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
     assert image_path.exists(), "Image file {0} not found".format(
         str(image_path))
     try:
@@ -110,7 +117,8 @@ def read_exif(image_path: Path) -> ExifMetadata:
             'Exception occurred in reading exif from file {0}: {1}'.format(
                 image_path, e))
         __print_image_metadata_info(metadata)
-        sys.exit(-1)
+        sys.exit("Exception caught in reading exif, check the error log.")
+
 
 
 def write_image(output_path: Path, image_array: np.array,
@@ -127,6 +135,8 @@ def write_image(output_path: Path, image_array: np.array,
     write_options : io.ImageWriter.Options
         write options for writing parameters like, image buffer info, jpegQualiy, tiff compression type and exif metadata infos. by default None
     """
+    assert isinstance(output_path, Path), "Image path must be pathlib.Path type."
+    assert isinstance(image_array, np.ndarray), "image must be numpy array."
     try:
         # Currently don't find a good way to supported completely the std::optional by binding C++ function.
         # So create explicitily an ImageWriter.Options object when write_options is None.
@@ -150,7 +160,7 @@ def write_image(output_path: Path, image_array: np.array,
             'Exception occurred in writing image to file {0}: {1}'.format(
                 output_path, e))
         __print_image_metadata_info(options.metadata)
-        sys.exit(-1)
+        sys.exit("Exception caught in writing image, check the error log.")
 
 
 def write_exif(image_path: Path, exif: ExifMetadata = None):
@@ -163,6 +173,7 @@ def write_exif(image_path: Path, exif: ExifMetadata = None):
     exif : ExifMetadata
         exif data to write
     """
+    assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
     try:
         image_writer = io.makeWriter(str(image_path), io.ImageWriter.Options())
         image_writer.writeExif(exif)
@@ -170,4 +181,4 @@ def write_exif(image_path: Path, exif: ExifMetadata = None):
         logging.error(
             'Exception occurred in writing exif to file {0}: {1}'.format(
                 image_path, e))
-        sys.exit(-1)
+        sys.exit("Exception caught in writing exif, check the error log.")

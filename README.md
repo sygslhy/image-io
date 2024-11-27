@@ -52,7 +52,7 @@ print('Shape:', image.shape)
 
 image is a numpy array which is suitable for the image processing afterwards.
 
-The result could be like this:
+The print result could be like this:
 ~~~~~~~~~~~~~~~{.sh}
 Type: uint8
 Shape: (551, 603, 3)
@@ -65,10 +65,12 @@ Shape: (551, 603, 3)
 print(metadata.fileInfo)
 ~~~~~~~~~~~~~~~
 
-The result could be like this:
+The print result could be like this:
 ~~~~~~~~~~~~~~~{.sh}
 {'pixelPrecision': 8, 'imageLayout': 'interleaved', 'pixelType': 'rgb'}
 ~~~~~~~~~~~~~~~
+
+`metadata.fileInfo` shows: `image` is a 3-dimensional numpy array, where rgb 3 channels interleaved, in each channel, pixel depth is 8 bits.
 
 `ImageMetadata` has more components than `fileInfo`, it also includes `ExifMetadata`, `help(ImageMetadata)` will show the details.
 
@@ -80,6 +82,9 @@ For example, the PLAIN format is just a simple dump of a buffer into a file, thu
 
 ~~~~~~~~~~~~~~~{.python}
 image, metadata = read_image(Path('/path/to/image.plain16'))
+print('Type:', image.dtype)
+print('Shape:', image.shape)
+print(metadata.fileInfo)
 ~~~~~~~~~~~~~~~
 
 In this case, user need to have an image sidecar JSON located next to the image file as the same name and path `'/path/to/image.json'`
@@ -98,10 +103,17 @@ In this case, user need to have an image sidecar JSON located next to the image 
 
 After image reading, the information in JSON sidecar is parsed in `ImageMetadata` object.
 
-The result of `print(metadata.fileInfo)`could be like this:
+The print result of will be like this:
+~~~~~~~~~~~~~~~{.sh}
+Type: uint16
+Shape: (3072, 4080)
+~~~~~~~~~~~~~~~
+
 ~~~~~~~~~~~~~~~{.sh}
 {'width': 4080, 'height': 3072, 'pixelPrecision': 16, 'imageLayout': 'planar', 'pixelType': 'bayer_gbrg'}
 ~~~~~~~~~~~~~~~
+
+`metadata.fileInfo` shows that `image` is a 2-dimensional numpy array, where pixel is Bayer type, planar layout (not interleaved), pixel depth is 16 bits.
 
 Image sidecar is not mandatory, for the other formats which have already image information in their header, like jpg, png, tif, cfa. we don't need to provide image metadata.
 

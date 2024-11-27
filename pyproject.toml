@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cxx-image-io"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
   "numpy>=2.1.0", "ninja>=1.11.1", "packaging>=23.2"
 ]
@@ -14,7 +14,7 @@ description = "Image IO APIs for wide range image formats (jpg, png, tif, dng, b
 requires-python = ">=3.10"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT License"}
-keywords = ["image", "io", "imageio", "image-io", "numpy", "Image IO", "bmp", "raw", "dng", "jpg", "png", "tif", "exif", "yuv", "nv12"]
+keywords = ["image", "io", "numpy io", "bmp", "raw", "dng", "jpg", "png", "tif", "exif", "yuv", "nv12"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
