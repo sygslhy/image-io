@@ -95,9 +95,7 @@
         "height": 300,
         "width": 400,
         "pixelPrecision": 12,
-        "pixelRepresentation": "uint16",
-        "pixelType": "bayer_gbrg",
-        "imageLayout": "planar"
+        "pixelType": "bayer_gbrg"
     },
     "shootingParams": {
         "aperture": 2.2,

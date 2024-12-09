@@ -1,27 +1,37 @@
 # CXX Image IO
 
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/sygslhy/image-io)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/cxx-image-io.svg?style=flat-square)](https://pypi.org/project/cxx-image-io)
+![Supported OS](https://img.shields.io/badge/OS-Linux_%7C_Windows_%7C_macOS-blue)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/sygslhy/image-io/blob/main/LICENSE.md)
+![PyPI - Version](https://img.shields.io/pypi/v/cxx-image-io)
+![Wheel OS](https://img.shields.io/badge/wheels-Linux_%7C_Windows_%7C_macOS-green)
+![Supported Archi](https://img.shields.io/badge/Architecture-x86__64_%7C_ARM__64-green)
+![Implementation](https://shields.io/pypi/implementation/tree-sitter-zathurarc)
+
+
 CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image,
 These IO interfaces are designed to read and write images in many file formats in generic way and to interact nicely with numpy array.
 
-| Image format  | Read | Write  | EXIF | Pixel precision        | Pixel type           | File extension                   |
-|---------------|------|--------|------|------------------------|----------------------|----------------------------------|
-| BMP           | x    | x      |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |
-| CFA           | x    | x      |      | 16 bits                | Bayer                | .cfa                             |
-| DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |
-| JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |
-| MIPIRAW       | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 |
-| PLAIN         | x    | x      |      | *                      | *                    | .plain16, .nv12, yuv*            |
-| PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |
-| TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |
+| Image format  | Read | Write  | EXIF | Pixel precision        | Pixel type           | File extension                   |  Sidecar needed  |
+|---------------|------|--------|------|------------------------|----------------------|----------------------------------|------------------|
+| BMP           | x    | x      |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |                  |
+| CFA           | x    | x      |      | 16 bits                | Bayer                | .cfa                             |                  |
+| DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |                  |
+| JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |                  |
+| MIPI RAW      | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 | x                |
+| PLAIN RAW     | x    | x      |      | *                      | *                    | .plain16, .nv12, yuv, *          | x                |
+| PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
+| TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
 
 # Getting Started
 
 ## Prerequisites
 
-This projet currently supports Python from 3.10 to 3.13 on
-- Windows: x86_64
-- Linux: x86_64 and aarch64, glibc 2.28+, musl libc 1.2+
-- MacOS: x86_64 and arm64, 11.0+
+This projet currently supports Python from `3.10` to `3.13` on
+- Windows: `x86_64`
+- Linux: `x86_64` and `aarch64`, glibc `v2.28+`, musl libc `v1.2+`
+- MacOS: `x86_64` and `arm64`, `v11.0+`
 
 ## Installation
 
@@ -31,7 +41,7 @@ The python package `cxx-image-io` is to be installed by `pip`
 pip install cxx-image-io
 ```
 
-# Usage example
+# Usage
 
 ## Image reading
 
@@ -78,8 +88,9 @@ The print result could be like this:
 ## Image reading with sidecar JSON
 
 Some file formats need to know in advance some informations about the image.
-For example, the PLAIN format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data.
+For example, the PLAIN RAW format is just a simple dump of a buffer into a file, thus it needs to know how to interpret the data.
 
+Bayer Plain Raw 16 bits
 ~~~~~~~~~~~~~~~{.python}
 image, metadata = read_image(Path('/path/to/image.plain16'))
 print('Type:', image.dtype)
@@ -101,6 +112,7 @@ In this case, user need to have an image sidecar JSON located next to the image 
 }
 ~~~~~~~~~~~~~~~
 
+
 After image reading, the information in JSON sidecar is parsed in `ImageMetadata` object.
 
 The print result of will be like this:
@@ -116,6 +128,88 @@ Shape: (3072, 4080)
 `metadata.fileInfo` shows that `image` is a 2-dimensional numpy array, where pixel is Bayer type, planar layout (not interleaved), pixel depth is 16 bits.
 
 Image sidecar is not mandatory, for the other formats which have already image information in their header, like jpg, png, tif, cfa. we don't need to provide image metadata.
+
+### Other image reading with sidecar examples
+
+<details>
+  <summary>
+  Click to unfold other image format sidecar examples
+  </summary>
+
+#### Packed RAW MIPI 12 bits:
+python code
+~~~~~~~~~~~~~~~{.python}
+image, metadata = read_image(Path('/path/to/image.RAWMIPI12'))
+~~~~~~~~~~~~~~~
+
+sidecar json
+~~~~~~~~~~~~~~~{.json}
+{
+    "fileInfo": {
+        "fileFormat": "raw12",
+        "height": 3000,
+        "width": 4000,
+        "pixelPrecision": 12,
+        "pixelType": "bayer_gbrg"
+    }
+}
+~~~~~~~~~~~~~~~
+
+#### Packed RAW MIPI 10 bits:
+python code
+~~~~~~~~~~~~~~~{.python}
+image, metadata = read_image(Path('/path/to/image.RAWMIPI'))
+~~~~~~~~~~~~~~~
+
+sidecar json
+~~~~~~~~~~~~~~~{.json}
+{
+    "fileInfo": {
+        "height": 3000,
+        "width": 4000,
+		    "format": "raw10",
+		    "pixelPrecision": 10,
+		    "pixelType": "bayer_grbg"
+    }
+}
+~~~~~~~~~~~~~~~
+
+#### YUV 420 buffer 8 bits:
+python code
+~~~~~~~~~~~~~~~{.python}
+image, metadata = read_image(Path('/path/to/image.yuv'))
+~~~~~~~~~~~~~~~
+
+sidecar json
+~~~~~~~~~~~~~~~{.json}
+{
+    "fileInfo": {
+        "format": "plain",
+        "height": 300,
+        "width": 400,
+        "imageLayout": "yuv_420"
+    }
+}
+~~~~~~~~~~~~~~~
+
+#### NV12 buffer 8 bits:
+python code
+~~~~~~~~~~~~~~~{.python}
+image, metadata = read_image(Path('/path/to/image.nv12'))
+~~~~~~~~~~~~~~~
+
+sidecar json
+~~~~~~~~~~~~~~~{.json}
+{
+    "fileInfo": {
+        "format": "plain",
+        "height": 300,
+        "width": 400,
+        "imageLayout": "nv12"
+    }
+}
+~~~~~~~~~~~~~~~
+</details>
 
 
 ## Split and merge image channels
@@ -195,12 +289,126 @@ write_image(Path('/path/to/image.jpg'), image, write_options)
 `write_image` can determine the image format by file extensions, but some formats don't not rely on a specific extension, for example the PLAIN format that allows to directly dump the image buffer to a file. In this case, the format can be specified through ImageWriter.Options.
 
 ~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+metadata.fileInfo.pixelType = PixelType.BAYER_GBRG
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+
 write_options = ImageWriter.Options(metadata)
 write_options.fileFormat = FileFormat.PLAIN
 
 assert isinstance(image, np.ndarray)
 write_image(Path('/path/to/image.plain16'), image, write_options)
 ~~~~~~~~~~~~~~~
+
+
+### Other image writing examples
+<details>
+  <summary>
+  Click to unfold other image writing examples
+  </summary>
+
+#### Packed RAW MIPI 12 bits:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.BAYER_GBRG  # adapt with User's RAW Bayer pattern.
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+metadata.fileInfo.pixelPrecision = 12
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.RAWMIPI12'), image, write_options)
+~~~~~~~~~~~~~~~
+
+
+#### Packed RAW MIPI 10 bits:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.BAYER_GBRG # to adapt with User's RAW Bayer pattern.
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+metadata.fileInfo.pixelPrecision = 10
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.RAWMIPI10'), image, write_options)
+~~~~~~~~~~~~~~~
+
+
+#### YUV 420 buffer 8 bits:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.YUV
+metadata.fileInfo.imageLayout = ImageLayout.YUV_420
+
+write_options = ImageWriter.Options(metadata)
+write_options.fileFormat = FileFormat.PLAIN
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.yuv'), image, write_options)
+
+~~~~~~~~~~~~~~~
+
+#### NV12 buffer 8 bits:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.YUV
+metadata.fileInfo.imageLayout = ImageLayout.NV12
+
+write_options = ImageWriter.Options(metadata)
+write_options.fileFormat = FileFormat.PLAIN
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.nv12'), image, write_options)
+~~~~~~~~~~~~~~~
+
+#### Bayer dng 12 bits:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.BAYER_RGGB
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+metadata.fileInfo.pixelPrecision = 12
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.dng'), image, write_options)
+~~~~~~~~~~~~~~~
+
+#### RGB 8 bits images (jpg, png, tif, bmp):
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.RGB
+metadata.fileInfo.imageLayout = ImageLayout.INTERLEAVED
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.jpg'), image, write_options)
+~~~~~~~~~~~~~~~
+
+#### CFA 16 bits image:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.BAYER_RGGB
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+metadata.fileInfo.pixelPrecision = 16
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.cfa'), image, write_options)
+~~~~~~~~~~~~~~~
+
+
+</details>
 
 
 ## EXIF
@@ -264,4 +472,4 @@ This project has the dependencies of the following libraries by cmake FetchConte
 
 # License
 
-This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/sygslhy/image-io/blob/main/LICENSE.md) file for details.

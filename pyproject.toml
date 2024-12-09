@@ -14,7 +14,7 @@ description = "Image IO APIs for wide range image formats (jpg, png, tif, dng, b
 requires-python = ">=3.10"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT License"}
-keywords = ["image", "io", "numpy io", "bmp", "raw", "dng", "jpg", "png", "tif", "exif", "yuv", "nv12"]
+keywords = ["image", "io", "numpy io", "bmp io", "raw io", "dng io", "jpg io", "png io", "tif io", "exif", "yuv io", "nv12 io"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
