@@ -31,10 +31,20 @@ test_data = {
         'file': 'rgb_8bit.png',
         'npy': 'rgb_8bit_png.npy'
     },
+    'png_16bit': {
+        'file': 'gray_16bit.png',
+        'npy': 'gray_16bit_png.npy'
+    },
+
     'tif': {
         'file': 'rgb_8bit.tif',
         'npy': 'rgb_8bit_tif.npy'
     },
+    'tif_16bit': {
+        'file': 'bayer_16bit.tif',
+        'npy': 'bayer_16bit_tif.npy'
+    },
+
     'cfa': {
         'file': 'bayer_16bit.cfa',
         'npy': 'bayer_16bit_cfa.npy'
@@ -177,16 +187,20 @@ def test_parse_metadata():
 
 
 @pytest.mark.parametrize('image_type, ref_numpy_info, ref_image_info',
-                         [('raw', (np.dtype('uint16'), (768, 1020), 2),
-                           (PixelType.BAYER_GBRG, 16, ImageLayout.PLANAR)),
+                         [('raw', (np.dtype('uint16'), (180, 240), 2),
+                           (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
                           ('bmp', (np.dtype('uint8'), (275, 301, 3), 3),
                            (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
                           ('jpg', (np.dtype('uint8'), (68, 100, 3), 3),
                            (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
                           ('png', (np.dtype('uint8'), (60, 180, 3), 3),
                            (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
+                          ('png_16bit', (np.dtype('uint16'), (180, 240), 2),
+                           (PixelType.GRAYSCALE, 16, ImageLayout.PLANAR)),
                           ('tif', (np.dtype('uint8'), (68, 100, 3), 3),
                            (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
+                           ('tif_16bit', (np.dtype('uint16'), (180, 240), 2),
+                           (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
                           ('cfa', (np.dtype('uint16'), (180, 240), 2),
                            (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
                           ('rawmipi10', (np.dtype('uint16'), (180, 240), 2),
@@ -206,7 +220,9 @@ def test_read_image(image_type, ref_numpy_info, ref_image_info):
     assert (image.dtype, image.shape, image.ndim) == ref_numpy_info
     assert (metadata.fileInfo.pixelType, metadata.fileInfo.pixelPrecision,
             metadata.fileInfo.imageLayout) == ref_image_info
+
     ref_image = np.load(test_npy_dir / test_data[image_type]['npy'])
+
     assert np.array_equal(ref_image, image)
 
 
@@ -218,7 +234,9 @@ def test_read_image(image_type, ref_numpy_info, ref_image_info):
         ('bmp', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
         ('jpg', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
         ('png', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
+        ('png_16bit', PixelType.GRAYSCALE, ImageLayout.PLANAR, 16, None, True),
         ('tif', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
+        ('tif_16bit', PixelType.RGB, ImageLayout.PLANAR, 16, None, True),
         ('cfa', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, True),
         ('rawmipi12', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None,
          False),

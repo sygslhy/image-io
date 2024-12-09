@@ -35,10 +35,10 @@
     },
     "fileInfo": {
         "format": "plain",
-        "height": 768,
+        "height": 180,
         "pixelPrecision": 16,
-        "pixelType": "bayer_gbrg",
-        "width": 1020
+        "pixelType": "bayer_rggb",
+        "width": 240
     },
     "frame_format": {
         "bit_depth": 16,

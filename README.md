@@ -407,6 +407,34 @@ assert isinstance(image, np.ndarray)
 write_image(Path('/path/to/image.cfa'), image, write_options)
 ~~~~~~~~~~~~~~~
 
+#### Grayscale 16 bits png image:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.GRAYSCALE
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+metadata.fileInfo.pixelPrecision = 16
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.png'), image, write_options)
+~~~~~~~~~~~~~~~
+
+#### Bayer 16 bits tif image:
+~~~~~~~~~~~~~~~{.python}
+metadata = ImageMetadata()
+
+metadata.fileInfo.pixelType = PixelType.BAYER_RGGB
+metadata.fileInfo.imageLayout = ImageLayout.PLANAR
+metadata.fileInfo.pixelPrecision = 16
+
+write_options = ImageWriter.Options(metadata)
+
+assert isinstance(image, np.ndarray)
+write_image(Path('/path/to/image.tif'), image, write_options)
+~~~~~~~~~~~~~~~
+
 
 </details>
 
