@@ -370,7 +370,7 @@ write_image(Path('/path/to/image.nv12'), image, write_options)
 ~~~~~~~~~~~~~~~{.python}
 metadata = ImageMetadata()
 
-metadata.fileInfo.pixelType = PixelType.BAYER_RGGB
+metadata.fileInfo.pixelType = PixelType.BAYER_RGGB  # adapt with User's RAW Bayer pattern.
 metadata.fileInfo.imageLayout = ImageLayout.PLANAR
 metadata.fileInfo.pixelPrecision = 12
 
@@ -397,7 +397,7 @@ write_image(Path('/path/to/image.jpg'), image, write_options)
 ~~~~~~~~~~~~~~~{.python}
 metadata = ImageMetadata()
 
-metadata.fileInfo.pixelType = PixelType.BAYER_RGGB
+metadata.fileInfo.pixelType = PixelType.BAYER_RGGB  # adapt with User's RAW Bayer pattern.
 metadata.fileInfo.imageLayout = ImageLayout.PLANAR
 metadata.fileInfo.pixelPrecision = 16
 
@@ -425,7 +425,7 @@ write_image(Path('/path/to/image.png'), image, write_options)
 ~~~~~~~~~~~~~~~{.python}
 metadata = ImageMetadata()
 
-metadata.fileInfo.pixelType = PixelType.BAYER_RGGB
+metadata.fileInfo.pixelType = PixelType.BAYER_RGGB  # adapt with User's RAW Bayer pattern.
 metadata.fileInfo.imageLayout = ImageLayout.PLANAR
 metadata.fileInfo.pixelPrecision = 16
 
