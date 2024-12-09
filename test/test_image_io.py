@@ -236,7 +236,7 @@ def test_read_image(image_type, ref_numpy_info, ref_image_info):
         ('png', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
         ('png_16bit', PixelType.GRAYSCALE, ImageLayout.PLANAR, 16, None, True),
         ('tif', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
-        ('tif_16bit', PixelType.RGB, ImageLayout.PLANAR, 16, None, True),
+        ('tif_16bit', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 16, None, True),
         ('cfa', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, True),
         ('rawmipi12', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None,
          False),
