@@ -37,3 +37,4 @@ classifiers = [
 Homepage = "https://github.com/sygslhy/image-io"
 Repository  = "https://github.com/sygslhy/image-io"
 Issues = "https://github.com/sygslhy/image-io/issues"
+Releases = "https://github.com/sygslhy/image-io/releases"

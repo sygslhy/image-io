@@ -1,13 +1,15 @@
 # CXX Image IO
 
-![GitHub tag (with filter)](https://img.shields.io/github/v/tag/sygslhy/image-io)
-[![Supported Python versions](https://img.shields.io/pypi/pyversions/cxx-image-io.svg?style=flat-square)](https://pypi.org/project/cxx-image-io)
-![Supported OS](https://img.shields.io/badge/OS-Linux_%7C_Windows_%7C_macOS-blue)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/sygslhy/image-io/blob/main/LICENSE.md)
 ![PyPI - Version](https://img.shields.io/pypi/v/cxx-image-io)
-![Wheel OS](https://img.shields.io/badge/wheels-Linux_%7C_Windows_%7C_macOS-green)
+![Supported Python versions](https://img.shields.io/pypi/pyversions/cxx-image-io.svg?style=flat-square)
+![Supported OS](https://img.shields.io/badge/OS-Linux_%7C_Windows_%7C_macOS-blue)
 ![Supported Archi](https://img.shields.io/badge/Architecture-x86__64_%7C_ARM__64-green)
-![Implementation](https://shields.io/pypi/implementation/tree-sitter-zathurarc)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/sygslhy/image-io/blob/main/LICENSE.md)
+[![pypi/downloads](https://shields.io/pypi/dm/cxx-image-io)](https://pypi.org/project/cxx-image-io/#files)
+![Wheel OS](https://img.shields.io/badge/wheels-Linux_%7C_Windows_%7C_macOS-green)
+[![CI](https://github.com/sygslhy/image-io/actions/workflows/wheels.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/wheels.yml)
+[![Weekly](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml)
+
 
 
 CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image,
