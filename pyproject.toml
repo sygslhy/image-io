@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cxx-image-io"
-version = "1.0.6"
+version = "1.0.7"
 dependencies = [
   "numpy>=2.1.0", "ninja>=1.11.1", "packaging>=23.2"
 ]
