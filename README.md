@@ -5,7 +5,7 @@
 ![Supported OS](https://img.shields.io/badge/OS-Linux_%7C_Windows_%7C_macOS-blue)
 ![Supported Archi](https://img.shields.io/badge/Architecture-x86__64_%7C_ARM__64-green)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/sygslhy/image-io/blob/main/LICENSE.md)
-[![pypi/downloads](https://shields.io/pypi/dm/cxx-image-io)](https://pypi.org/project/cxx-image-io/#files)
+![pypi/downloads](https://shields.io/pypi/dm/cxx-image-io)
 ![Wheel OS](https://img.shields.io/badge/wheels-Linux_%7C_Windows_%7C_macOS-green)
 [![CI](https://github.com/sygslhy/image-io/actions/workflows/wheels.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/wheels.yml)
 [![Weekly](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml)
