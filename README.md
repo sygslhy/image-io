@@ -5,7 +5,6 @@
 ![Supported OS](https://img.shields.io/badge/OS-Linux_%7C_Windows_%7C_macOS-blue)
 ![Supported Archi](https://img.shields.io/badge/Architecture-x86__64_%7C_ARM__64-green)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/sygslhy/image-io/blob/main/LICENSE.md)
-![pypi/downloads](https://shields.io/pypi/dm/cxx-image-io)
 ![Wheel OS](https://img.shields.io/badge/wheels-Linux_%7C_Windows_%7C_macOS-green)
 [![CI](https://github.com/sygslhy/image-io/actions/workflows/wheels.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/wheels.yml)
 [![Weekly](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml)
@@ -22,7 +21,7 @@ These IO interfaces are designed to read and write images in many file formats i
 | DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |                  |
 | JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |                  |
 | MIPI RAW      | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 | x                |
-| PLAIN RAW     | x    | x      |      | *                      | *                    | .plain16, .nv12, yuv, *          | x                |
+| PLAIN RAW     | x    | x      |      | *                      | *                    | .raw .plain16, .nv12, yuv, *     | x                |
 | PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
 | TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
 
@@ -169,9 +168,9 @@ sidecar json
     "fileInfo": {
         "height": 3000,
         "width": 4000,
-		    "format": "raw10",
-		    "pixelPrecision": 10,
-		    "pixelType": "bayer_grbg"
+		"format": "raw10",
+		"pixelPrecision": 10,
+		"pixelType": "bayer_grbg"
     }
 }
 ~~~~~~~~~~~~~~~

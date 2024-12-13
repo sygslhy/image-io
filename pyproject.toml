@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cxx-image-io"
-version = "1.0.7"
+version = "1.0.8"
 dependencies = [
-  "numpy>=2.1.0", "ninja>=1.11.1", "packaging>=23.2"
+  "numpy>=2.1.0", "packaging>=23.2"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
@@ -14,7 +14,7 @@ description = "Image IO APIs for wide range image formats (jpg, png, tif, dng, b
 requires-python = ">=3.10"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT License"}
-keywords = ["image", "io", "numpy io", "exif io", "bmp io", "raw io", "dng io", "jpg io", "png io", "tif io", "exif", "yuv io", "nv12 io"]
+keywords = ["image", "io", "numpy", "exif", "bmp", "raw io", "dng", "jpg", "png", "tif", "exif io", "yuv io", "nv12 io"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
@@ -23,14 +23,15 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: C++",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
     "Topic :: Scientific/Engineering",
-    "Topic :: Software Development"
+    "Topic :: Software Development",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers"
 ]
 
 [project.urls]
