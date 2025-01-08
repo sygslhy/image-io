@@ -11,3 +11,4 @@ cxx_image_io/cxx_image.*.so
 cxx_image_io/*.dll
 cxx_image_io/*.so
 .codegpt/
+.codegpt
