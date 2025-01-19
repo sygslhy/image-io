@@ -114,4 +114,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cxx-image)
 
+FetchContent_Declare(
+    libraw
+    GIT_REPOSITORY "https://github.com/sygslhy/LibRaw.git"
+    GIT_TAG "master"
+)
+FetchContent_MakeAvailable(libraw)
+
+
 add_subdirectory(binding)
