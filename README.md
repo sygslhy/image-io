@@ -168,9 +168,9 @@ sidecar json
     "fileInfo": {
         "height": 3000,
         "width": 4000,
-		"format": "raw10",
-		"pixelPrecision": 10,
-		"pixelType": "bayer_grbg"
+        "format": "raw10",
+        "pixelPrecision": 10,
+        "pixelType": "bayer_grbg"
     }
 }
 ~~~~~~~~~~~~~~~
