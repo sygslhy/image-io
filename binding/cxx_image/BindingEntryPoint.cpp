@@ -23,6 +23,7 @@ namespace image {
 void init_image(py::module &);
 }
 
+
 PYBIND11_MODULE(cxx_image, m) {
     m.doc() = "image io binding module";
 

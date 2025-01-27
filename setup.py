@@ -83,10 +83,14 @@ setup(
         # This Extension take care only to save the source C++ code.
         Extension(name='cxx_image_io',
                   sources=[
-                      'binding/BindingEntryPoint.cpp',
-                      'binding/ExifMetadata.cpp', 'binding/Image.cpp',
-                      'binding/ImageIO.cpp', 'binding/ImageMetadata.cpp',
-                      'binding/Matrix.cpp', 'binding/MetadataParser.cpp',
+                      'binding/cxx_image/BindingEntryPoint.cpp',
+                      'binding/cxx_image/ExifMetadata.cpp',
+                      'binding/cxx_image/Image.cpp',
+                      'binding/cxx_image/ImageIO.cpp',
+                      'binding/cxx_image/ImageMetadata.cpp',
+                      'binding/cxx_image/Matrix.cpp',
+                      'binding/cxx_image/MetadataParser.cpp',
+                      'binding/cxx_image/CMakeLists.txt',
                       'binding/CMakeLists.txt', 'CMakeLists.txt'
                   ]),
     ],
