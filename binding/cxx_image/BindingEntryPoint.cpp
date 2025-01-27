@@ -24,14 +24,8 @@ namespace image {
 void initImage(py::module &); // NOLINT(misc-use-internal-linkage)
 }
 
-<<<<<<< HEAD:binding/BindingEntryPoint.cpp
 PYBIND11_MODULE(cxx_image, mod) {
     mod.doc() = "image io binding module";
-=======
-
-PYBIND11_MODULE(cxx_image, m) {
-    m.doc() = "image io binding module";
->>>>>>> 77c126a (re-organzied the binding C++ folder):binding/cxx_image/BindingEntryPoint.cpp
 
     // Logoru issue: need to set Verbosity_OFF explicitly at binding call,
     // because loguru default value is Verbosity_OFF, it suppprts only configure

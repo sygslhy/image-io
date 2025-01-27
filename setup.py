@@ -75,11 +75,6 @@ setup(
         # This Extension take care only to save the source C++ code.
         Extension(name='cxx_image_io',
                   sources=[
-<<<<<<< HEAD
-                      'binding/BindingEntryPoint.cpp', 'binding/ExifMetadata.cpp', 'binding/Image.cpp',
-                      'binding/ImageIO.cpp', 'binding/ImageMetadata.cpp', 'binding/Matrix.cpp',
-                      'binding/MetadataParser.cpp', 'binding/CMakeLists.txt', 'CMakeLists.txt'
-=======
                       'binding/cxx_image/BindingEntryPoint.cpp',
                       'binding/cxx_image/ExifMetadata.cpp',
                       'binding/cxx_image/Image.cpp',
@@ -89,7 +84,6 @@ setup(
                       'binding/cxx_image/MetadataParser.cpp',
                       'binding/cxx_image/CMakeLists.txt',
                       'binding/CMakeLists.txt', 'CMakeLists.txt'
->>>>>>> 77c126a (re-organzied the binding C++ folder)
                   ]),
     ],
     cmdclass={'build_ext': CMakeBuild},
