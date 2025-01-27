@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 add_library(
     cxx_image_bind STATIC ExifMetadata.cpp Image.cpp ImageIO.cpp ImageMetadata.cpp Matrix.cpp MetadataParser.cpp
 )
@@ -26,3 +27,6 @@ install(
     COMPONENT cxx-image-io
     LIBRARY DESTINATION cxx_image_io
 )
+=======
+add_subdirectory(cxx_image)
+>>>>>>> 77c126a (re-organzied the binding C++ folder)
