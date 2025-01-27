@@ -29,7 +29,7 @@ These IO interfaces are designed to read and write images in many file formats i
 
 ## Prerequisites
 
-This projet currently supports Python from `3.7` to `3.13` on
+This projet currently supports Python from `3.9` to `3.13` on
 - Windows: `x86_64`
 - Linux: `x86_64` and `aarch64`, glibc `v2.28+`, musl libc `v1.2+`
 - MacOS: `x86_64` and `arm64`, `v11.0+`
@@ -127,6 +127,8 @@ Shape: (3072, 4080)
 ~~~~~~~~~~~~~~~
 
 `metadata.fileInfo` shows that `image` is a 2-dimensional numpy array, where pixel is Bayer type, planar layout (not interleaved), pixel depth is 16 bits.
+
+`metadata.fileInfo` has more attributes to describe the file info, like `widthAlignment`, `heightAlignment`, please use `help(metadata.fileInfo)` to see the details.
 
 Image sidecar is not mandatory, for the other formats which have already image information in their header, like jpg, png, tif, cfa. we don't need to provide image metadata.
 
