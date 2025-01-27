@@ -3,7 +3,7 @@ import platform
 import re
 import subprocess
 import pathlib
-from packaging import version
+from distutils.version import LooseVersion
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
@@ -26,11 +26,11 @@ class CMakeBuild(build_ext):
                 "CMake must be installed to build the following extensions: " +
                 ", ".join(e.name for e in self.extensions))
 
-        if platform.system() == "Windows":
-            cmake_version = version.Version(
-                re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-            if str(cmake_version) < '3.11.0':
-                raise RuntimeError("CMake >= 3.11.0 is required")
+        cmake_version = LooseVersion(
+            re.search(r'version\s*([\d.]+)', out.decode()).group(1))
+
+        if cmake_version < LooseVersion('3.11.0'):
+            raise RuntimeError("CMake >= 3.11.0 is required")
 
         for ext in self.extensions:
             if isinstance(ext, CMakeExtension):
