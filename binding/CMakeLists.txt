@@ -16,6 +16,8 @@ target_link_libraries(
 set(IO_PRIVATE_HDR ${CMAKE_BINARY_DIR}/_deps/cxx-image-src/lib/io/src/)
 target_include_directories(cxx_image_bind PRIVATE ${IO_PRIVATE_HDR})
 
+target_compile_definitions(cxx_image_bind PUBLIC -D_USE_MATH_DEFINES)
+
 pybind11_add_module(cxx_image BindingEntryPoint.cpp)
 target_link_libraries(cxx_image PRIVATE cxx_image_bind pybind11::pybind11 loguru::loguru)
 

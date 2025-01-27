@@ -35,9 +35,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=gnu++17>")
 endif()
 
-# WR for CI pass the M_PI missing issue
-add_definitions(-D_USE_MATH_DEFINES)
-
 include(FetchContent)
 
 # fetch third-party libs from the source code from github which override the find_package and build with -fPIC option.
