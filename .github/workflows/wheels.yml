@@ -65,7 +65,6 @@ jobs:
 
       - name: Test installed package
         run: |
-          rm -rf source &&
           cd test-cxx-image-io &&
           ls -l  .. &&
           pytest -sv
