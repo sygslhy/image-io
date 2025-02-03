@@ -60,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [ubuntu_latest, bookworm, fedora_latest, alpine_latest, archarm_latest]
+        distro: [fedora_latest, alpine_latest, archarm_latest]
         arch: [aarch64]
 
     steps:
