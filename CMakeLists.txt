@@ -22,7 +22,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fPIC>" "$<$<COMPILE_LANGUAGE:C>:
 
 # Build everything as static for MinGW to avoid any DLL dependency
 if(MINGW OR MSYS)
-    link_libraries("-static -static-libgcc -static-libstdc++")
+    link_libraries("-static -static-libgcc -static-libstdc++ -Wl,-allow-multiple-definition")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=c++17>")
 endif()
 
