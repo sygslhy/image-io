@@ -1,0 +1,1 @@
+from cxx_image_io import ExifMetadata
