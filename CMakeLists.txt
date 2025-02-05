@@ -118,5 +118,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(libraw)
 
+install(TARGETS raw_r
+    COMPONENT cxx-image-io
+    LIBRARY DESTINATION cxx_image_io
+    RUNTIME DESTINATION cxx_image_io
+)
+
 
 add_subdirectory(binding)

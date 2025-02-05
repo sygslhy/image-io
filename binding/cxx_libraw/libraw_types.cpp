@@ -30,4 +30,20 @@ void init_types(py::module &m) {
             auto dtype = pybind11::dtype(pybind11::format_descriptor<libraw_raw_inset_crop_t>::format());
             return pybind11::array(dtype, { 2 }, { sizeof(libraw_raw_inset_crop_t) }, p.raw_inset_crops, nullptr);
         }, [](libraw_image_sizes_t& p) {});
+
+    py::class_<libraw_rawdata_t> rawData(m, "RawData", py::is_final());
+    rawData.def(py::init<>())
+        .def_readwrite("sizes", &libraw_rawdata_t::sizes, "class libraw_image_sizes_t: Image Dimensions")
+        .def_buffer([](libraw_rawdata_t &m) -> py::buffer_info {
+            return py::buffer_info(
+                m.raw_alloc,                               /* Pointer to buffer */
+                sizeof(uint16_t),                          /* Size of one scalar */
+                py::format_descriptor<uint16_t>::format(), /* Python struct-style format descriptor */
+                2,                                      /* Number of dimensions */
+                { m.sizes.raw_height, m.sizes.raw_width },                 /* Buffer dimensions */
+                { sizeof(uint16_t) * m.sizes.raw_width,             /* Strides (in bytes) for each index */
+                    sizeof(uint16_t) }
+            );
+        });
+
 };
