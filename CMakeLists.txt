@@ -22,7 +22,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fPIC>" "$<$<COMPILE_LANGUAGE:C>:
 
 # Build everything as static for MinGW to avoid any DLL dependency
 if(MINGW OR MSYS)
-    link_libraries("-static -static-libgcc -static-libstdc++ -Wl,-allow-multiple-definition")
+    # link_libraries("-static-libstdc++")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-std=c++17>")
 endif()
 
@@ -123,6 +123,5 @@ install(TARGETS raw_r
     LIBRARY DESTINATION cxx_image_io
     RUNTIME DESTINATION cxx_image_io
 )
-
 
 add_subdirectory(binding)

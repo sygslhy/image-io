@@ -10,7 +10,7 @@ from cxx_image import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata, Pix
 
 from cxx_image.io import ImageReader, ImageWriter
 
-from cxx_libraw import RawData, RawImageSizes
+from cxx_libraw import add
 
 # Exposure the public APIs
 from .io import read_exif, read_image, write_exif, write_image

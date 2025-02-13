@@ -5,7 +5,7 @@ __pycache__/
 *.pyd
 cxx_image_io.egg-info/
 dist/
-pv_venv/
+py_venv/
 cxx_image_io/cxx_image.*.pyd
 cxx_image_io/cxx_image.*.so
 cxx_image_io/*.dll
