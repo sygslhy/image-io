@@ -47,3 +47,11 @@ void init_types(py::module &m) {
         });
 
 };
+
+// int add(int i, int j) {
+//     return i + j;
+// }
+
+// void init_types(py::module &m) {
+//      m.def("add", &add, "A function that adds two numbers");
+// };
