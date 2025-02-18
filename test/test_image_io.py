@@ -5,10 +5,9 @@ import numpy as np
 import pytest
 
 from test import root_dir
-from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
-                          PixelRepresentation, RgbColorSpace, ImageWriter,
-                          Matrix3, UnorderdMapSemanticMasks, PixelType,
-                          read_exif, read_image, write_exif, write_image)
+from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata, PixelRepresentation, RgbColorSpace,
+                          ImageWriter, Matrix3, UnorderdMapSemanticMasks, PixelType, read_exif, read_image, write_exif,
+                          write_image)
 
 test_images_dir = Path(root_dir, 'images/')
 test_npy_dir = Path(root_dir, 'npy/')
@@ -35,7 +34,6 @@ test_data = {
         'file': 'gray_16bit.png',
         'npy': 'gray_16bit_png.npy'
     },
-
     'tif': {
         'file': 'rgb_8bit.tif',
         'npy': 'rgb_8bit_tif.npy'
@@ -44,7 +42,6 @@ test_data = {
         'file': 'bayer_16bit.tif',
         'npy': 'bayer_16bit_tif.npy'
     },
-
     'cfa': {
         'file': 'bayer_16bit.cfa',
         'npy': 'bayer_16bit_cfa.npy'
@@ -96,8 +93,7 @@ def __check_exif_values(exif, ref_exif):
     assert abs(exif.exposureTime.asDouble() - ref_exif[1]) < __epsilon
     assert abs(exif.focalLength.asDouble() - ref_exif[2]) < __epsilon
     assert abs(exif.fNumber.asDouble() - ref_exif[3]) < __epsilon
-    assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation,
-            exif.software) == ref_exif[4:]
+    assert (exif.isoSpeedRatings, exif.make, exif.model, exif.orientation, exif.software) == ref_exif[4:]
 
 
 def test_parse_metadata():
@@ -125,24 +121,18 @@ def test_parse_metadata():
 
     # Check cameraControls members
     assert metadata.cameraControls is not None
-    assert abs(metadata.cameraControls.whiteBalance.gainR -
-               2.223459892023346) < __epsilon
-    assert abs(metadata.cameraControls.whiteBalance.gainB -
-               1.462103373540856) < __epsilon
+    assert abs(metadata.cameraControls.whiteBalance.gainR - 2.223459892023346) < __epsilon
+    assert abs(metadata.cameraControls.whiteBalance.gainB - 1.462103373540856) < __epsilon
 
     array_r = np.array(metadata.cameraControls.colorShading.gainR, copy=False)
     array_b = np.array(metadata.cameraControls.colorShading.gainB, copy=False)
     assert array_r.shape == (3, 3) and array_b.shape == (3, 3)
-    np.array_equal(
-        array_r, np.array([[2.0, 1.5, 2.0], [1.5, 1.0, 1.5], [2.0, 1.5, 2.0]]))
-    np.array_equal(
-        array_b, np.array([[3.0, 2.5, 3.0], [2.5, 1.0, 2.5], [3.0, 2.5, 3.0]]))
-    assert metadata.cameraControls.faceDetection[
-        0].x == metadata.cameraControls.faceDetection[0].y == 0
+    np.array_equal(array_r, np.array([[2.0, 1.5, 2.0], [1.5, 1.0, 1.5], [2.0, 1.5, 2.0]]))
+    np.array_equal(array_b, np.array([[3.0, 2.5, 3.0], [2.5, 1.0, 2.5], [3.0, 2.5, 3.0]]))
+    assert metadata.cameraControls.faceDetection[0].x == metadata.cameraControls.faceDetection[0].y == 0
     assert metadata.cameraControls.faceDetection[0].width == 100
     assert metadata.cameraControls.faceDetection[0].height == 200
-    assert metadata.cameraControls.faceDetection[
-        1].x == metadata.cameraControls.faceDetection[1].y == 0
+    assert metadata.cameraControls.faceDetection[1].x == metadata.cameraControls.faceDetection[1].y == 0
     assert metadata.cameraControls.faceDetection[1].width == 120
     assert metadata.cameraControls.faceDetection[1].height == 180
 
@@ -151,14 +141,10 @@ def test_parse_metadata():
     assert metadata.calibrationData.blackLevel == 256
     assert metadata.calibrationData.whiteLevel == 4095.0
     array_g = np.array(metadata.calibrationData.vignetting, copy=False)
-    np.array_equal(
-        array_g, np.array([[2.0, 1.5, 2.0], [1.5, 1.1, 1.5], [2.0, 1.5, 2.0]]))
+    np.array_equal(array_g, np.array([[2.0, 1.5, 2.0], [1.5, 1.1, 1.5], [2.0, 1.5, 2.0]]))
     assert metadata.calibrationData.colorMatrixTarget == RgbColorSpace.SRGB
-    array_color_matrix = np.array(metadata.calibrationData.colorMatrix,
-                                  copy=False)
-    np.array_equal(
-        array_color_matrix,
-        np.array([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]))
+    array_color_matrix = np.array(metadata.calibrationData.colorMatrix, copy=False)
+    np.array_equal(array_color_matrix, np.array([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]))
 
     # Check exifMetadata members
     assert metadata.exifMetadata is not None
@@ -186,36 +172,23 @@ def test_parse_metadata():
     assert isinstance(metadata.semanticMasks, UnorderdMapSemanticMasks)
 
 
-@pytest.mark.parametrize('image_type, ref_numpy_info, ref_image_info',
-                         [('raw', (np.dtype('uint16'), (180, 240), 2),
-                           (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
-                          ('bmp', (np.dtype('uint8'), (275, 301, 3), 3),
-                           (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
-                          ('jpg', (np.dtype('uint8'), (68, 100, 3), 3),
-                           (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
-                          ('png', (np.dtype('uint8'), (60, 180, 3), 3),
-                           (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
-                          ('png_16bit', (np.dtype('uint16'), (180, 240), 2),
-                           (PixelType.GRAYSCALE, 16, ImageLayout.PLANAR)),
-                          ('tif', (np.dtype('uint8'), (68, 100, 3), 3),
-                           (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
-                           ('tif_16bit', (np.dtype('uint16'), (180, 240), 2),
-                           (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
-                          ('cfa', (np.dtype('uint16'), (180, 240), 2),
-                           (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
-                          ('rawmipi10', (np.dtype('uint16'), (180, 240), 2),
-                           (PixelType.BAYER_GRBG, 10, ImageLayout.PLANAR)),
-                          ('rawmipi12', (np.dtype('uint16'), (300, 400), 2),
-                           (PixelType.BAYER_GBRG, 12, ImageLayout.PLANAR)),
-                          ('dng', (np.dtype('uint16'), (2314, 3474), 2),
-                           (PixelType.BAYER_RGGB, 12, ImageLayout.PLANAR)),
-                          ('yuv', (np.dtype('uint8'), (102, 100), 2),
-                           (PixelType.YUV, 0, ImageLayout.YUV_420)),
-                          ('nv12', (np.dtype('uint8'), (102, 100), 2),
-                           (PixelType.YUV, 0, ImageLayout.NV12))])
+@pytest.mark.parametrize(
+    'image_type, ref_numpy_info, ref_image_info',
+    [('raw', (np.dtype('uint16'), (180, 240), 2), (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
+     ('bmp', (np.dtype('uint8'), (275, 301, 3), 3), (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
+     ('jpg', (np.dtype('uint8'), (68, 100, 3), 3), (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
+     ('png', (np.dtype('uint8'), (60, 180, 3), 3), (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
+     ('png_16bit', (np.dtype('uint16'), (180, 240), 2), (PixelType.GRAYSCALE, 16, ImageLayout.PLANAR)),
+     ('tif', (np.dtype('uint8'), (68, 100, 3), 3), (PixelType.RGB, 8, ImageLayout.INTERLEAVED)),
+     ('tif_16bit', (np.dtype('uint16'), (180, 240), 2), (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
+     ('cfa', (np.dtype('uint16'), (180, 240), 2), (PixelType.BAYER_RGGB, 16, ImageLayout.PLANAR)),
+     ('rawmipi10', (np.dtype('uint16'), (180, 240), 2), (PixelType.BAYER_GRBG, 10, ImageLayout.PLANAR)),
+     ('rawmipi12', (np.dtype('uint16'), (300, 400), 2), (PixelType.BAYER_GBRG, 12, ImageLayout.PLANAR)),
+     ('dng', (np.dtype('uint16'), (2314, 3474), 2), (PixelType.BAYER_RGGB, 12, ImageLayout.PLANAR)),
+     ('yuv', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.YUV_420)),
+     ('nv12', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.NV12))])
 def test_read_image(image_type, ref_numpy_info, ref_image_info):
-    image, metadata = read_image(test_images_dir /
-                                 test_data[image_type]['file'])
+    image, metadata = read_image(test_images_dir / test_data[image_type]['file'])
     assert isinstance(image, np.ndarray)
     assert (image.dtype, image.shape, image.ndim) == ref_numpy_info
     assert (metadata.fileInfo.pixelType, metadata.fileInfo.pixelPrecision,
@@ -226,29 +199,22 @@ def test_read_image(image_type, ref_numpy_info, ref_image_info):
     assert np.array_equal(ref_image, image)
 
 
-@pytest.mark.parametrize(
-    'image_type, pixel_type, image_layout, pixel_precision, file_format, only_pixel_cmp',
-    [
-        ('raw', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 0, FileFormat.PLAIN,
-         False),
-        ('bmp', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
-        ('jpg', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
-        ('png', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
-        ('png_16bit', PixelType.GRAYSCALE, ImageLayout.PLANAR, 16, None, True),
-        ('tif', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
-        ('tif_16bit', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 16, None, True),
-        ('cfa', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, True),
-        ('rawmipi12', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None,
-         False),
-        ('rawmipi10', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 10, None,
-         False),
-        ('dng', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 12, None, True),
-        ('yuv', PixelType.YUV, ImageLayout.YUV_420, 0, FileFormat.PLAIN,
-         False),
-        ('nv12', PixelType.YUV, ImageLayout.NV12, 0, FileFormat.PLAIN, False),
-    ])
-def test_write_image(image_type, pixel_type, image_layout, pixel_precision,
-                     file_format, only_pixel_cmp):
+@pytest.mark.parametrize('image_type, pixel_type, image_layout, pixel_precision, file_format, only_pixel_cmp', [
+    ('raw', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 0, FileFormat.PLAIN, False),
+    ('bmp', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
+    ('jpg', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
+    ('png', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
+    ('png_16bit', PixelType.GRAYSCALE, ImageLayout.PLANAR, 16, None, True),
+    ('tif', PixelType.RGB, ImageLayout.INTERLEAVED, 0, None, True),
+    ('tif_16bit', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 16, None, True),
+    ('cfa', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 0, None, True),
+    ('rawmipi12', PixelType.BAYER_GBRG, ImageLayout.PLANAR, 12, None, False),
+    ('rawmipi10', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 10, None, False),
+    ('dng', PixelType.BAYER_RGGB, ImageLayout.PLANAR, 12, None, True),
+    ('yuv', PixelType.YUV, ImageLayout.YUV_420, 0, FileFormat.PLAIN, False),
+    ('nv12', PixelType.YUV, ImageLayout.NV12, 0, FileFormat.PLAIN, False),
+])
+def test_write_image(image_type, pixel_type, image_layout, pixel_precision, file_format, only_pixel_cmp):
     metadata = ImageMetadata()
     metadata.fileInfo.pixelType, metadata.fileInfo.imageLayout, metadata.fileInfo.pixelPrecision, metadata.fileInfo.fileFormat = pixel_type, image_layout, pixel_precision, file_format
     metadata.exifMetadata = __exif
@@ -261,14 +227,9 @@ def test_write_image(image_type, pixel_type, image_layout, pixel_precision,
         metadata.calibrationData.blackLevel = 258
         metadata.calibrationData.whiteLevel = 4095
         metadata.calibrationData.colorMatrix = Matrix3(
-            np.array([
-                [1.7485008239746094, -0.9061940312385559, 0.15769319236278534],
-                [0.017115920782089233, 1.318513035774231, -0.3356289267539978],
-                [
-                    0.03677308186888695,
-                    -0.3459629416465759 - 0.3356289267539978, 1.309189796447754
-                ]
-            ]))
+            np.array([[1.7485008239746094, -0.9061940312385559, 0.15769319236278534],
+                      [0.017115920782089233, 1.318513035774231, -0.3356289267539978],
+                      [0.03677308186888695, -0.3459629416465759 - 0.3356289267539978, 1.309189796447754]]))
 
     write_options = ImageWriter.Options(metadata)
     write_options.fileFormat = metadata.fileInfo.fileFormat
@@ -288,12 +249,10 @@ def test_write_image(image_type, pixel_type, image_layout, pixel_precision,
 
 
 @pytest.mark.parametrize('image_type, ref_exif', [
-    ('jpg', ('2008:05:30 15:56:01\x00', 1 / 160, 135, 71 / 10, 100,
-             'Canon\x00', 'Canon EOS 40D\x00', 1, 'GIMP 2.4.5\x00')),
-    ('dng', ('2008:12:14 15:54:54', 1 / 800, 20, 71 / 10, 100, 'Canon',
-             'Canon EOS 350D DIGITAL', 1, None)),
-    ('tif', ('2008:05:30 15:56:01', 1 / 160, 135, 71 / 10, 100, 'Canon',
-             'Canon EOS 40D', 1, 'GIMP 2.4.5')),
+    ('jpg',
+     ('2008:05:30 15:56:01\x00', 1 / 160, 135, 71 / 10, 100, 'Canon\x00', 'Canon EOS 40D\x00', 1, 'GIMP 2.4.5\x00')),
+    ('dng', ('2008:12:14 15:54:54', 1 / 800, 20, 71 / 10, 100, 'Canon', 'Canon EOS 350D DIGITAL', 1, None)),
+    ('tif', ('2008:05:30 15:56:01', 1 / 160, 135, 71 / 10, 100, 'Canon', 'Canon EOS 40D', 1, 'GIMP 2.4.5')),
 ])
 def test_read_exif(image_type, ref_exif):
     image_path = test_images_dir / test_data[image_type]['file']
@@ -311,13 +270,9 @@ def test_write_exif(image_type):
     write_exif(image_path, __exif)
     parsed_exif = read_exif(image_path)
     assert parsed_exif.dateTimeOriginal == __exif.dateTimeOriginal
-    assert abs(parsed_exif.exposureTime.asDouble() -
-               __exif.exposureTime.asDouble()) < __epsilon
-    assert abs(parsed_exif.focalLength.asDouble() -
-               __exif.focalLength.asDouble()) < __epsilon
-    assert abs(parsed_exif.fNumber.asDouble() -
-               __exif.fNumber.asDouble()) < __epsilon
+    assert abs(parsed_exif.exposureTime.asDouble() - __exif.exposureTime.asDouble()) < __epsilon
+    assert abs(parsed_exif.focalLength.asDouble() - __exif.focalLength.asDouble()) < __epsilon
+    assert abs(parsed_exif.fNumber.asDouble() - __exif.fNumber.asDouble()) < __epsilon
     assert (parsed_exif.make, parsed_exif.model) == (__exif.make, __exif.model)
     assert (parsed_exif.isoSpeedRatings, parsed_exif.orientation,
-            parsed_exif.software) == (__exif.isoSpeedRatings,
-                                      __exif.orientation, __exif.software)
+            parsed_exif.software) == (__exif.isoSpeedRatings, __exif.orientation, __exif.software)

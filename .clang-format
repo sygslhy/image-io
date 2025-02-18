@@ -1,0 +1,18 @@
+---
+BasedOnStyle: Google
+Language: Cpp
+Standard: Cpp11
+ColumnLimit: 120
+AccessModifierOffset: -4
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: InlineOnly
+BinPackArguments: false
+BinPackParameters: false
+ContinuationIndentWidth: 8
+Cpp11BracedListStyle: true
+IndentWidth: 4
+PenaltyBreakAssignment: 500
+SpacesBeforeTrailingComments: 1
+IncludeBlocks: Preserve
+CommentPragmas:  '^(\|)(.+)(\|)$' # Not format the doxygen table comments
+...

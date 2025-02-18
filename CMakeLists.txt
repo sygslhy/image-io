@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.11)
-SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" CACHE PATH "install path")
+set(CMAKE_INSTALL_PREFIX
+    "${CMAKE_SOURCE_DIR}"
+    CACHE PATH "install path"
+)
 project(image-io)
-IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  SET(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}" CACHE PATH "default install path" FORCE)
-ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX
+        "${CMAKE_SOURCE_DIR}"
+        CACHE PATH "default install path" FORCE
+    )
+endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 # Needed for clang-tidy post process
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -34,11 +40,8 @@ add_definitions(-D_USE_MATH_DEFINES)
 
 include(FetchContent)
 
-# fetch third-party libs from the source code from github
-# which override the find_package
-# and build with -fPIC option.
-# make the same alias target name as former find_package searched.
-# third-party libs: jpeg, tiff, png, exif, zlib
+# fetch third-party libs from the source code from github which override the find_package and build with -fPIC option.
+# make the same alias target name as former find_package searched. third-party libs: jpeg, tiff, png, exif, zlib
 FetchContent_Declare(
     JPEG
     GIT_REPOSITORY "https://github.com/sygslhy/libjpeg.git"
@@ -56,14 +59,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(EXIF)
 
-
 # Set on purpose for no subdirectory of dll and pyd installations
-Set(CMAKE_INSTALL_BINDIR "")
-Set(CMAKE_INSTALL_LIBDIR "")
+set(CMAKE_INSTALL_BINDIR "")
+set(CMAKE_INSTALL_LIBDIR "")
 message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
 
 add_library(EXIF::EXIF ALIAS exif)
-install(TARGETS exif
+install(
+    TARGETS exif
     COMPONENT cxx-image-io
     LIBRARY DESTINATION cxx_image_io
     RUNTIME DESTINATION cxx_image_io
@@ -107,7 +110,7 @@ FetchContent_MakeAvailable(pybind11)
 FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/sygslhy/cxx-image.git"
-    GIT_TAG "test-msys" #  Sep 16, 2024
+    GIT_TAG "test-msys" # Sep 16, 2024
 )
 FetchContent_MakeAvailable(cxx-image)
 

@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 120
+exclude =
+	__init__.py
+	context.py
+	*/__pycache__/*
+	__pycache__/*
+	python/external/*
