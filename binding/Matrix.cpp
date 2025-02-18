@@ -8,6 +8,7 @@
 #include "pybind11/numpy.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/pytypes.h"
+#include "pybind11/stl.h" // NOLINT(misc-include-cleaner)
 
 #include <stdexcept>
 

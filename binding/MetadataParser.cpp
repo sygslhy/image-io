@@ -2,6 +2,7 @@
 
 #include "pybind11/detail/common.h"
 #include "pybind11/pybind11.h"
+#include "pybind11/stl.h" // NOLINT(misc-include-cleaner)
 
 #include <optional>
 #include <string>
