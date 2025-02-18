@@ -1,4 +1,4 @@
-from cxx_image import ImageMetadata, ImageLayout, PixelType, PixelRepresentation
+from cxx_image import ImageLayout, ImageMetadata, PixelRepresentation, PixelType
 
 import numpy as np
 
@@ -86,7 +86,7 @@ def __merge_bayer_channels(channels, pixel_presentation, metadata):
     assert all(k in channels.keys()
                for k in ['r', 'gr', 'gb', 'b']), 'bayer channels must have r, gr, gb, b, current channels: {0}'.format(
                    channels.keys())
-    assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have image width and height in fileInfo to merge channels'
+    assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have width height in fileInfo to merge channels'
     pixel_type = metadata.fileInfo.pixelType
     width, height = metadata.fileInfo.width, metadata.fileInfo.height
 
@@ -99,7 +99,7 @@ def __merge_bayer_channels(channels, pixel_presentation, metadata):
 
 
 def __merge_color_channels(channels, pixel_presentation, metadata):
-    assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have image width and height in fileInfo to merge channels'
+    assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have width height in fileInfo to merge channels'
     width, height = metadata.fileInfo.width, metadata.fileInfo.height
     if metadata.fileInfo.pixelType == PixelType.RGBA:
         assert len(channels.keys()) == 4, 'RGBA must have 4 channels: {0}'.format(channels.keys())
@@ -151,7 +151,7 @@ def __merge_yuv_channels(channels, pixel_presentation, metadata):
                for k in ['y', 'u', 'v']), 'YUV channels must have y, u, v, current channels: {0}'.format(
                    channels.keys())
 
-    assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have image width and height in fileInfo to merge channels'
+    assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have width height in fileInfo to merge channels'
     w, h = metadata.fileInfo.width, metadata.fileInfo.height
     sampled_w = w // 2
     sampled_h = h // 2

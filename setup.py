@@ -1,8 +1,7 @@
 import os
-import platform
+import pathlib
 import re
 import subprocess
-import pathlib
 from distutils.version import LooseVersion
 
 from setuptools import Extension, find_packages, setup

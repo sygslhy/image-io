@@ -1,13 +1,14 @@
 import hashlib
 from pathlib import Path
+from test import root_dir
+
+from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata, ImageWriter, Matrix3,
+                          PixelRepresentation, PixelType, RgbColorSpace, UnorderdMapSemanticMasks, read_exif,
+                          read_image, write_exif, write_image)
 
 import numpy as np
-import pytest
 
-from test import root_dir
-from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata, PixelRepresentation, RgbColorSpace,
-                          ImageWriter, Matrix3, UnorderdMapSemanticMasks, PixelType, read_exif, read_image, write_exif,
-                          write_image)
+import pytest
 
 test_images_dir = Path(root_dir, 'images/')
 test_npy_dir = Path(root_dir, 'npy/')
@@ -216,7 +217,8 @@ def test_read_image(image_type, ref_numpy_info, ref_image_info):
 ])
 def test_write_image(image_type, pixel_type, image_layout, pixel_precision, file_format, only_pixel_cmp):
     metadata = ImageMetadata()
-    metadata.fileInfo.pixelType, metadata.fileInfo.imageLayout, metadata.fileInfo.pixelPrecision, metadata.fileInfo.fileFormat = pixel_type, image_layout, pixel_precision, file_format
+    metadata.fileInfo.pixelType, metadata.fileInfo.imageLayout = pixel_type, image_layout
+    metadata.fileInfo.pixelPrecision, metadata.fileInfo.fileFormat = pixel_precision, file_format
     metadata.exifMetadata = __exif
     output_path = test_outputs_dir / test_data[image_type]['file']
     if '.dng' in output_path.suffix:

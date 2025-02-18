@@ -1,11 +1,11 @@
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageMetadata, ImageUint8, ImageUint16,
-                       PixelRepresentation, io, parser)
-
+import logging
+import sys
 from pathlib import Path
 
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageMetadata, ImageUint16, ImageUint8,
+                       PixelRepresentation, io, parser)
+
 import numpy as np
-import sys
-import logging
 
 __numpy_array_image_convert_vector = {
     np.dtype('uint16'): ImageUint16,
@@ -122,7 +122,8 @@ def write_image(output_path: Path, image_array: np.array, write_options: io.Imag
     image_array : np.array
         numpy array image to write
     write_options : io.ImageWriter.Options
-        write options for writing parameters like, image buffer info, jpegQualiy, tiff compression type and exif metadata infos. by default None
+        write options for writing parameters like, image buffer info, jpegQualiy, tiff compression type
+        and exif metadata infos. by default None
     """
     assert isinstance(output_path, Path), "Image path must be pathlib.Path type."
     assert isinstance(image_array, np.ndarray), "image must be numpy array."
