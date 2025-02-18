@@ -1,5 +1,5 @@
+#include "pybind11/detail/common.h"
 #include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
 
 #include "loguru.hpp"
 
@@ -7,24 +7,24 @@ namespace py = pybind11;
 
 namespace cxximg {
 
-void init_exif(py::module &);
-void init_math(py::module &);
-void init_model(py::module &);
+void initExif(py::module &);  // NOLINT(misc-use-internal-linkage)
+void initMath(py::module &);  // NOLINT(misc-use-internal-linkage)
+void initModel(py::module &); // NOLINT(misc-use-internal-linkage)
 
 namespace parser {
-void init_parser(py::module &);
+void initParser(py::module &); // NOLINT(misc-use-internal-linkage)
 }
 
 namespace io {
-void init_io(py::module &);
+void initIO(py::module &); // NOLINT(misc-use-internal-linkage)
 }
 
 namespace image {
-void init_image(py::module &);
+void initImage(py::module &); // NOLINT(misc-use-internal-linkage)
 }
 
-PYBIND11_MODULE(cxx_image, m) {
-    m.doc() = "image io binding module";
+PYBIND11_MODULE(cxx_image, mod) {
+    mod.doc() = "image io binding module";
 
     // Logoru issue: need to set Verbosity_OFF explicitly at binding call,
     // because loguru default value is Verbosity_OFF, it suppprts only configure
@@ -33,12 +33,12 @@ PYBIND11_MODULE(cxx_image, m) {
     loguru::g_stderr_verbosity = loguru::Verbosity_WARNING;
 
     // initialize all the binding submodules.
-    init_exif(m);
-    init_math(m);
-    init_model(m);
-    image::init_image(m);
-    parser::init_parser(m);
-    io::init_io(m);
+    initExif(mod);
+    initMath(mod);
+    initModel(mod);
+    image::initImage(mod);
+    parser::initParser(mod);
+    io::initIO(mod);
 }
 
 } // namespace cxximg

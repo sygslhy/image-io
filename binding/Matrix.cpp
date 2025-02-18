@@ -2,17 +2,22 @@
 #include "math/ColorSpace.h"
 #include "math/DynamicMatrix.h"
 
-#include <pybind11/numpy.h>
+#include "pybind11/buffer_info.h"
+#include "pybind11/cast.h"
+#include "pybind11/detail/common.h"
+#include "pybind11/numpy.h"
 #include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
+#include "pybind11/pytypes.h"
+
+#include <stdexcept>
 
 namespace py = pybind11;
 
 namespace cxximg {
-
-DynamicMatrix createDynamicMatrixFromPyarray(py::array_t<float> b) {
+namespace {
+DynamicMatrix createDynamicMatrixFromPyarray(const py::array_t<float> &arr) {
     /* Request a buffer descriptor from Python */
-    py::buffer_info info = b.request();
+    py::buffer_info info = arr.request();
     /* Some basic validation checks ... */
     if (info.format != py::format_descriptor<float>::format()) {
         throw std::runtime_error("Incompatible format: expected a correct format array!");
@@ -21,12 +26,13 @@ DynamicMatrix createDynamicMatrixFromPyarray(py::array_t<float> b) {
         throw std::runtime_error("Incompatible buffer dimension!");
     }
     /*Create the Dynamic Matrix based on the py::array's buffer */
-    return DynamicMatrix(info.shape[1], info.shape[0], static_cast<float *>(info.ptr));
+    return DynamicMatrix{
+            static_cast<int>(info.shape[1]), static_cast<int>(info.shape[0]), static_cast<float *>(info.ptr)};
 }
 
-Matrix3 createMatrix3FromPyarray(py::array_t<float> b) {
+Matrix3 createMatrix3FromPyarray(const py::array_t<float> &arr) {
     /* Request a buffer descriptor from Python */
-    py::buffer_info info = b.request();
+    py::buffer_info info = arr.request();
     /* Some basic validation checks ... */
     if (info.format != py::format_descriptor<float>::format()) {
         throw std::runtime_error("Incompatible format: expected a correct format array!");
@@ -43,32 +49,32 @@ Matrix3 createMatrix3FromPyarray(py::array_t<float> b) {
     return Matrix3(static_cast<float *>(info.ptr));
 }
 
-py::buffer_info defineBufferInfos(DynamicMatrix m) {
+py::buffer_info defineBufferInfos(DynamicMatrix mod) {
     static constexpr int MATRIX_DIM = 2;
-    return py::buffer_info(m.data(),                               /* Pointer to buffer */
+    return py::buffer_info(mod.data(),                             /* Pointer to buffer */
                            sizeof(float),                          /* Size of one scalar */
                            py::format_descriptor<float>::format(), /* Python struct-style format
                                                                       descriptor */
                            MATRIX_DIM,                             /* Number of dimensions */
-                           {m.numRows(), m.numCols()},             /* Buffer dimensions */
-                           {sizeof(float) * m.numCols(),           /* Strides (in bytes) for each index */
+                           {mod.numRows(), mod.numCols()},         /* Buffer dimensions */
+                           {sizeof(float) * mod.numCols(),         /* Strides (in bytes) for each index */
                             sizeof(float)});
 }
 
-py::buffer_info defineBufferInfos(Matrix3 m) {
+py::buffer_info defineBufferInfos(Matrix3 mod) {
     static constexpr int MATRIX_DIM = 2;
-    return py::buffer_info(m.data(),                               /* Pointer to buffer */
+    return py::buffer_info(mod.data(),                             /* Pointer to buffer */
                            sizeof(float),                          /* Size of one scalar */
                            py::format_descriptor<float>::format(), /* Python struct-style format
                                                                       descriptor */
                            MATRIX_DIM,                             /* Number of dimensions */
-                           {m.numRows(), m.numCols()},             /* Buffer dimensions */
-                           {sizeof(float) * m.numCols(),           /* Strides (in bytes) for each index */
+                           {mod.numRows(), mod.numCols()},         /* Buffer dimensions */
+                           {sizeof(float) * mod.numCols(),         /* Strides (in bytes) for each index */
                             sizeof(float)});
 }
-
-void init_math(py::module &m) {
-    py::enum_<RgbColorSpace>(m, "RgbColorSpace")
+} // namespace
+void initMath(py::module &mod) { // NOLINT(misc-use-internal-linkage)
+    py::enum_<RgbColorSpace>(mod, "RgbColorSpace")
             .value("ADOBE_RGB", RgbColorSpace::ADOBE_RGB)
             .value("DISPLAY_P3", RgbColorSpace::DISPLAY_P3)
             .value("REC2020", RgbColorSpace::REC2020)
@@ -76,49 +82,49 @@ void init_math(py::module &m) {
             .value("XYZ_D50", RgbColorSpace::XYZ_D50)
             .value("XYZ_D65", RgbColorSpace::XYZ_D65);
 
-    py::enum_<RgbTransferFunction>(m, "RgbTransferFunction")
+    py::enum_<RgbTransferFunction>(mod, "RgbTransferFunction")
             .value("GAMMA22", RgbTransferFunction::GAMMA22)
             .value("LINEAR", RgbTransferFunction::LINEAR)
             .value("SRGB", RgbTransferFunction::SRGB);
 
-    py::class_<DynamicMatrix>(m, "DynamicMatrix", py::buffer_protocol())
-            .def(py::init([](py::array_t<float> b) { return createDynamicMatrixFromPyarray(b); }))
-            .def_buffer([](DynamicMatrix &m) -> py::buffer_info { return defineBufferInfos(m); })
+    py::class_<DynamicMatrix>(mod, "DynamicMatrix", py::buffer_protocol())
+            .def(py::init([](const py::array_t<float> &arr) { return createDynamicMatrixFromPyarray(arr); }))
+            .def_buffer([](DynamicMatrix &mod) -> py::buffer_info { return defineBufferInfos(mod); })
             .def("serialize",
-                 [](const DynamicMatrix &m) {
+                 [](const DynamicMatrix &mod) {
                      py::list list2D;
-                     for (int y = 0; y < m.numRows(); ++y) {
+                     for (int y = 0; y < mod.numRows(); ++y) { // NOLINT(readability-identifier-length)
                          py::list line;
-                         for (int x = 0; x < m.numCols(); ++x) {
-                             line.append(m(y, x));
+                         for (int x = 0; x < mod.numCols(); ++x) { // NOLINT(readability-identifier-length)
+                             line.append(mod(y, x));
                          }
                          list2D.append(line);
                      }
                      return list2D;
                  })
-            .def("__repr__", [](const DynamicMatrix &m) {
-                auto d = py::cast(m).attr("serialize")();
-                return py::str(d);
+            .def("__repr__", [](const DynamicMatrix &mod) {
+                auto dict = py::cast(mod).attr("serialize")();
+                return py::str(dict);
             });
 
-    py::class_<Matrix3>(m, "Matrix3", py::buffer_protocol())
-            .def(py::init([](py::array_t<float> b) { return createMatrix3FromPyarray(b); }))
-            .def_buffer([](Matrix3 &m) -> py::buffer_info { return defineBufferInfos(m); })
+    py::class_<Matrix3>(mod, "Matrix3", py::buffer_protocol())
+            .def(py::init([](const py::array_t<float> &arr) { return createMatrix3FromPyarray(arr); }))
+            .def_buffer([](Matrix3 &mod) -> py::buffer_info { return defineBufferInfos(mod); })
             .def("serialize",
-                 [](const Matrix3 &m) {
+                 [](const Matrix3 &mod) {
                      py::list list2D;
-                     for (int y = 0; y < m.numRows(); ++y) {
+                     for (int y = 0; y < mod.numRows(); ++y) { // NOLINT(readability-identifier-length)
                          py::list line;
-                         for (int x = 0; x < m.numCols(); ++x) {
-                             line.append(m(y, x));
+                         for (int x = 0; x < mod.numCols(); ++x) { // NOLINT(readability-identifier-length)
+                             line.append(mod(y, x));
                          }
                          list2D.append(line);
                      }
                      return list2D;
                  })
-            .def("__repr__", [](const Matrix3 &m) {
-                auto d = py::cast(m).attr("serialize")();
-                return py::str(d);
+            .def("__repr__", [](const Matrix3 &mod) {
+                auto dict = py::cast(mod).attr("serialize")();
+                return py::str(dict);
             });
 }
 

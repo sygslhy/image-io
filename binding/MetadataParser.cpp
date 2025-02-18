@@ -1,7 +1,10 @@
 #include "parser/MetadataParser.h"
 
+#include "pybind11/detail/common.h"
 #include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
+
+#include <optional>
+#include <string>
 
 namespace py = pybind11;
 
@@ -9,10 +12,10 @@ namespace cxximg {
 
 namespace parser {
 
-void init_parser(py::module &m) {
-    py::module_ m_parser = m.def_submodule("parser", "parse namespace");
-    m_parser.def("readMetadata",
-                 py::overload_cast<const std::string &, const std::optional<std::string> &>(&readMetadata));
+void initParser(py::module &mod) { // NOLINT(misc-use-internal-linkage)
+    py::module_ mParser = mod.def_submodule("parser", "parse namespace");
+    mParser.def("readMetadata",
+                py::overload_cast<const std::string &, const std::optional<std::string> &>(&readMetadata));
 }
 
 } // namespace parser

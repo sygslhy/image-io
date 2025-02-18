@@ -1,14 +1,18 @@
 #include "model/ExifMetadata.h"
 
+#include "pybind11/cast.h"
 #include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
+#include "pybind11/pytypes.h"
+
+#include <cstdint>
+#include <memory>
 
 namespace py = pybind11;
 
 namespace cxximg {
 
-void init_exif(py::module &m) {
-    py::class_<ExifMetadata> exifMetadata(m, "ExifMetadata", py::is_final());
+void initExif(py::module &mod) { // NOLINT(misc-use-internal-linkage)
+    py::class_<ExifMetadata> exifMetadata(mod, "ExifMetadata", py::is_final());
 
     exifMetadata.def(py::init<>())
             .def_readwrite("imageWidth", &ExifMetadata::imageWidth, "uint16: Image width reported in EXIF data")
@@ -36,36 +40,64 @@ void init_exif(py::module &m) {
                     "serialize",
                     [](const ExifMetadata &exif) {
                         py::dict dict;
-                        if (exif.imageWidth) dict["imageWidth"] = *exif.imageWidth;
-                        if (exif.imageHeight) dict["imageHeight"] = *exif.imageHeight;
-                        if (exif.imageDescription) dict["imageDescription"] = py::str(*exif.imageDescription);
-                        if (exif.make) dict["make"] = py::str(*exif.make);
-                        if (exif.model) dict["model"] = py::str(*exif.model);
-                        if (exif.orientation) dict["orientation"] = *exif.orientation;
-                        if (exif.software) dict["software"] = py::str(*exif.software);
-                        if (exif.exposureTime) dict["exposureTime"] = py::cast(exif.exposureTime).attr("serialize")();
-                        if (exif.fNumber) dict["fNumber"] = py::cast(exif.fNumber).attr("serialize")();
-                        if (exif.isoSpeedRatings) dict["isoSpeedRatings"] = *exif.isoSpeedRatings;
-                        if (exif.dateTimeOriginal) dict["dateTimeOriginal"] = py::str(*exif.dateTimeOriginal);
-                        if (exif.brightnessValue)
+                        if (exif.imageWidth) {
+                            dict["imageWidth"] = *exif.imageWidth;
+                        }
+                        if (exif.imageHeight) {
+                            dict["imageHeight"] = *exif.imageHeight;
+                        }
+                        if (exif.imageDescription) {
+                            dict["imageDescription"] = py::str(*exif.imageDescription);
+                        }
+                        if (exif.make) {
+                            dict["make"] = py::str(*exif.make);
+                        }
+                        if (exif.model) {
+                            dict["model"] = py::str(*exif.model);
+                        }
+                        if (exif.orientation) {
+                            dict["orientation"] = *exif.orientation;
+                        }
+                        if (exif.software) {
+                            dict["software"] = py::str(*exif.software);
+                        }
+                        if (exif.exposureTime) {
+                            dict["exposureTime"] = py::cast(exif.exposureTime).attr("serialize")();
+                        }
+                        if (exif.fNumber) {
+                            dict["fNumber"] = py::cast(exif.fNumber).attr("serialize")();
+                        }
+                        if (exif.isoSpeedRatings) {
+                            dict["isoSpeedRatings"] = *exif.isoSpeedRatings;
+                        }
+                        if (exif.dateTimeOriginal) {
+                            dict["dateTimeOriginal"] = py::str(*exif.dateTimeOriginal);
+                        }
+                        if (exif.brightnessValue) {
                             dict["brightnessValue"] = py::cast(exif.brightnessValue).attr("serialize")();
-                        if (exif.exposureBiasValue)
+                        }
+                        if (exif.exposureBiasValue) {
                             dict["exposureBiasValue"] = py::cast(exif.exposureBiasValue).attr("serialize")();
-                        if (exif.focalLength) dict["focalLength"] = py::cast(exif.focalLength).attr("serialize")();
-                        if (exif.focalLengthIn35mmFilm) dict["focalLengthIn35mmFilm"] = *exif.focalLengthIn35mmFilm;
+                        }
+                        if (exif.focalLength) {
+                            dict["focalLength"] = py::cast(exif.focalLength).attr("serialize")();
+                        }
+                        if (exif.focalLengthIn35mmFilm) {
+                            dict["focalLengthIn35mmFilm"] = *exif.focalLengthIn35mmFilm;
+                        }
                         return dict;
                     },
                     "Serialize the exifMetadata to python dict type")
             .def("__repr__", [](const ExifMetadata &exif) {
-                auto d = py::cast(exif).attr("serialize")();
-                return py::str(d);
+                auto dict = py::cast(exif).attr("serialize")();
+                return py::str(dict);
             });
 
     py::class_<ExifMetadata::Rational>(exifMetadata, "Rational", py::is_final())
-            .def(py::init([](uint32_t n, uint32_t dn) {
+            .def(py::init([](uint32_t num, uint32_t denum) {
                 std::unique_ptr<ExifMetadata::Rational> rational(new ExifMetadata::Rational());
-                rational->numerator = n;
-                rational->denominator = dn;
+                rational->numerator = num;
+                rational->denominator = denum;
                 return rational;
             }))
             .def_readwrite("numerator", &ExifMetadata::Rational::numerator)
@@ -80,15 +112,15 @@ void init_exif(py::module &m) {
                      return list;
                  })
             .def("__repr__", [](const ExifMetadata::Rational &rational) {
-                auto d = py::cast(rational).attr("serialize")();
-                return py::str(d);
+                auto dict = py::cast(rational).attr("serialize")();
+                return py::str(dict);
             });
 
     py::class_<ExifMetadata::SRational>(exifMetadata, "SRational", py::is_final())
-            .def(py::init([](int32_t n, int32_t dn) {
+            .def(py::init([](int32_t num, int32_t denum) {
                 std::unique_ptr<ExifMetadata::SRational> srational(new ExifMetadata::SRational());
-                srational->numerator = n;
-                srational->denominator = dn;
+                srational->numerator = num;
+                srational->denominator = denum;
                 return srational;
             }))
             .def_readwrite("numerator", &ExifMetadata::SRational::numerator)
@@ -103,8 +135,8 @@ void init_exif(py::module &m) {
                      return list;
                  })
             .def("__repr__", [](const ExifMetadata::SRational &rational) {
-                auto d = py::cast(rational).attr("serialize")();
-                return py::str(d);
+                auto dict = py::cast(rational).attr("serialize")();
+                return py::str(dict);
             });
 }
 } // namespace cxximg

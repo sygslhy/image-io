@@ -48,7 +48,7 @@ hicpp-multiway-paths-covered,
 
 WarningsAsErrors: '*'
 
-HeaderFilterRegex: '.*(binding)/.*'
+HeaderFilterRegex: '.*\.cpp$'
 
 CheckOptions:
   - { key: cppcoreguidelines-macro-usage.AllowedRegexp,              value: ^(BUILD|DEBUG|GIT|UTIL)_* }
