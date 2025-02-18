@@ -1,12 +1,11 @@
-# How wide to allow formatted cmake files
-line_width = 120
+with section("format"):
 
-# How many spaces to tab for indent
-tab_size = 4
+    # How wide to allow formatted cmake files
+    line_width = 120
 
-# If a statement is wrapped to more than one line, than dangle the closing
-# parenthesis on it's own line
-dangle_parens = True
+    # How many spaces to tab for indent
+    tab_size = 4
 
-# Line ending
-line_ending = 'auto'
+    # If a statement is wrapped to more than one line, than dangle the closing
+    # parenthesis on it's own line
+    dangle_parens = True
