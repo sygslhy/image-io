@@ -107,7 +107,11 @@ FetchContent_MakeAvailable(pybind11)
 FetchContent_Declare(
     cxx-image
     GIT_REPOSITORY "https://github.com/sygslhy/cxx-image.git"
+<<<<<<< HEAD
     GIT_TAG "test-msys" # Sep 16, 2024
+=======
+    GIT_TAG "test-msys"
+>>>>>>> a2a97b5 (test loguru as shared lib)
 )
 FetchContent_MakeAvailable(cxx-image)
 
