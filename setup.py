@@ -52,7 +52,7 @@ class CMakeBuild(build_ext):
         build_lib_path = os.path.join(ext.sourcedir, os.path.dirname(self.get_outputs()[0]))
         all_files = []
         source_dir = pathlib.Path(ext.sourcedir, 'cxx_image_io')
-        for ext in ['*.so', '*.dll', '*.pyd', '*dylib']:
+        for ext in ['*.so.*', '*.so', '*.dll', '*.pyd', '*dylib']:
             all_files.extend(source_dir.glob(ext))
 
         print('found files to install', all_files)
