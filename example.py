@@ -9,8 +9,7 @@ if sys.platform == "win32":
     hllDll3 = ctypes.WinDLL("D:\\image-io\\cxx_image_io\\cxx_libraw.cp313-win_amd64.pyd")
 else:
     # Load shared libraries on Linux.
-    hllDll = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libexif.so")
-    hllDll1 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libraw_r.so")
-    hllDll1 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libloguru.so")
+    #hllDll = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libexif.so")
+    #hllDll1 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libraw_r.so")
     hllDll2 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/cxx_image.cpython-312-x86_64-linux-gnu.so")
     hllDll3 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/cxx_libraw.cpython-312-x86_64-linux-gnu.so")

@@ -8,8 +8,7 @@ target_link_libraries(
           math
           model
           parser
-          pybind11::pybind11
-          loguru::loguru)
+          pybind11::pybind11)
 
 # Add the lib io's private headers to target because pybind11 need defintion of
 # every detail image readers.
@@ -19,8 +18,7 @@ target_include_directories(cxx_image_bind PRIVATE ${IO_PRIVATE_HDR})
 target_compile_definitions(cxx_image_bind PUBLIC -D_USE_MATH_DEFINES)
 
 pybind11_add_module(cxx_image BindingEntryPoint.cpp)
-target_link_libraries(cxx_image PRIVATE cxx_image_bind pybind11::pybind11
-                                        loguru::loguru)
+target_link_libraries(cxx_image PRIVATE cxx_image_bind pybind11::pybind11 loguru::loguru)
 
 if(MINGW OR MSYS)
   target_link_libraries(cxx_image
@@ -28,6 +26,6 @@ if(MINGW OR MSYS)
 endif()
 
 install(
-  TARGETS cxx_image cxx_image_bind
+  TARGETS cxx_image loguru
   COMPONENT cxx-image-io
   LIBRARY DESTINATION cxx_image_io)
