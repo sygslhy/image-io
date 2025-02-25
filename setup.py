@@ -60,14 +60,8 @@ class CMakeBuild(build_ext):
         for ori_path in all_files:
             filename = ori_path.name
             pathlib.Path(build_lib_path).mkdir(parents=True, exist_ok=True)
-<<<<<<< HEAD
             target_path = os.path.join(build_lib_path, 'cxx_image_io', filename)
-            self.copy_file(ori_path, target_path, level=self.verbose)
-=======
-            target_path = os.path.join(build_lib_path, 'cxx_image_io',
-                                       filename)
             shutil.copy(ori_path, target_path, follow_symlinks=True)
->>>>>>> 487cd7c (reuse libraw_r as shared lib)
 
 
 with open("README.md", "r") as f:
@@ -82,18 +76,12 @@ setup(
         # This Extension take care only to save the source C++ code.
         Extension(name='cxx_image_io',
                   sources=[
-                      'binding/cxx_image/BindingEntryPoint.cpp',
-                      'binding/cxx_image/ExifMetadata.cpp',
-                      'binding/cxx_image/Image.cpp',
-                      'binding/cxx_image/ImageIO.cpp',
-                      'binding/cxx_image/ImageMetadata.cpp',
-                      'binding/cxx_image/Matrix.cpp',
-                      'binding/cxx_image/MetadataParser.cpp',
-                      'binding/cxx_image/CMakeLists.txt',
-                      'binding/CMakeLists.txt', 'CMakeLists.txt',
-                      'binding/cxx_libraw/BindingEntryPoint.cpp',
-                      'binding/cxx_libraw/libraw_types.cpp',
-                      'binding/cxx_libraw/CMakeLists.txt'
+                      'binding/cxx_image/BindingEntryPoint.cpp', 'binding/cxx_image/ExifMetadata.cpp',
+                      'binding/cxx_image/Image.cpp', 'binding/cxx_image/ImageIO.cpp',
+                      'binding/cxx_image/ImageMetadata.cpp', 'binding/cxx_image/Matrix.cpp',
+                      'binding/cxx_image/MetadataParser.cpp', 'binding/cxx_image/CMakeLists.txt',
+                      'binding/CMakeLists.txt', 'CMakeLists.txt', 'binding/cxx_libraw/BindingEntryPoint.cpp',
+                      'binding/cxx_libraw/libraw_types.cpp', 'binding/cxx_libraw/CMakeLists.txt'
                   ]),
     ],
     cmdclass={'build_ext': CMakeBuild},

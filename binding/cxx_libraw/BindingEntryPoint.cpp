@@ -10,6 +10,4 @@ PYBIND11_MODULE(cxx_libraw, m) {
 
     // initialize all the binding submodules.
     init_types(m);
-
-
 }

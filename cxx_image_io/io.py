@@ -2,10 +2,10 @@ import logging
 import sys
 from pathlib import Path
 
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageMetadata, ImageUint16, ImageUint8,
-                       PixelRepresentation, io, parser)
-
 import numpy as np
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
+                       ImageMetadata, ImageUint8, ImageUint16,
+                       PixelRepresentation, io, parser)
 
 __numpy_array_image_convert_vector = {
     np.dtype('uint16'): ImageUint16,

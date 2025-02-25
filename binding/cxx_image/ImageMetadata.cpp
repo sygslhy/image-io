@@ -9,7 +9,6 @@
 #include "pybind11/stl.h" // NOLINT(misc-include-cleaner)
 #include "pybind11/stl_bind.h"
 
-
 #include <stdexcept>
 
 namespace py = pybind11;

@@ -1,12 +1,12 @@
 from pathlib import Path
 from test import root_dir
 
-from cxx_image_io import (ImageLayout, ImageMetadata, PixelRepresentation, PixelType)
-from cxx_image_io import merge_image_channels, read_image, split_image_channels
-
 import numpy as np
-
 import pytest
+
+from cxx_image_io import (ImageLayout, ImageMetadata, PixelRepresentation,
+                          PixelType, merge_image_channels, read_image,
+                          split_image_channels)
 
 bayer_array = np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20)
 bayer_metadata = ImageMetadata()
