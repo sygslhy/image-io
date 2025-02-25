@@ -1,6 +1,7 @@
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 from distutils.version import LooseVersion
 
@@ -59,8 +60,14 @@ class CMakeBuild(build_ext):
         for ori_path in all_files:
             filename = ori_path.name
             pathlib.Path(build_lib_path).mkdir(parents=True, exist_ok=True)
+<<<<<<< HEAD
             target_path = os.path.join(build_lib_path, 'cxx_image_io', filename)
             self.copy_file(ori_path, target_path, level=self.verbose)
+=======
+            target_path = os.path.join(build_lib_path, 'cxx_image_io',
+                                       filename)
+            shutil.copy(ori_path, target_path, follow_symlinks=True)
+>>>>>>> 487cd7c (reuse libraw_r as shared lib)
 
 
 with open("README.md", "r") as f:
@@ -94,6 +101,6 @@ setup(
     packages=find_packages(exclude=["test"]),
     include_package_data=True,
     package_data={
-        '': ['libexif.dll', 'libexif.dylib', 'libexif.so'],
+        '': ['*.dll', '*.dylib', '*.so', '*.so*'],
     },
     package_dir={'cxx-image-io': 'cxx_image_io'})
