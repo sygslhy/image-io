@@ -26,6 +26,6 @@ if(MINGW OR MSYS)
 endif()
 
 install(
-  TARGETS cxx_image loguru
+  TARGETS cxx_image
   COMPONENT cxx-image-io
   LIBRARY DESTINATION cxx_image_io)
