@@ -6,12 +6,17 @@ import sys
 lib_dir = os.path.join(os.path.dirname(__file__))
 
 # Load the shared libraries
-if sys.platform == "win32":
+if sys.platform == 'win32':
     hllDll = ctypes.WinDLL(os.path.join(lib_dir, "libexif.dll"))
     hllDll1 = ctypes.WinDLL(os.path.join(lib_dir, "libraw_r.dll"))
-else:
+elif sys.platform == 'linux':
     hllDll = ctypes.CDLL(os.path.join(lib_dir, "libexif.so"))
     hllDll1 = ctypes.CDLL(os.path.join(lib_dir, "libraw_r.so"))
+elif sys.platform == 'darwin':
+    hllDll = ctypes.CDLL(os.path.join(lib_dir, "libexif.dylib"))
+    hllDll1 = ctypes.CDLL(os.path.join(lib_dir, "libraw_r.dylib"))
+else:
+    print('Warning, unsupport platform')
 
 # Try to ensure that the .pyd file directory is appended in sys.path.
 cur_file_dir = os.path.dirname(os.path.realpath(__file__))
