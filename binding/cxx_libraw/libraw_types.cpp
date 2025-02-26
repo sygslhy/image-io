@@ -1,14 +1,14 @@
-#include "libraw/libraw.h"
+#include "libraw/libraw.h" // NOLINT(misc-include-cleaner)
+#include "libraw/libraw_types.h"
 
 #include "pybind11/buffer_info.h"
 #include "pybind11/numpy.h"
-#include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
+#include "pybind11/pybind11.h" // NOLINT
 
 namespace py = pybind11;
 
-void init_types(py::module &m) {
-    py::class_<libraw_image_sizes_t> rawImageSizes(m, "RawImageSizes", py::is_final());
+void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
+    py::class_<libraw_image_sizes_t> rawImageSizes(mod, "RawImageSizes", py::is_final());
 
     rawImageSizes.def(py::init<>())
             .def_readwrite("raw_height",
@@ -51,32 +51,32 @@ void init_types(py::module &m) {
                            "if 90 deg counterclockwise, 6 if 90 deg clockwise).")
             .def_property(
                     "mask",
-                    [](libraw_image_sizes_t &p) -> pybind11::array {
+                    [](libraw_image_sizes_t &sizes) -> pybind11::array {
                         auto dtype = pybind11::dtype(pybind11::format_descriptor<int>::format());
-                        return pybind11::array(dtype, {8, 4}, {sizeof(int)}, p.mask, nullptr);
+                        return pybind11::array(dtype, {8, 4}, {sizeof(int)}, sizes.mask, nullptr);
                     },
-                    [](libraw_image_sizes_t &p) {})
+                    [](libraw_image_sizes_t &sizes) {})
             .def_readwrite("raw_aspect", &libraw_image_sizes_t::raw_aspect, "unsigned: Full Raw width/height ratio..")
             .def_property(
                     "raw_inset_crops",
-                    [](libraw_image_sizes_t &p) -> pybind11::array {
+                    [](libraw_image_sizes_t &sizes) -> pybind11::array {
                         auto dtype = pybind11::dtype(pybind11::format_descriptor<libraw_raw_inset_crop_t>::format());
                         return pybind11::array(
-                                dtype, {2}, {sizeof(libraw_raw_inset_crop_t)}, p.raw_inset_crops, nullptr);
+                                dtype, {2}, {sizeof(libraw_raw_inset_crop_t)}, sizes.raw_inset_crops, nullptr);
                     },
-                    [](libraw_image_sizes_t &p) {});
+                    [](libraw_image_sizes_t &sizes) {});
 
-    py::class_<libraw_rawdata_t> rawData(m, "RawData", py::buffer_protocol());
+    py::class_<libraw_rawdata_t> rawData(mod, "RawData", py::buffer_protocol());
     rawData.def(py::init<>())
             .def_readwrite("sizes", &libraw_rawdata_t::sizes, "class libraw_image_sizes_t: Image Dimensions")
-            .def_buffer([](libraw_rawdata_t &m) -> py::buffer_info {
-                return py::buffer_info(m.raw_alloc,                               /* Pointer to buffer */
+            .def_buffer([](libraw_rawdata_t &mod) -> py::buffer_info {
+                return py::buffer_info(mod.raw_alloc,                               /* Pointer to buffer */
                                        sizeof(uint16_t),                          /* Size of one scalar */
                                        py::format_descriptor<uint16_t>::format(), /* Python struct-style
                                                                                      format descriptor */
                                        2,                                         /* Number of dimensions */
-                                       {m.sizes.raw_height, m.sizes.raw_width},   /* Buffer dimensions */
-                                       {sizeof(uint16_t) * m.sizes.raw_width, /* Strides (in bytes) for each index */
+                                       {mod.sizes.raw_height, mod.sizes.raw_width},   /* Buffer dimensions */
+                                       {sizeof(uint16_t) * mod.sizes.raw_width, /* Strides (in bytes) for each index */
                                         sizeof(uint16_t)});
             });
 };

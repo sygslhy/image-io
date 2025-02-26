@@ -1,12 +1,8 @@
 #include "image/Image.h" // NOLINT(misc-header-include-cycle)
-#include "image/ImageDescriptor.h"
 #include "image/ImageLayout.h"
-#include "image/LayoutDescriptor.h"
 #include "image/PixelType.h"
-#include "image/view/ImageView.h"
 
 #include "pybind11/buffer_info.h"
-#include "pybind11/detail/common.h"
 #include "pybind11/numpy.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h" // NOLINT(misc-include-cleaner)

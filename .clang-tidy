@@ -1,6 +1,6 @@
 ---
 # Configure clang-tidy for this project.
-
+SystemHeaders: false
 Checks: '
 bugprone-*,
 cert-*,

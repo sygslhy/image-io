@@ -1,13 +1,10 @@
 #include "model/ImageMetadata.h"
-#include "image/ImageLayout.h"
-#include "image/PixelType.h"
-#include "math/ColorSpace.h"
 
 #include "pybind11/cast.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/pytypes.h"
 #include "pybind11/stl.h" // NOLINT(misc-include-cleaner)
-#include "pybind11/stl_bind.h"
+#include "pybind11/stl_bind.h" // NOLINT(misc-include-cleaner)
 
 #include <stdexcept>
 

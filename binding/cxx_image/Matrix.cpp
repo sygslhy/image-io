@@ -3,8 +3,7 @@
 #include "math/DynamicMatrix.h"
 
 #include "pybind11/buffer_info.h"
-#include "pybind11/cast.h"
-#include "pybind11/detail/common.h"
+#include "pybind11/cast.h" // NOLINT(misc-include-cleaner)
 #include "pybind11/numpy.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/pytypes.h"

@@ -30,7 +30,7 @@ namespace cxximg {
 namespace io {
 
 void initIO(py::module &mod) { // NOLINT(misc-use-internal-linkage)
-    py::module_ mIO = mod.def_submodule("io", "io namespace");
+    py::module_ mIO = mod.def_submodule("io", "io namespace"); // NOLINT(misc-const-correctness)
 
     py::class_<ImageReader> imageReader(mIO, "ImageReader");
     imageReader.def("pixelRepresentation", &ImageReader::pixelRepresentation)

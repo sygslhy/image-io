@@ -1,13 +1,13 @@
+#include "pybind11/detail/common.h"
 #include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
 
 namespace py = pybind11;
 
-void init_types(py::module &);
+void initTypes(py::module &); // NOLINT(misc-use-internal-linkage)
 
-PYBIND11_MODULE(cxx_libraw, m) {
-    m.doc() = "libraw binding module";
+PYBIND11_MODULE(cxx_libraw, mod) {
+    mod.doc() = "libraw binding module";
 
     // initialize all the binding submodules.
-    init_types(m);
+    initTypes(mod);
 }
