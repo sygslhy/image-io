@@ -26,7 +26,7 @@ from cxx_image import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout,
                        ImageMetadata, Matrix3, PixelRepresentation, PixelType,
                        RgbColorSpace, SemanticLabel, UnorderdMapSemanticMasks)
 from cxx_image.io import ImageReader, ImageWriter
-from cxx_libraw import add
+from cxx_libraw import RawData, RawImageSizes
 
 # Exposure the public APIs
 from .io import read_exif, read_image, write_exif, write_image
