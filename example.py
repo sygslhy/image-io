@@ -1,15 +1,14 @@
-import ctypes
-import sys
+from pathlib import Path
 
-# Load DLL into memory only on Windows.
-if sys.platform == "win32":
-    hllDll = ctypes.WinDLL("D:\\image-io\\cxx_image_io\\libexif.dll")
-    hllDll1 = ctypes.WinDLL("D:\\image-io\\cxx_image_io\\libraw_r.dll")
-    hllDll2 = ctypes.WinDLL("D:\\image-io\\cxx_image_io\\cxx_image.cp313-win_amd64.pyd")
-    hllDll3 = ctypes.WinDLL("D:\\image-io\\cxx_image_io\\cxx_libraw.cp313-win_amd64.pyd")
-else:
-    # Load shared libraries on Linux.
-    #hllDll = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libexif.so")
-    #hllDll1 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/libraw_r.so")
-    hllDll2 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/cxx_image.cpython-312-x86_64-linux-gnu.so")
-    hllDll3 = ctypes.CDLL("/home/ysun/image-io/cxx_image_io/cxx_libraw.cpython-312-x86_64-linux-gnu.so")
+import numpy as np
+import rawpy
+
+from cxx_image_io import LibRaw, read_image
+
+ref_image, metadata = read_image(Path('test\\images\\bayer_12bit.dng'))
+print(ref_image.shape, ref_image.dtype)
+
+raw = rawpy.imread('test\\images\\bayer_12bit.dng')
+print(raw.raw_image_visible.shape, raw.raw_image_visible.dtype)
+
+assert np.array_equal(ref_image, raw.raw_image_visible)

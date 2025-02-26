@@ -1,13 +1,24 @@
-#include "libraw/libraw.h" // NOLINT(misc-include-cleaner)
 #include "libraw/libraw_types.h"
+#include "libraw/libraw.h" // NOLINT(misc-include-cleaner)
 
 #include "pybind11/buffer_info.h"
 #include "pybind11/numpy.h"
 #include "pybind11/pybind11.h" // NOLINT
+#include "pybind11/stl.h"
 
 namespace py = pybind11;
 
 void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
+
+    py::enum_<LibRaw_errors>(mod, "LibRaw_errors", "Libraw return error code")
+            .value("LIBRAW_SUCCESS", LibRaw_errors::LIBRAW_SUCCESS, "No error; function terminated successfully.")
+            .value("LIBRAW_UNSPECIFIED_ERROR",
+                   LibRaw_errors::LIBRAW_UNSPECIFIED_ERROR,
+                   "An unknown error has been encountered. This code should never be generated.")
+            .value("LIBRAW_FILE_UNSUPPORTED",
+                   LibRaw_errors::LIBRAW_FILE_UNSUPPORTED,
+                   "Unsupported file format (attempt to open a RAW file with a format unknown to the program).");
+
     py::class_<libraw_image_sizes_t> rawImageSizes(mod, "RawImageSizes", py::is_final());
 
     rawImageSizes.def(py::init<>())
@@ -70,13 +81,30 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
     rawData.def(py::init<>())
             .def_readwrite("sizes", &libraw_rawdata_t::sizes, "class libraw_image_sizes_t: Image Dimensions")
             .def_buffer([](libraw_rawdata_t &mod) -> py::buffer_info {
-                return py::buffer_info(mod.raw_alloc,                               /* Pointer to buffer */
-                                       sizeof(uint16_t),                          /* Size of one scalar */
-                                       py::format_descriptor<uint16_t>::format(), /* Python struct-style
-                                                                                     format descriptor */
-                                       2,                                         /* Number of dimensions */
-                                       {mod.sizes.raw_height, mod.sizes.raw_width},   /* Buffer dimensions */
+                return py::buffer_info(mod.raw_image,                               /* Pointer to buffer */
+                                       sizeof(uint16_t),                            /* Size of one scalar */
+                                       py::format_descriptor<uint16_t>::format(),   /* Python struct-style
+                                                                                       format descriptor */
+                                       2,                                           /* Number of dimensions */
+                                       {mod.sizes.raw_height, mod.sizes.raw_width}, /* Buffer dimensions */
                                        {sizeof(uint16_t) * mod.sizes.raw_width, /* Strides (in bytes) for each index */
                                         sizeof(uint16_t)});
             });
+
+    py::class_<libraw_data_t> mainData(mod, "libraw_data_t", py::is_final(), "Main Data Structure of LibRaw");
+    mainData.def(py::init<>())
+            .def_readwrite("rawdata", &libraw_data_t::rawdata, "holds unpacked RAW data")
+            .def_readwrite(
+                    "sizes", &libraw_data_t::sizes, "The structure describes the geometrical parameters of the image");
+
+    py::class_<LibRaw> libRaw(mod, "LibRaw", py::is_final(), "libraw processor class");
+    libRaw.def(py::init<>())
+            .def_readwrite("imgdata", &LibRaw::imgdata, "Main Data Structure of LibRaw")
+            .def("open_file",
+                 py::overload_cast<const char *>(&LibRaw::open_file),
+                 "open raw image from file with filename")
+            .def("unpack",
+                 &LibRaw::unpack,
+                 "Unpacks the RAW files of the image, calculates the black level (not for all formats). The results "
+                 "are placed in imgdata.image.");
 };

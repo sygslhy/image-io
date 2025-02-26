@@ -6,6 +6,7 @@ import numpy as np
 from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
                        ImageMetadata, ImageUint8, ImageUint16,
                        PixelRepresentation, io, parser)
+from cxx_libraw import LibRaw, LibRaw_errors
 
 __numpy_array_image_convert_vector = {
     np.dtype('uint16'): ImageUint16,
@@ -14,6 +15,14 @@ __numpy_array_image_convert_vector = {
     np.dtype('double'): ImageDouble,
     np.dtype('int'): ImageInt
 }
+
+
+class UnSupportedFileException(Exception):
+    """Custom Exception for the case libraw cannot open unsupported file type.
+    """
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
 
 
 # internal function to print image essentiel infos for debugging
@@ -36,7 +45,7 @@ def __fill_medatata(image, metadata):
     return metadata
 
 
-def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
+def read_image_cxx(image_path: Path, metadata_path: Path = None) -> (np.array, ImageMetadata):
     """Read different types of image files and return a numpy array,
        Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
 
@@ -51,6 +60,7 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
     -------
     np.array
         returned image in numpy array format
+        metadata
 
     """
     assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
@@ -82,6 +92,65 @@ def read_image(image_path: Path, metadata_path: Path = None) -> np.array:
         logging.error('Exception occurred in reading image from file {0}: {1}'.format(image_path, e))
         __print_image_metadata_info(metadata)
         sys.exit("Exception caught in reading image, check the error log.")
+
+
+def read_image_libraw(image_path: Path) -> (np.array, ImageMetadata):
+    """Read different types of raw files and return a numpy array,
+       Supported image types: all the support file type by libraw
+
+    Parameters
+    ----------
+    image_path : Path
+        path to image file
+
+    Returns
+    -------
+    np.array
+        returned image in numpy array format
+
+    """
+    iProcessor = LibRaw()
+    ret_open = iProcessor.open_file(str(image_path))
+    ret_unpack = iProcessor.unpack()
+    metadata = ImageMetadata()
+    if ret_open == LibRaw_errors.LIBRAW_FILE_UNSUPPORTED:
+        raise UnSupportedFileException('Unsupported libRaw file type.')
+    raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
+    top_margin, left_margin = iProcessor.imgdata.rawdata.sizes.top_margin, iProcessor.imgdata.rawdata.sizes.left_margin
+    width, height = iProcessor.imgdata.rawdata.sizes.width, iProcessor.imgdata.rawdata.sizes.height
+    raw_image = raw_with_margin[top_margin:top_margin + height, left_margin:left_margin + width]
+    return raw_image, metadata
+
+
+def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, ImageMetadata):
+    """Generic API to read different types of image files and return a numpy array,
+
+    Parameters
+    ----------
+    image_path : Path
+        path to image file
+    metadata_path : Path, optional
+        path to sidecar file for raw file case, the API will find automatically .json next to raw file, by default None,
+
+    Returns
+    -------
+    np.array
+        returned image in numpy array format
+        metadata
+    """
+    if image_path.suffix.lower() in [
+            '.yuv', '.nv12', '.bmp', '.jpg', '.jpeg', '.png', '.cfa', '.dng', '.tif', '.tiff'
+    ]:
+        image, metadata = read_image_cxx(image_path, metadata_path)
+        return image, metadata
+
+    try:
+        image, metadata = read_image_libraw(image_path)
+    except UnSupportedFileException as e:
+        logging.warning(f'Unsupport file type for libraw, try with cxx_image to read image')
+        # try with read_image_cxx to see if it can open this image file.
+        image, metadata = read_image_cxx(image_path, metadata_path)
+    return image, metadata
 
 
 def read_exif(image_path: Path) -> ExifMetadata:

@@ -21,7 +21,7 @@ These IO interfaces are designed to read and write images in many file formats i
 | DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |                  |
 | JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |                  |
 | MIPI RAW      | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 | x                |
-| PLAIN RAW     | x    | x      |      | *                      | *                    | .raw .plain16, .nv12, yuv, *     | x                |
+| PLAIN RAW     | x    | x      |      | *                      | *                    | .raw .plain16, .nv12, .yuv, *    | x                |
 | PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
 | TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
 
