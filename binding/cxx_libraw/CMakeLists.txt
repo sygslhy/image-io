@@ -1,4 +1,4 @@
-add_library(cxx_libraw_bind STATIC libraw_types.cpp)
+add_library(cxx_libraw_bind STATIC Metadata.cpp RawTypes.cpp)
 target_link_libraries(
     cxx_libraw_bind PRIVATE raw_r # Link libraw dynamically
                             pybind11::pybind11

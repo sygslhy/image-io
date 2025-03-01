@@ -81,7 +81,8 @@ setup(
                       'binding/cxx_image/ImageMetadata.cpp', 'binding/cxx_image/Matrix.cpp',
                       'binding/cxx_image/MetadataParser.cpp', 'binding/cxx_image/CMakeLists.txt',
                       'binding/CMakeLists.txt', 'CMakeLists.txt', 'binding/cxx_libraw/BindingEntryPoint.cpp',
-                      'binding/cxx_libraw/libraw_types.cpp', 'binding/cxx_libraw/CMakeLists.txt'
+                      'binding/cxx_libraw/RawTypes.cpp', 'binding/cxx_libraw/Metadata.cpp',
+                      'binding/cxx_libraw/CMakeLists.txt'
                   ]),
     ],
     cmdclass={'build_ext': CMakeBuild},

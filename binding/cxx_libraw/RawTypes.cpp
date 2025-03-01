@@ -1,5 +1,5 @@
-#include "libraw/libraw_types.h"
 #include "libraw/libraw.h" // NOLINT(misc-include-cleaner)
+#include "libraw/libraw_types.h"
 
 #include "pybind11/buffer_info.h"
 #include "pybind11/numpy.h"
