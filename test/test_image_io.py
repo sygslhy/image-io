@@ -56,8 +56,8 @@ test_data = {
         'npy': 'bayer_10bit_rawmipi.npy'
     },
     'dng': {
-        'file': 'bayer_12bit.dng',
-        'npy': 'bayer_12bit_dng.npy'
+        'file': 'bayer_12bits.dng',
+        'npy': 'bayer_12bits_dng.npy'
     },
     'yuv': {
         'file': 'raw_420.yuv',

@@ -136,7 +136,7 @@ def test_split_and_merge_channels(array, metadata, order, ref_values):
 
 @pytest.mark.parametrize('image_path', [
     'rgb_8bit.jpg', 'rgb_8bit.png', 'raw_420.yuv', 'bayer_16bit.cfa', 'bayer_12bit.RAWMIPI12', 'bayer_10bit.RAWMIPI',
-    'bayer_16bit.plain16', 'raw.nv12', 'bayer_12bit.dng', 'rgb_8bit.tif'
+    'bayer_16bit.plain16', 'raw.nv12', 'bayer_12bits.dng', 'rgb_8bit.tif'
 ])
 def test_split_and_merge_images(image_path):
     test_images_dir = Path(root_dir, 'images/')
