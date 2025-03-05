@@ -66,6 +66,50 @@ test_data = {
     'nv12': {
         'file': 'raw.nv12',
         'npy': 'raw_nv12.npy'
+    },
+    'canon':{
+        'file': 'RAW_CANON_EOS_1DX.CR2',
+        'npy': 'RAW_CANON_EOS_1DX.npy'
+    },
+    'panasonic':{
+        'file': 'RAW_PANASONIC_LX3.RW2',
+        'npy': 'RAW_PANASONIC_LX3.npy'
+    },
+    'sony':{
+        'file': 'RAW_SONY_RX100.ARW',
+        'npy': 'RAW_SONY_RX100.npy'
+    },
+    'nikon':{
+        'file': 'RAW_NIKON_D3X.NEF',
+        'npy': 'RAW_NIKON_D3X.npy'
+    },
+    'leica':{
+        'file': 'RAW_LEICA_DLUX3.RAW',
+        'npy': 'RRAW_LEICA_DLUX3.npy'
+    },
+    'pentax':{
+        'file': 'RAW_PENTAX_KX.PEF',
+        'npy': 'RAW_PENTAX_KX.npy'
+    },
+    'samsung':{
+        'file': 'RAW_SAMSUNG_NX300M.SRW',
+        'npy': 'RAW_SAMSUNG_NX300M.npy'
+    },
+    'olympus':{
+        'file': 'RAW_OLYMPUS_E3.ORF',
+        'npy': 'RAW_OLYMPUS_E3.npy'
+    },
+    'kodak_slr':{
+        'file': 'RAW_KODAK_DCSPRO.DCR',
+        'npy': 'RAW_KODAK_DCSPRO.npy'
+    },
+    'kodak':{
+        'file': 'RAW_KODAK_DC120.KDC',
+        'npy': 'RAW_KODAK_DC120.npy'
+    },
+    'fuji':{
+        'file': 'RAW_FUJI_E550.RAF',
+        'npy': 'RAW_FUJI_E550.npy'
     }
 }
 
@@ -187,7 +231,11 @@ def test_parse_metadata():
      ('rawmipi12', (np.dtype('uint16'), (300, 400), 2), (PixelType.BAYER_GBRG, 12, ImageLayout.PLANAR)),
      ('dng', (np.dtype('uint16'), (2314, 3474), 2), (PixelType.BAYER_RGGB, 12, ImageLayout.PLANAR)),
      ('yuv', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.YUV_420)),
-     ('nv12', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.NV12))])
+     ('nv12', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.NV12)),
+     ('canon', (np.dtype('uint16'), (3482, 5218), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
+     ('panasonic', (np.dtype('uint16'), (2250, 3984), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
+     ('sony', (np.dtype('uint16'), (3672, 5496), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
+     ('nikon', (np.dtype('uint16'), (4044, 6080), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR))])
 def test_read_image(image_type, ref_numpy_info, ref_image_info):
     image, metadata = read_image(test_images_dir / test_data[image_type]['file'])
     assert isinstance(image, np.ndarray)

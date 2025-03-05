@@ -12,3 +12,7 @@
 *.pyd filter=lfs diff=lfs merge=lfs -text
 *.plain16 filter=lfs diff=lfs merge=lfs -text
 *.tiff filter=lfs diff=lfs merge=lfs -text
+*.CR2 filter=lfs diff=lfs merge=lfs -text
+*.NEF filter=lfs diff=lfs merge=lfs -text
+*.RW2 filter=lfs diff=lfs merge=lfs -text
+*.ARW filter=lfs diff=lfs merge=lfs -text
