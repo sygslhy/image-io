@@ -16,3 +16,9 @@
 *.NEF filter=lfs diff=lfs merge=lfs -text
 *.RW2 filter=lfs diff=lfs merge=lfs -text
 *.ARW filter=lfs diff=lfs merge=lfs -text
+*.PEF filter=lfs diff=lfs merge=lfs -text
+*.SRW filter=lfs diff=lfs merge=lfs -text
+*.KDC filter=lfs diff=lfs merge=lfs -text
+*.DCR filter=lfs diff=lfs merge=lfs -text
+*.RAW filter=lfs diff=lfs merge=lfs -text
+*.ORF filter=lfs diff=lfs merge=lfs -text

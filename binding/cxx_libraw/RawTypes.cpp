@@ -73,7 +73,8 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
     rawData.def(py::init<>())
             .def_readwrite("sizes", &libraw_rawdata_t::sizes, "class libraw_image_sizes_t: Image Dimensions")
             .def_buffer([](libraw_rawdata_t &mod) -> py::buffer_info {
-                return py::buffer_info(mod.raw_image,                               /* Pointer to buffer */
+                if (mod.color.raw_bps > 8){
+                        return py::buffer_info(mod.raw_image,                               /* Pointer to buffer */
                                        sizeof(uint16_t),                            /* Size of one scalar */
                                        py::format_descriptor<uint16_t>::format(),   /* Python struct-style
                                                                                        format descriptor */
@@ -81,6 +82,15 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                                        {mod.sizes.raw_height, mod.sizes.raw_width}, /* Buffer dimensions */
                                        {sizeof(uint16_t) * mod.sizes.raw_width, /* Strides (in bytes) for each index */
                                         sizeof(uint16_t)});
+                }
+                return py::buffer_info(mod.raw_image,                               /* Pointer to buffer */
+                        sizeof(uint8_t),                            /* Size of one scalar */
+                        py::format_descriptor<uint8_t>::format(),   /* Python struct-style
+                                                                        format descriptor */
+                        2,                                           /* Number of dimensions */
+                        {mod.sizes.raw_height, mod.sizes.raw_width}, /* Buffer dimensions */
+                        {sizeof(uint8_t) * mod.sizes.raw_width, /* Strides (in bytes) for each index */
+                         sizeof(uint8_t)});
             });
 
     py::class_<libraw_output_params_t> postProcessingParams(mod, "PostprocessingParams", py::is_final());

@@ -1,7 +1,7 @@
 import logging
 import sys
 from pathlib import Path
-from math import log2, exp2
+from math import log2
 
 import numpy as np
 from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, Matrix3,
@@ -42,6 +42,10 @@ def __bayer_pattern_to_pixel_type(pattern):
         if np.array_equal(pattern, value):
             return key
     raise ValueError("Invalid Bayer pattern")
+
+def libraw_flip_to_exif_orientation(flip):
+    conv_dict = {0: 1, 3: 3, 5: 6, 6: 8}
+    return conv_dict[flip]
 
 def __parse_pixelType(libRaw):
     if libRaw.imgdata.idata.filters < 1000:
@@ -92,24 +96,24 @@ def __convert_LibRawdata_to_ImageMetadata(libRaw):
         metadata.cameraControls.whiteBalance.gainR = libRaw.imgdata.color.cam_mul[0] / libRaw.imgdata.color.cam_mul[1]
         metadata.cameraControls.whiteBalance.gainB = libRaw.imgdata.color.cam_mul[2] / libRaw.imgdata.color.cam_mul[1]
     if libRaw.imgdata.color.dng_levels.baseline_exposure and libRaw.imgdata.color.dng_levels.baseline_exposure >= 0:
-        metadata.shootingParams.ispGain = exp2(libRaw.imgdata.color.dng_levels.baseline_exposure)
+        metadata.shootingParams.ispGain = 2 ** libRaw.imgdata.color.dng_levels.baseline_exposure
 
-    matrix = np.array(libRaw.imgdata.color.rgb_cam[:, :3])
-    if np.all(matrix == 0):
-        metadata.calibrationData.colorMatrix = Matrix3(matrix)
+    rgb_cam = np.array(libRaw.imgdata.color.rgb_cam[:, :3])
+    if not np.all(rgb_cam == 0):
+        metadata.calibrationData.colorMatrix = Matrix3(rgb_cam)
+
+    if libRaw.imgdata.rawdata.sizes.flip is not None:
+        metadata.exifMetadata.orientation = libraw_flip_to_exif_orientation(libRaw.imgdata.rawdata.sizes.flip)
+
     if libRaw.imgdata.other.iso_speed and libRaw.imgdata.other.iso_speed > 0:
-        print('iso', libRaw.imgdata.other.iso_speed)
         metadata.exifMetadata.isoSpeedRatings = int(libRaw.imgdata.other.iso_speed)
     if libRaw.imgdata.other.shutter:
-        print('sh', libRaw.imgdata.other.shutter)
         fshutter = round(libRaw.imgdata.other.shutter, 8)
         if fshutter > 0:
             metadata.exifMetadata.exposureTime = ExifMetadata.Rational(1, int(1 / fshutter))
     if libRaw.imgdata.other.aperture:
-        print('ap', libRaw.imgdata.other.aperture)
         metadata.exifMetadata.fNumber = ExifMetadata.Rational(round(libRaw.imgdata.other.aperture * 10) , 10)
     if libRaw.imgdata.other.focal_len:
-        print('fcl', libRaw.imgdata.other.focal_len)
         metadata.exifMetadata.focalLength = ExifMetadata.Rational(int(libRaw.imgdata.other.focal_len * 10), 10)
     if libRaw.imgdata.idata.make:
         metadata.exifMetadata.make = libRaw.imgdata.idata.make
