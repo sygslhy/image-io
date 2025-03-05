@@ -17,15 +17,17 @@ void initMetadata(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_readwrite("aperture", &libraw_imgother_t::aperture, "float Aperture.")
             .def_readwrite("focal_len", &libraw_imgother_t::focal_len, "float: Focal length.")
             .def_readwrite("shot_order", &libraw_imgother_t::shot_order, "unsigned : Serial number of image.")
-            .def_property("timestamp",
-                [](const libraw_imgother_t &self) {
-                    std::time_t timestamp = self.timestamp;
-                    std::tm *ptm = std::localtime(&timestamp);
-                    char data[32];
-                    std::strftime(data, sizeof(data), "%Y:%m:%d %H:%M:%S", ptm);
-                    return std::string(data);
-            }, // getter
-            [](libraw_imgother_t &self) {}, "str : Date and time of shooting.") // setter
+            .def_property(
+                    "timestamp",
+                    [](const libraw_imgother_t &self) {
+                        std::time_t timestamp = self.timestamp;
+                        std::tm *ptm = std::localtime(&timestamp);
+                        char data[32];
+                        std::strftime(data, sizeof(data), "%Y:%m:%d %H:%M:%S", ptm);
+                        return std::string(data);
+                    }, // getter
+                    [](libraw_imgother_t &self) {},
+                    "str : Date and time of shooting.") // setter
             .def_property(
                     "desc",
                     [](const libraw_imgother_t &s) { return std::string(s.desc); }, // getter
@@ -42,8 +44,4 @@ void initMetadata(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                         s.artist[sizeof(s.artist) - 1] = '\0';
                     },
                     "char artist[64]: Author of image.");
-
-
-
-
 };

@@ -4,7 +4,7 @@
 #include "pybind11/buffer_info.h"
 #include "pybind11/numpy.h"
 #include "pybind11/pybind11.h" // NOLINT
-#include "pybind11/stl.h" // NOLINT(misc-include-cleaner)
+#include "pybind11/stl.h"      // NOLINT(misc-include-cleaner)
 
 namespace py = pybind11;
 
@@ -73,127 +73,157 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
     rawData.def(py::init<>())
             .def_readwrite("sizes", &libraw_rawdata_t::sizes, "class libraw_image_sizes_t: Image Dimensions")
             .def_buffer([](libraw_rawdata_t &mod) -> py::buffer_info {
+                if (mod.color.raw_bps > 8) {
+                    return py::buffer_info(
+                            mod.raw_image,                               /* Pointer to buffer */
+                            sizeof(uint16_t),                            /* Size of one scalar */
+                            py::format_descriptor<uint16_t>::format(),   /* Python struct-style
+                                                                            format descriptor */
+                            2,                                           /* Number of dimensions */
+                            {mod.sizes.raw_height, mod.sizes.raw_width}, /* Buffer dimensions */
+                            {sizeof(uint16_t) * mod.sizes.raw_width,     /* Strides (in bytes) for each index */
+                             sizeof(uint16_t)});
+                }
                 return py::buffer_info(mod.raw_image,                               /* Pointer to buffer */
-                                       sizeof(uint16_t),                            /* Size of one scalar */
-                                       py::format_descriptor<uint16_t>::format(),   /* Python struct-style
-                                                                                       format descriptor */
+                                       sizeof(uint8_t),                             /* Size of one scalar */
+                                       py::format_descriptor<uint8_t>::format(),    /* Python struct-style
+                                                                                        format descriptor */
                                        2,                                           /* Number of dimensions */
                                        {mod.sizes.raw_height, mod.sizes.raw_width}, /* Buffer dimensions */
-                                       {sizeof(uint16_t) * mod.sizes.raw_width, /* Strides (in bytes) for each index */
-                                        sizeof(uint16_t)});
+                                       {sizeof(uint8_t) * mod.sizes.raw_width, /* Strides (in bytes) for each index */
+                                        sizeof(uint8_t)});
             });
 
     py::class_<libraw_output_params_t> postProcessingParams(mod, "PostprocessingParams", py::is_final());
     postProcessingParams.def(py::init<>())
-                    .def_readwrite("bright", &libraw_output_params_t::bright, "float: Brightness (default 1.0).")
-                    .def_readwrite("user_sat",  &libraw_output_params_t::user_sat, "int: White level / Saturation adjustment.")
-                    .def_readwrite("user_black",  &libraw_output_params_t::user_black, "int: custom black level.");
+            .def_readwrite("bright", &libraw_output_params_t::bright, "float: Brightness (default 1.0).")
+            .def_readwrite("user_sat", &libraw_output_params_t::user_sat, "int: White level / Saturation adjustment.")
+            .def_readwrite("user_black", &libraw_output_params_t::user_black, "int: custom black level.");
 
     py::class_<libraw_dng_levels_t> dngLevels(mod, "dngLevels", py::is_final());
     dngLevels.def(py::init<>())
             .def_readwrite("baseline_exposure", &libraw_dng_levels_t::baseline_exposure, "float： ISP Gain in log")
-            .def_property("asshotneutral", [](libraw_dng_levels_t &self) -> pybind11::array {
-                auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
-                return pybind11::array(dtype, {4}, {sizeof(float)}, self.asshotneutral, nullptr);
-            }, // getter
-            [](libraw_dng_levels_t &self) {}) // setter
+            .def_property(
+                    "asshotneutral",
+                    [](libraw_dng_levels_t &self) -> pybind11::array {
+                        auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
+                        return pybind11::array(dtype, {4}, {sizeof(float)}, self.asshotneutral, nullptr);
+                    },                                // getter
+                    [](libraw_dng_levels_t &self) {}) // setter
             ;
 
     py::class_<libraw_colordata_t> colorData(mod, "ColorData", py::is_final());
     colorData.def(py::init<>())
-        .def_readwrite("raw_bps", &libraw_colordata_t::raw_bps, "unsigned: RAW bits per pixel (PhaseOne: Raw format used).")
-        .def_readwrite("black",  &libraw_colordata_t::black, "unsigned: Black level.")
-        .def_readwrite("data_maximum",  &libraw_colordata_t::data_maximum, "unsigned: Maximum pixel value in current file. Calculated at raw2image or dcraw_process() calls.")
-        .def_readwrite("maximum",  &libraw_colordata_t::maximum, "unsigned: Maximum pixel value. Calculated from the data for most cameras, hardcoded for others. This value may be changed on postprocessing stage.")
-        .def_readwrite("fmaximum",  &libraw_colordata_t::fmaximum, "float: Maximum pixel value in real image for floating data files.")
-        .def_readwrite("dng_levels", &libraw_colordata_t::dng_levels, "DNG black/white levels, analog balance, WB")
-        .def_property("cam_mul", [](libraw_colordata_t &color) -> pybind11::array {
-                auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
-                return pybind11::array(dtype, {4}, {sizeof(float)}, color.cam_mul, nullptr);
-            }, // getter
-            [](libraw_colordata_t &color) {}) // setter
-        .def_property("cmatrix", [](libraw_colordata_t &color) -> pybind11::array {
-                auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
-                return pybind11::array(dtype, {3, 4}, {sizeof(float)*4, sizeof(float)}, color.cmatrix, nullptr);
-        }, // getter
-        [](libraw_colordata_t &color) {}) // setter
-        .def_property("ccm", [](libraw_colordata_t &color) -> pybind11::array {
-                auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
-                return pybind11::array(dtype, {3, 4}, {sizeof(float)*4, sizeof(float)}, color.ccm, nullptr);
-        }, // getter
-        [](libraw_colordata_t &color) {}) // setter
-        .def_property("rgb_cam", [](libraw_colordata_t &color) -> pybind11::array {
-                auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
-                return pybind11::array(dtype, {3, 4}, {sizeof(float)*4, sizeof(float)}, color.rgb_cam, nullptr);
-        }, // getter
-        [](libraw_colordata_t &color) {}) // setter
-        ;
+            .def_readwrite("raw_bps",
+                           &libraw_colordata_t::raw_bps,
+                           "unsigned: RAW bits per pixel (PhaseOne: Raw format used).")
+            .def_readwrite("black", &libraw_colordata_t::black, "unsigned: Black level.")
+            .def_readwrite(
+                    "data_maximum",
+                    &libraw_colordata_t::data_maximum,
+                    "unsigned: Maximum pixel value in current file. Calculated at raw2image or dcraw_process() calls.")
+            .def_readwrite("maximum",
+                           &libraw_colordata_t::maximum,
+                           "unsigned: Maximum pixel value. Calculated from the data for most cameras, hardcoded for "
+                           "others. This value may be changed on postprocessing stage.")
+            .def_readwrite("fmaximum",
+                           &libraw_colordata_t::fmaximum,
+                           "float: Maximum pixel value in real image for floating data files.")
+            .def_readwrite("dng_levels", &libraw_colordata_t::dng_levels, "DNG black/white levels, analog balance, WB")
+            .def_property(
+                    "cam_mul",
+                    [](libraw_colordata_t &color) -> pybind11::array {
+                        auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
+                        return pybind11::array(dtype, {4}, {sizeof(float)}, color.cam_mul, nullptr);
+                    },                                // getter
+                    [](libraw_colordata_t &color) {}) // setter
+            .def_property(
+                    "cmatrix",
+                    [](libraw_colordata_t &color) -> pybind11::array {
+                        auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
+                        return pybind11::array(
+                                dtype, {3, 4}, {sizeof(float) * 4, sizeof(float)}, color.cmatrix, nullptr);
+                    },                                // getter
+                    [](libraw_colordata_t &color) {}) // setter
+            .def_property(
+                    "ccm",
+                    [](libraw_colordata_t &color) -> pybind11::array {
+                        auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
+                        return pybind11::array(dtype, {3, 4}, {sizeof(float) * 4, sizeof(float)}, color.ccm, nullptr);
+                    },                                // getter
+                    [](libraw_colordata_t &color) {}) // setter
+            .def_property(
+                    "rgb_cam",
+                    [](libraw_colordata_t &color) -> pybind11::array {
+                        auto dtype = pybind11::dtype(pybind11::format_descriptor<float>::format());
+                        return pybind11::array(
+                                dtype, {3, 4}, {sizeof(float) * 4, sizeof(float)}, color.rgb_cam, nullptr);
+                    },                                // getter
+                    [](libraw_colordata_t &color) {}) // setter
+            ;
 
+    py::class_<libraw_iparams_t> mainParameters(mod, "MainParameters", py::is_final(), "Main Parameters of the Image");
 
-        py::class_<libraw_iparams_t> mainParameters(mod, "MainParameters", py::is_final(), "Main Parameters of the Image");
-
-        mainParameters.def(py::init<>())
-                .def_property(
-                        "make",
-                        [](const libraw_iparams_t &s) { return std::string(s.make); }, // getter
-                        [](libraw_iparams_t &s, const std::string &new_data) {         // setter
-                            std::strncpy(s.make, new_data.c_str(), sizeof(s.make) - 1);
-                            s.make[sizeof(s.make) - 1] = '\0';
-                        },
-                        "char[64]: Camera manufacturer.")
-                .def_property(
-                        "model",
-                        [](const libraw_iparams_t &s) { return std::string(s.model); }, // getter
-                        [](libraw_iparams_t &s, const std::string &new_data) {          // setter
-                            std::strncpy(s.model, new_data.c_str(), sizeof(s.model) - 1);
-                            s.model[sizeof(s.model) - 1] = '\0';
-                        },
-                        "char[64]: Camera model.")
-                .def_property(
-                        "normalized_make",
-                        [](const libraw_iparams_t &s) { return std::string(s.normalized_make); }, // getter
-                        [](libraw_iparams_t &s, const std::string &new_data) {                    // setter
-                            std::strncpy(s.normalized_make, new_data.c_str(), sizeof(s.normalized_make) - 1);
-                            s.normalized_make[sizeof(s.normalized_make) - 1] = '\0';
-                        },
-                        "char[64]: Primary vendor name.")
-                .def_property(
-                        "normalized_model",
-                        [](const libraw_iparams_t &s) { return std::string(s.normalized_model); }, // getter
-                        [](libraw_iparams_t &s, const std::string &new_data) {                     // setter
-                            std::strncpy(s.normalized_model, new_data.c_str(), sizeof(s.normalized_model) - 1);
-                            s.normalized_model[sizeof(s.normalized_model) - 1] = '\0';
-                        },
-                        "char[64]: Primary model name.")
-                .def_property(
-                        "software",
-                        [](const libraw_iparams_t &s) { return std::string(s.software); }, // getter
-                        [](libraw_iparams_t &s, const std::string &new_data) {             // setter
-                            std::strncpy(s.software, new_data.c_str(), sizeof(s.software) - 1);
-                            s.software[sizeof(s.software) - 1] = '\0';
-                        },
-                        "char[64]: Softwary name/version.")
-                .def_property(
-                                "cdesc",
-                                [](const libraw_iparams_t &s) { return std::string(s.cdesc); }, // getter
-                                [](libraw_iparams_t &s, const std::string &new_data) {             // setter
-                                    std::strncpy(s.cdesc, new_data.c_str(), sizeof(s.cdesc) - 1);
-                                    s.cdesc[sizeof(s.cdesc) - 1] = '\0';
-                                },
-                                "char[5]:Description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).")
-                .def_readwrite("filters", &libraw_iparams_t::filters, "Bit mask describing the order of color pixels ");
+    mainParameters.def(py::init<>())
+            .def_property(
+                    "make",
+                    [](const libraw_iparams_t &self) { return std::string(self.make); }, // getter
+                    [](libraw_iparams_t &self, const std::string &new_data) {         // setter
+                        std::strncpy(self.make, new_data.c_str(), sizeof(self.make) - 1);
+                        self.make[sizeof(self.make) - 1] = '\0';
+                    },
+                    "char[64]: Camera manufacturer.")
+            .def_property(
+                    "model",
+                    [](const libraw_iparams_t &self) { return std::string(self.model); }, // getter
+                    [](libraw_iparams_t &self, const std::string &new_data) {          // setter
+                        std::strncpy(self.model, new_data.c_str(), sizeof(self.model) - 1);
+                        self.model[sizeof(self.model) - 1] = '\0';
+                    },
+                    "char[64]: Camera model.")
+            .def_property(
+                    "normalized_make",
+                    [](const libraw_iparams_t &self) { return std::string(self.normalized_make); }, // getter
+                    [](libraw_iparams_t &self, const std::string &new_data) {                    // setter
+                        std::strncpy(self.normalized_make, new_data.c_str(), sizeof(self.normalized_make) - 1);
+                        self.normalized_make[sizeof(self.normalized_make) - 1] = '\0';
+                    },
+                    "char[64]: Primary vendor name.")
+            .def_property(
+                    "normalized_model",
+                    [](const libraw_iparams_t &self) { return std::string(self.normalized_model); }, // getter
+                    [](libraw_iparams_t &self, const std::string &new_data) {                     // setter
+                        std::strncpy(self.normalized_model, new_data.c_str(), sizeof(self.normalized_model) - 1);
+                        self.normalized_model[sizeof(self.normalized_model) - 1] = '\0';
+                    },
+                    "char[64]: Primary model name.")
+            .def_property(
+                    "software",
+                    [](const libraw_iparams_t &self) { return std::string(self.software); }, // getter
+                    [](libraw_iparams_t &self, const std::string &new_data) {             // setter
+                        std::strncpy(self.software, new_data.c_str(), sizeof(self.software) - 1);
+                        self.software[sizeof(self.software) - 1] = '\0';
+                    },
+                    "char[64]: Softwary name/version.")
+            .def_property(
+                    "cdesc",
+                    [](const libraw_iparams_t &self) { return std::string(self.cdesc); }, // getter
+                    [](libraw_iparams_t &self, const std::string &new_data) {          // setter
+                        std::strncpy(self.cdesc, new_data.c_str(), sizeof(self.cdesc) - 1);
+                        self.cdesc[sizeof(self.cdesc) - 1] = '\0';
+                    },
+                    "char[5]:Description of colors numbered from 0 to 3 (RGBG,RGBE,GMCY, or GBTG).")
+            .def_readwrite("filters", &libraw_iparams_t::filters, "Bit mask describing the order of color pixels ");
 
     py::class_<libraw_data_t> mainData(mod, "libraw_data_t", py::is_final(), "Main Data Structure of LibRaw");
     mainData.def(py::init<>())
             .def_readwrite("rawdata", &libraw_data_t::rawdata, "holds unpacked RAW data")
             .def_readwrite(
                     "sizes", &libraw_data_t::sizes, "The structure describes the geometrical parameters of the image")
-            .def_readwrite(
-                        "color", &libraw_data_t::color, "Color Information")
+            .def_readwrite("color", &libraw_data_t::color, "Color Information")
             .def_readwrite("params", &libraw_data_t::params, "management of dcraw-style postprocessing")
             .def_readwrite("idata", &libraw_data_t::idata, "Main Parameters of the Image")
             .def_readwrite("other", &libraw_data_t::other, "Other Parameters of the Image");
-
 
     py::class_<LibRaw> libRaw(mod, "LibRaw", py::is_final(), "libraw processor class");
     libRaw.def(py::init<>())
@@ -205,6 +235,9 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                  &LibRaw::unpack,
                  "Unpacks the RAW files of the image, calculates the black level (not for all formats). The results "
                  "are placed in imgdata.image.")
-            .def("COLOR", &LibRaw::COLOR, "This call returns pixel color (color component number) in bayer pattern at row,col. The returned value is in 0..3 range for 4-component Bayer (RGBG2, CMYG and so on) and in 0..2 range for 3-color data.");
-
+            .def("COLOR",
+                 &LibRaw::COLOR,
+                 "This call returns pixel color (color component number) in bayer pattern at row,col. The returned "
+                 "value is in 0..3 range for 4-component Bayer (RGBG2, CMYG and so on) and in 0..2 range for 3-color "
+                 "data.");
 };

@@ -1,12 +1,11 @@
 import logging
 import sys
 from pathlib import Path
-from math import log2, exp2
 
 import numpy as np
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, Matrix3,
-                       ImageMetadata, ImageUint8, ImageUint16, ImageLayout, PixelType,
-                       PixelRepresentation, io, parser)
+
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout, ImageMetadata, ImageUint16,
+                       ImageUint8, Matrix3, PixelRepresentation, PixelType, io, parser)
 from cxx_libraw import LibRaw, LibRaw_errors
 
 __numpy_array_image_convert_vector = {
@@ -31,6 +30,7 @@ def __raw_color(libRaw, y, x):
     left_margin = libRaw.imgdata.sizes.left_margin
     return libRaw.COLOR(y - top_margin, x - left_margin)
 
+
 def __bayer_pattern_to_pixel_type(pattern):
     patterns = {
         PixelType.BAYER_RGGB: np.array([[0, 1], [3, 2]]),
@@ -43,15 +43,21 @@ def __bayer_pattern_to_pixel_type(pattern):
             return key
     raise ValueError("Invalid Bayer pattern")
 
+
+def libraw_flip_to_exif_orientation(flip):
+    conv_dict = {0: 1, 3: 3, 5: 6, 6: 8}
+    return conv_dict[flip]
+
+
 def __parse_pixelType(libRaw):
     if libRaw.imgdata.idata.filters < 1000:
         if libRaw.imgdata.idata.filters == 0:
             # black and white
             n = 1
-        elif self.p.imgdata.idata.filters == 1:
+        elif libRaw.p.imgdata.idata.filters == 1:
             #  Leaf Catchlight with 16x16 bayer matrix
             n = 16
-        elif self.p.imgdata.idata.filters == 9:
+        elif libRaw.p.imgdata.idata.filters == 9:
             # Fuji X-Trans (6x6 matrix)
             n = 6
         else:
@@ -61,10 +67,11 @@ def __parse_pixelType(libRaw):
     pattern = np.empty((n, n), dtype=np.uint8)
     for y in range(n):
         for x in range(n):
-            pattern[y,x] = __raw_color(libRaw, y, x)
+            pattern[y, x] = __raw_color(libRaw, y, x)
     if n == 4:
-        if np.all(pattern[:2,:2] == pattern[:2,2:]) and np.all(pattern[:2,:2] == pattern[2:,2:]) and np.all(pattern[:2,:2] == pattern[2:,:2]):
-            pattern = pattern[:2,:2]
+        if np.all(pattern[:2, :2] == pattern[:2, 2:]) and np.all(pattern[:2, :2] == pattern[2:, 2:]) and np.all(
+                pattern[:2, :2] == pattern[2:, :2]):
+            pattern = pattern[:2, :2]
     return pattern
 
 
@@ -73,43 +80,45 @@ def __convert_LibRawdata_to_ImageMetadata(libRaw):
     metadata = ImageMetadata()
     metadata.fileInfo.width = libRaw.imgdata.rawdata.sizes.width
     metadata.fileInfo.height = libRaw.imgdata.rawdata.sizes.height
-
-    metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT16 if libRaw.imgdata.color.raw_bps > 8 else PixelRepresentation.UINT8
-    # metadata.fileInfo.pixelPrecision = int(log2(libRaw.imgdata.color.maximum + 1))
+    if libRaw.imgdata.color.raw_bps > 8:
+        metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT16
+    else:
+        metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT8
     metadata.fileInfo.pixelPrecision = libRaw.imgdata.color.raw_bps
     metadata.fileInfo.imageLayout = ImageLayout.PLANAR
 
     raw_pattern = __parse_pixelType(libRaw)
-    if raw_pattern.shape == (2 , 2) and libRaw.imgdata.idata.cdesc == 'RGBG':
+    if raw_pattern.shape == (2, 2) and libRaw.imgdata.idata.cdesc == 'RGBG':
         metadata.fileInfo.pixelType = __bayer_pattern_to_pixel_type(raw_pattern)
     else:
         metadata.fileInfo.pixelType = PixelType.CUSTOM
 
     metadata.calibrationData.blackLevel = libRaw.imgdata.color.black
     metadata.calibrationData.whiteLevel = libRaw.imgdata.color.maximum
-    if libRaw.imgdata.color.cam_mul[1] > 0:
+    if libRaw.imgdata.color.cam_mul[1] > 0 and libRaw.imgdata.color.cam_mul[0] > 0 and libRaw.imgdata.color.cam_mul[
+            2] > 0:
         metadata.cameraControls.whiteBalance = ImageMetadata.WhiteBalance()
         metadata.cameraControls.whiteBalance.gainR = libRaw.imgdata.color.cam_mul[0] / libRaw.imgdata.color.cam_mul[1]
         metadata.cameraControls.whiteBalance.gainB = libRaw.imgdata.color.cam_mul[2] / libRaw.imgdata.color.cam_mul[1]
     if libRaw.imgdata.color.dng_levels.baseline_exposure and libRaw.imgdata.color.dng_levels.baseline_exposure >= 0:
-        metadata.shootingParams.ispGain = exp2(libRaw.imgdata.color.dng_levels.baseline_exposure)
+        metadata.shootingParams.ispGain = 2**libRaw.imgdata.color.dng_levels.baseline_exposure
 
-    matrix = np.array(libRaw.imgdata.color.rgb_cam[:, :3])
-    if np.all(matrix == 0):
-        metadata.calibrationData.colorMatrix = Matrix3(matrix)
+    rgb_cam = np.array(libRaw.imgdata.color.rgb_cam[:, :3])
+    if not np.all(rgb_cam == 0):
+        metadata.calibrationData.colorMatrix = Matrix3(rgb_cam)
+
+    if libRaw.imgdata.rawdata.sizes.flip is not None:
+        metadata.exifMetadata.orientation = libraw_flip_to_exif_orientation(libRaw.imgdata.rawdata.sizes.flip)
+
     if libRaw.imgdata.other.iso_speed and libRaw.imgdata.other.iso_speed > 0:
-        print('iso', libRaw.imgdata.other.iso_speed)
         metadata.exifMetadata.isoSpeedRatings = int(libRaw.imgdata.other.iso_speed)
     if libRaw.imgdata.other.shutter:
-        print('sh', libRaw.imgdata.other.shutter)
         fshutter = round(libRaw.imgdata.other.shutter, 8)
         if fshutter > 0:
             metadata.exifMetadata.exposureTime = ExifMetadata.Rational(1, int(1 / fshutter))
     if libRaw.imgdata.other.aperture:
-        print('ap', libRaw.imgdata.other.aperture)
-        metadata.exifMetadata.fNumber = ExifMetadata.Rational(round(libRaw.imgdata.other.aperture * 10) , 10)
+        metadata.exifMetadata.fNumber = ExifMetadata.Rational(round(libRaw.imgdata.other.aperture * 10), 10)
     if libRaw.imgdata.other.focal_len:
-        print('fcl', libRaw.imgdata.other.focal_len)
         metadata.exifMetadata.focalLength = ExifMetadata.Rational(int(libRaw.imgdata.other.focal_len * 10), 10)
     if libRaw.imgdata.idata.make:
         metadata.exifMetadata.make = libRaw.imgdata.idata.make
@@ -208,7 +217,7 @@ def read_image_libraw(image_path: Path) -> (np.array, ImageMetadata):
     """
     iProcessor = LibRaw()
     ret_open = iProcessor.open_file(str(image_path))
-    ret_unpack = iProcessor.unpack()
+    iProcessor.unpack()
     if ret_open == LibRaw_errors.LIBRAW_FILE_UNSUPPORTED:
         raise UnSupportedFileException('Unsupported libRaw file type.')
     raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
@@ -246,7 +255,7 @@ def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, Image
     try:
         image, metadata = read_image_libraw(image_path)
     except UnSupportedFileException as e:
-        logging.warning(f'Unsupport file type for libraw, try with cxx_image to read image')
+        logging.warning('Unsupport file type for libraw, try with cxx_image to read image: {}'.format(e))
         # try with read_image_cxx to see if it can open this image file.
         image, metadata = read_image_cxx(image_path, metadata_path)
     return image, metadata
