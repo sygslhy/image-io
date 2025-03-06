@@ -28,5 +28,5 @@ from cxx_image.io import ImageReader, ImageWriter
 from cxx_libraw import LibRaw, RawData, RawImageSizes
 
 # Exposure the public APIs
-from .io import read_exif, read_image, write_exif, write_image, read_image_libraw
+from .io import read_exif, read_image, write_exif, write_image
 from .utils import merge_image_channels, split_image_channels

@@ -11,6 +11,9 @@
 
 
 
+
+
+
 CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image,
 These IO interfaces are designed to read and write images in many file formats in generic way and to interact nicely with numpy array.
 
@@ -24,6 +27,23 @@ These IO interfaces are designed to read and write images in many file formats i
 | PLAIN RAW     | x    | x      |      | *                      | *                    | .raw .plain16, .nv12, .yuv, *    | x                |
 | PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
 | TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
+
+
+Since version `v1.1.0`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library LibRaw: https://www.libraw.org/.
+
+The RAW image formats of the following camera manufacturers are supported, user can open these camera raw files by `read_image`, get image as `numpy.array` format:
+
+| Camera manufacturer | Image format |
+|---------------------|--------------|
+| Canon               | CR2          |
+| Nikon               | NEF          |
+| Sony                | ARW          |
+| Panasonic           | RW2          |
+| Leica               | RAW          |
+| Kodak               | KDC, DCR     |
+| Pentax              | PEF          |
+| Samsung             | SRW          |
+| Olympus             | ORF          |
 
 # Getting Started
 
@@ -85,6 +105,33 @@ The print result could be like this:
 
 `ImageMetadata` has more components than `fileInfo`, it also includes `ExifMetadata`, `help(ImageMetadata)` will show the details.
 
+
+### Read Camera manufacturer RAW image example:
+
+reading camera manufacturer raw image is the same method as we read from .jpg or .tif, just call `read_image`.
+
+~~~~~~~~~~~~~~~{.python}
+from cxx_image_io import read_image
+from cxx_image_io import ImageMetadata
+import numpy as np
+from pathlib import Path
+
+image, metadata = read_image(Path('test/images/RAW_CANON_EOS_1DX.CR2'))
+assert isinstance(image, np.ndarray)
+
+print('Type:', image.dtype)
+print('Shape:', image.shape)
+
+print(metadata.fileInfo)
+~~~~~~~~~~~~~~~
+
+
+The print result will be like:
+~~~~~~~~~~~~~~{.sh}
+Type: uint16
+Shape: (3482, 5218)
+{'width': 5218, 'height': 3482, 'pixelPrecision': 14, 'imageLayout': 'planar', 'pixelType': 'bayer_rggb', 'pixelRepresentation': 'uint16'}
+~~~~~~~~~~~~~~~
 
 ## Image reading with sidecar JSON
 
@@ -212,6 +259,8 @@ sidecar json
     }
 }
 ~~~~~~~~~~~~~~~
+
+
 </details>
 
 
@@ -498,7 +547,8 @@ This project has the dependencies of the following libraries by cmake FetchConte
 - cxx-image (Apache 2.0): https://github.com/emmcb/cxx-image
 
 ## Dynamically linked
-- libexif (LGPL v2.1) : https://libexif.github.io/
+- libexif (LGPL v2.1): https://libexif.github.io/
+- libraw  (LGPL v2.1 and CDDL): https://www.libraw.org/
 
 
 # License
