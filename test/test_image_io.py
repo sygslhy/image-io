@@ -82,15 +82,15 @@ test_data = {
     },
     'canon': {
         'file': 'RAW_CANON_EOS_1DX.CR2',
-        'hash': '9733725fb94b81e48fe3adce124a63fcc35b68f8b86948a595260476f98aed55'
+        'hash': '653e6b71334bc20165326979c972ba6647dd43db31b59a6180b57a9843510fa9'
     },
     'panasonic': {
         'file': 'RAW_PANASONIC_LX3.RW2',
-        'hash': '05b693f1314facf0743a418f036042c5e98eb9e79ff03a7efa3db547dfdbadb2'
+        'hash': '26bce46b8541f858c9352dc5b67dff0910f3ad3568b4fba6eb220680d761686d'
     },
     'sony': {
         'file': 'RAW_SONY_RX100.ARW',
-        'hash': '03c2ba312fc7e026da40211b8273aad2a83bca40d43e28e895d9fd31044058ba'
+        'hash': '3b15040c02acee95bbfae8b27988efa75e3761b847cc9dd3842f16f0b6754655'
     },
     'nikon': {
         'file': 'RAW_NIKON_D3X.NEF',
@@ -98,15 +98,15 @@ test_data = {
     },
     'leica': {
         'file': 'RAW_LEICA_DLUX3.RAW',
-        'hash': 'f918908ada149bc56837aa9db4a9fe741b9a8674340d636c71d936f4ba7b1489'
+        'hash': '5e352b24ce69c5d2420ca52e48d0fdfb2a49c76241cc653b915b42c6aca92563'
     },
     'pentax': {
         'file': 'RAW_PENTAX_KX.PEF',
-        'hash': 'aaad2264581e3863f408289c1ce480ac4551705e1d4420f5a6fc52179dbb01fb'
+        'hash': 'eb3a61dd349be8d7a8ede78bfc656a819660638ab199056b19a0cd1bfd8092ec'
     },
     'samsung': {
         'file': 'RAW_SAMSUNG_NX300M.SRW',
-        'hash': 'e4892b734600f92575d4792d4c15727e88bd4d15d6a2263c3f8fa4740dd4f223'
+        'hash': 'c015a9566f86d9b5fb32febefb81ec0e56d3bc83b3ec2ce33b39b70e11880dfd'
     },
     'olympus': {
         'file': 'RAW_OLYMPUS_E3.ORF',
@@ -242,8 +242,8 @@ def test_camera_raw_metadata():
     assert metadata.fileInfo.pixelType == PixelType.BAYER_RGGB
     assert metadata.fileInfo.pixelPrecision == 14
     assert metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16
-    assert metadata.fileInfo.width == 5218
-    assert metadata.fileInfo.height == 3482
+    assert metadata.fileInfo.width == 5344
+    assert metadata.fileInfo.height == 3584
 
     # Check cameraControls members
     assert metadata.cameraControls is not None
@@ -265,6 +265,8 @@ def test_camera_raw_metadata():
     assert metadata.exifMetadata is not None
     assert metadata.exifMetadata.make == 'Canon'
     assert metadata.exifMetadata.model == 'EOS-1D X'
+    assert metadata.exifMetadata.imageWidth == 5218
+    assert metadata.exifMetadata.imageHeight == 3482
     assert metadata.exifMetadata.orientation == 1
     assert metadata.exifMetadata.exposureTime.numerator == 1
     assert metadata.exifMetadata.exposureTime.denominator == 80
@@ -292,16 +294,16 @@ def test_camera_raw_metadata():
     ('dng', (np.dtype('uint16'), (2314, 3474), 2), (PixelType.BAYER_RGGB, 12, ImageLayout.PLANAR)),
     ('yuv', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.YUV_420)),
     ('nv12', (np.dtype('uint8'), (102, 100), 2), (PixelType.YUV, 0, ImageLayout.NV12)),
-    ('canon', (np.dtype('uint16'), (3482, 5218), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
-    ('panasonic', (np.dtype('uint16'), (2250, 3984), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
-    ('sony', (np.dtype('uint16'), (3672, 5496), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
+    ('canon', (np.dtype('uint16'), (3584, 5344), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
+    ('panasonic', (np.dtype('uint16'), (2250, 4060), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
+    ('sony', (np.dtype('uint16'), (3672, 5504), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
     ('nikon', (np.dtype('uint16'), (4044, 6080), 2), (PixelType.BAYER_RGGB, 14, ImageLayout.PLANAR)),
     ('kodak', (np.dtype('uint8'), (976, 848), 2), (PixelType.BAYER_GRBG, 8, ImageLayout.PLANAR)),
     ('kodak_slr', (np.dtype('uint16'), (3012, 4516), 2), (PixelType.BAYER_GRBG, 12, ImageLayout.PLANAR)),
-    ('leica', (np.dtype('uint16'), (2399, 4247), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
+    ('leica', (np.dtype('uint16'), (2439, 4330), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
     ('olympus', (np.dtype('uint16'), (2800, 3720), 2), (PixelType.BAYER_RGGB, 12, ImageLayout.PLANAR)),
-    ('pentax', (np.dtype('uint16'), (2868, 4309), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
-    ('samsung', (np.dtype('uint16'), (3696, 5536), 2), (PixelType.BAYER_GRBG, 12, ImageLayout.PLANAR)),
+    ('pentax', (np.dtype('uint16'), (2868, 4352), 2), (PixelType.BAYER_BGGR, 12, ImageLayout.PLANAR)),
+    ('samsung', (np.dtype('uint16'), (3714, 5546), 2), (PixelType.BAYER_GRBG, 12, ImageLayout.PLANAR)),
 ])
 def test_read_image(image_type, ref_numpy_info, ref_image_info):
     image, metadata = read_image(test_images_dir / test_data[image_type]['file'])

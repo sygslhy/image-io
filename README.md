@@ -42,6 +42,8 @@ The RAW image formats of the following camera manufacturers are supported, user 
 | Kodak               | DCR          |
 | Samsung             | SRW          |
 | Olympus             | ORF          |
+| Leica               | RAW          |
+| Pentax              | PEF          |
 
 # Getting Started
 
@@ -127,8 +129,8 @@ print(metadata.fileInfo)
 The print result will be like:
 ~~~~~~~~~~~~~~{.sh}
 Type: uint16
-Shape: (3482, 5218)
-{'width': 5218, 'height': 3482, 'pixelPrecision': 14, 'imageLayout': 'planar', 'pixelType': 'bayer_rggb', 'pixelRepresentation': 'uint16'}
+Shape: (3584, 5344)
+{'width': 5344, 'height': 3584, 'pixelPrecision': 14, 'imageLayout': 'planar', 'pixelType': 'bayer_rggb', 'pixelRepresentation': 'uint16'}
 ~~~~~~~~~~~~~~~
 
 ## Image reading with sidecar JSON

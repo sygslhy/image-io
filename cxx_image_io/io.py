@@ -78,8 +78,8 @@ def __parse_pixelType(libRaw):
 def __convert_LibRawdata_to_ImageMetadata(libRaw):
     assert isinstance(libRaw, LibRaw), "libRaw must be LibRaw type."
     metadata = ImageMetadata()
-    metadata.fileInfo.width = libRaw.imgdata.rawdata.sizes.width
-    metadata.fileInfo.height = libRaw.imgdata.rawdata.sizes.height
+    metadata.fileInfo.width = libRaw.imgdata.rawdata.sizes.raw_width
+    metadata.fileInfo.height = libRaw.imgdata.rawdata.sizes.raw_height
     if libRaw.imgdata.color.raw_bps > 8:
         metadata.fileInfo.pixelRepresentation = PixelRepresentation.UINT16
     else:
@@ -107,6 +107,9 @@ def __convert_LibRawdata_to_ImageMetadata(libRaw):
     if not np.all(rgb_cam == 0):
         metadata.calibrationData.colorMatrix = Matrix3(rgb_cam)
 
+
+    metadata.exifMetadata.imageWidth = libRaw.imgdata.rawdata.sizes.width
+    metadata.exifMetadata.imageHeight = libRaw.imgdata.rawdata.sizes.height
     if libRaw.imgdata.rawdata.sizes.flip is not None:
         metadata.exifMetadata.orientation = libraw_flip_to_exif_orientation(libRaw.imgdata.rawdata.sizes.flip)
 
@@ -222,12 +225,13 @@ def read_image_libraw(image_path: Path) -> (np.array, ImageMetadata):
         raise UnSupportedFileException('Unsupported libRaw file type.')
     raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
     top_margin, left_margin = iProcessor.imgdata.rawdata.sizes.top_margin, iProcessor.imgdata.rawdata.sizes.left_margin
-    width, height = iProcessor.imgdata.rawdata.sizes.width, iProcessor.imgdata.rawdata.sizes.height
+    # width, height = iProcessor.imgdata.rawdata.sizes.width, iProcessor.imgdata.rawdata.sizes.height
+    width, height = iProcessor.imgdata.rawdata.sizes.raw_width, iProcessor.imgdata.rawdata.sizes.raw_height
     raw_image = raw_with_margin[top_margin:top_margin + height, left_margin:left_margin + width]
 
     metadata = __convert_LibRawdata_to_ImageMetadata(iProcessor)
 
-    return raw_image, metadata
+    return raw_with_margin, metadata
 
 
 def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, ImageMetadata):
