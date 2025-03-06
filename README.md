@@ -39,9 +39,7 @@ The RAW image formats of the following camera manufacturers are supported, user 
 | Nikon               | NEF          |
 | Sony                | ARW          |
 | Panasonic           | RW2          |
-| Leica               | RAW          |
-| Kodak               | KDC, DCR     |
-| Pentax              | PEF          |
+| Kodak               | DCR          |
 | Samsung             | SRW          |
 | Olympus             | ORF          |
 
