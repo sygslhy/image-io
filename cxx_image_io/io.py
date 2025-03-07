@@ -3,9 +3,9 @@ import sys
 from pathlib import Path
 
 import numpy as np
-
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout, ImageMetadata, ImageUint16,
-                       ImageUint8, Matrix3, PixelRepresentation, PixelType, io, parser)
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
+                       ImageLayout, ImageMetadata, ImageUint8, ImageUint16,
+                       Matrix3, PixelRepresentation, PixelType, io, parser)
 from cxx_libraw import LibRaw, LibRaw_errors
 
 __numpy_array_image_convert_vector = {
@@ -23,6 +23,34 @@ class UnSupportedFileException(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(message)
+
+
+class LibRawParameters():
+    def __init__(self, raw_width, raw_height, width, height, top_margin, left_margin):
+        self.rawWidth = raw_width
+        self.rawHeight = raw_height
+        self.rawWidthVisible = width
+        self.rawHeightVisible = height
+        self.topMargin = top_margin
+        self.leftMargin = left_margin
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+class Metadata(ImageMetadata):
+    def __init__(self, LibRawParameters):
+        super().__init__()
+        self.libRawParameters = LibRawParameters
+
+    def serialize(self):
+        metadata_dict = super().serialize()
+        metadata_dict['LibRawParams'] = self.libRawParameters.__dict__
+        return metadata_dict
+
+    def __repr__(self):
+        all_dict = self.serialize()
+        return str(all_dict)
 
 
 def __raw_color(libRaw, y, x):
@@ -77,7 +105,14 @@ def __parse_pixelType(libRaw):
 
 def __convert_LibRawdata_to_ImageMetadata(libRaw):
     assert isinstance(libRaw, LibRaw), "libRaw must be LibRaw type."
-    metadata = ImageMetadata()
+
+    libRawParameters = LibRawParameters(libRaw.imgdata.rawdata.sizes.raw_width,
+                                            libRaw.imgdata.rawdata.sizes.raw_height,
+                                            libRaw.imgdata.rawdata.sizes.width, libRaw.imgdata.rawdata.sizes.height,
+                                            libRaw.imgdata.rawdata.sizes.top_margin,
+                                            libRaw.imgdata.rawdata.sizes.left_margin)
+    metadata = Metadata(libRawParameters)
+
     metadata.fileInfo.width = libRaw.imgdata.rawdata.sizes.raw_width
     metadata.fileInfo.height = libRaw.imgdata.rawdata.sizes.raw_height
     if libRaw.imgdata.color.raw_bps > 8:
@@ -106,7 +141,6 @@ def __convert_LibRawdata_to_ImageMetadata(libRaw):
     rgb_cam = np.array(libRaw.imgdata.color.rgb_cam[:, :3])
     if not np.all(rgb_cam == 0):
         metadata.calibrationData.colorMatrix = Matrix3(rgb_cam)
-
 
     metadata.exifMetadata.imageWidth = libRaw.imgdata.rawdata.sizes.width
     metadata.exifMetadata.imageHeight = libRaw.imgdata.rawdata.sizes.height
@@ -230,7 +264,6 @@ def read_image_libraw(image_path: Path) -> (np.array, ImageMetadata):
     raw_image = raw_with_margin[top_margin:top_margin + height, left_margin:left_margin + width]
 
     metadata = __convert_LibRawdata_to_ImageMetadata(iProcessor)
-
     return raw_with_margin, metadata
 
 

@@ -64,7 +64,7 @@ pip install cxx-image-io
 
 # Usage
 
-## Image reading
+## Image reading basic example
 
 `read_image` is able to read a image file and return a numpy array and ImageMetadata object.
 
@@ -122,7 +122,7 @@ assert isinstance(image, np.ndarray)
 print('Type:', image.dtype)
 print('Shape:', image.shape)
 
-print(metadata.fileInfo)
+print(metadata)
 ~~~~~~~~~~~~~~~
 
 
@@ -130,8 +130,83 @@ The print result will be like:
 ~~~~~~~~~~~~~~{.sh}
 Type: uint16
 Shape: (3584, 5344)
-{'width': 5344, 'height': 3584, 'pixelPrecision': 14, 'imageLayout': 'planar', 'pixelType': 'bayer_rggb', 'pixelRepresentation': 'uint16'}
+{
+   "fileInfo":{
+      "width":5344,
+      "height":3584,
+      "pixelPrecision":14,
+      "imageLayout":"planar",
+      "pixelType":"bayer_rggb",
+      "pixelRepresentation":"uint16"
+   },
+   "exifMetadata":{
+      "imageWidth":5218,
+      "imageHeight":3482,
+      "make":"Canon",
+      "model":"EOS-1D X",
+      "orientation":1,
+      "exposureTime":[
+         1,
+         80
+      ],
+      "fNumber":[
+         56,
+         10
+      ],
+      "isoSpeedRatings":1600,
+      "dateTimeOriginal":"2012:09:06 07:48:25",
+      "focalLength":[
+         700,
+         10
+      ]
+   },
+   "shootingParams":{
+
+   },
+   "cameraControls":{
+      "whiteBalance":[
+         1.75390625,
+         1.4775390625
+      ]
+   },
+   "calibrationData":{
+      "blackLevel":2048,
+      "whiteLevel":15438,
+      "colorMatrix":[
+         [
+            1.9404515027999878,
+            -1.1166307926177979,
+            0.17617927491664886
+         ],
+         [
+            -0.21374493837356567,
+            1.6440128087997437,
+            -0.430267870426178
+         ],
+         [
+            0.021280933171510696,
+            -0.5217925906181335,
+            1.500511646270752
+         ]
+      ]
+   },
+   "semanticMasks":[
+
+   ],
+   "LibRawParams":{
+      "rawWitdh":5344,
+      "rawHeight":3584,
+      "rawWidthVisible":5218,
+      "rawWidthVisible":3482,
+      "topMargin":100,
+      "leftMargin":126
+   }
+}
 ~~~~~~~~~~~~~~~
+
+Note that `camera manufacturer RAW image metadata` has an additional Parameters: `LibRawParams`, it contains the coordinates of the original RAW sizes, including the top and left margins, as well as the actual visible area's width and height in the original RAW.
+
+According to these inforamtions, user can corp the visable zone on the RAW image numpy array.
 
 ## Image reading with sidecar JSON
 

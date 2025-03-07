@@ -26,7 +26,7 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .value("FLOAT", PixelRepresentation::FLOAT);
 
     py::class_<ImageMetadata> imageMetadata(
-            mod, "ImageMetadata", py::is_final(), "Image Metadata, see class detail with help(ImageMetadata)");
+            mod, "ImageMetadata", "Image Metadata, see class detail with help(ImageMetadata)");
     imageMetadata.def(py::init<>())
             .def_readwrite("fileInfo", &ImageMetadata::fileInfo, "class ImageMetadata.FileInfo: File Information")
             .def_readwrite("exifMetadata", &ImageMetadata::exifMetadata, "class ExifMetadata: Exif metadata")

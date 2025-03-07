@@ -1,13 +1,13 @@
 import hashlib
 from pathlib import Path
-
 from test import root_dir
 
 import numpy as np
 import pytest
 
-from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata, ImageWriter, Matrix3,
-                          PixelRepresentation, PixelType, RgbColorSpace, UnorderdMapSemanticMasks, read_exif,
+from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
+                          ImageWriter, Matrix3, PixelRepresentation, PixelType,
+                          RgbColorSpace, UnorderdMapSemanticMasks, read_exif,
                           read_image, write_exif, write_image)
 
 test_images_dir = Path(root_dir, 'images/')

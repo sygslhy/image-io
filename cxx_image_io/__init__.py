@@ -22,8 +22,9 @@ else:
 cur_file_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(cur_file_dir)
 # Then import cxx_image from .pyd file.
-from cxx_image import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout, ImageMetadata, Matrix3,
-                       PixelRepresentation, PixelType, RgbColorSpace, SemanticLabel, UnorderdMapSemanticMasks)
+from cxx_image import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout,
+                       ImageMetadata, Matrix3, PixelRepresentation, PixelType,
+                       RgbColorSpace, SemanticLabel, UnorderdMapSemanticMasks)
 from cxx_image.io import ImageReader, ImageWriter
 from cxx_libraw import LibRaw, RawData, RawImageSizes
 

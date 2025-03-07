@@ -168,7 +168,7 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_property(
                     "make",
                     [](const libraw_iparams_t &self) { return std::string(self.make); }, // getter
-                    [](libraw_iparams_t &self, const std::string &new_data) {         // setter
+                    [](libraw_iparams_t &self, const std::string &new_data) {            // setter
                         std::strncpy(self.make, new_data.c_str(), sizeof(self.make) - 1);
                         self.make[sizeof(self.make) - 1] = '\0';
                     },
@@ -176,7 +176,7 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_property(
                     "model",
                     [](const libraw_iparams_t &self) { return std::string(self.model); }, // getter
-                    [](libraw_iparams_t &self, const std::string &new_data) {          // setter
+                    [](libraw_iparams_t &self, const std::string &new_data) {             // setter
                         std::strncpy(self.model, new_data.c_str(), sizeof(self.model) - 1);
                         self.model[sizeof(self.model) - 1] = '\0';
                     },
@@ -184,7 +184,7 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_property(
                     "normalized_make",
                     [](const libraw_iparams_t &self) { return std::string(self.normalized_make); }, // getter
-                    [](libraw_iparams_t &self, const std::string &new_data) {                    // setter
+                    [](libraw_iparams_t &self, const std::string &new_data) {                       // setter
                         std::strncpy(self.normalized_make, new_data.c_str(), sizeof(self.normalized_make) - 1);
                         self.normalized_make[sizeof(self.normalized_make) - 1] = '\0';
                     },
@@ -192,7 +192,7 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_property(
                     "normalized_model",
                     [](const libraw_iparams_t &self) { return std::string(self.normalized_model); }, // getter
-                    [](libraw_iparams_t &self, const std::string &new_data) {                     // setter
+                    [](libraw_iparams_t &self, const std::string &new_data) {                        // setter
                         std::strncpy(self.normalized_model, new_data.c_str(), sizeof(self.normalized_model) - 1);
                         self.normalized_model[sizeof(self.normalized_model) - 1] = '\0';
                     },
@@ -200,7 +200,7 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_property(
                     "software",
                     [](const libraw_iparams_t &self) { return std::string(self.software); }, // getter
-                    [](libraw_iparams_t &self, const std::string &new_data) {             // setter
+                    [](libraw_iparams_t &self, const std::string &new_data) {                // setter
                         std::strncpy(self.software, new_data.c_str(), sizeof(self.software) - 1);
                         self.software[sizeof(self.software) - 1] = '\0';
                     },
@@ -208,7 +208,7 @@ void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)
             .def_property(
                     "cdesc",
                     [](const libraw_iparams_t &self) { return std::string(self.cdesc); }, // getter
-                    [](libraw_iparams_t &self, const std::string &new_data) {          // setter
+                    [](libraw_iparams_t &self, const std::string &new_data) {             // setter
                         std::strncpy(self.cdesc, new_data.c_str(), sizeof(self.cdesc) - 1);
                         self.cdesc[sizeof(self.cdesc) - 1] = '\0';
                     },
