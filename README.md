@@ -10,26 +10,9 @@
 [![Weekly](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml)
 
 
+# What's new since  `v1.1.1`
 
-
-
-
-CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image,
-These IO interfaces are designed to read and write images in many file formats in generic way and to interact nicely with numpy array.
-
-| Image format  | Read | Write  | EXIF | Pixel precision        | Pixel type           | File extension                   |  Sidecar needed  |
-|---------------|------|--------|------|------------------------|----------------------|----------------------------------|------------------|
-| BMP           | x    | x      |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |                  |
-| CFA           | x    | x      |      | 16 bits                | Bayer                | .cfa                             |                  |
-| DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |                  |
-| JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |                  |
-| MIPI RAW      | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 | x                |
-| PLAIN RAW     | x    | x      |      | *                      | *                    | .raw .plain16, .nv12, .yuv, *    | x                |
-| PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
-| TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
-
-
-Since version `v1.1.0`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library LibRaw: https://www.libraw.org/.
+Since version `v1.1.1`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library .
 
 The RAW image formats of the following camera manufacturers are supported, user can open these camera raw files by `read_image`, get image as `numpy.array` format:
 
@@ -44,6 +27,24 @@ The RAW image formats of the following camera manufacturers are supported, user 
 | Olympus             | ORF          |
 | Leica               | RAW          |
 | Pentax              | PEF          |
+
+# Introduction
+
+CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image.
+These IO interfaces are designed to read and write images in many file formats in generic way and to interact nicely with numpy array.
+
+| Image format  | Read | Write  | EXIF | Pixel precision        | Pixel type           | File extension                   |  Sidecar needed  |
+|---------------|------|--------|------|------------------------|----------------------|----------------------------------|------------------|
+| BMP           | x    | x      |      | 8 bits                 | Grayscale, RGB, RGBA | .bmp                             |                  |
+| CFA           | x    | x      |      | 16 bits                | Bayer                | .cfa                             |                  |
+| DNG           | x    | x      | x    | 16 bits, float         | Bayer, RGB           | .dng                             |                  |
+| JPEG          | x    | x      | x    | 8 bits                 | Grayscale, RGB       | .jpg, .jpeg                      |                  |
+| MIPI RAW      | x    | x      |      | 10 bits, 12 bits       | Bayer                | .RAWMIPI, .RAWMIPI10, .RAWMIPI12 | x                |
+| PLAIN RAW     | x    | x      |      | *                      | *                    | .raw .plain16, .nv12, .yuv, *    | x                |
+| PNG           | x    | x      |      | 8 bits, 16 bits        | Grayscale, RGB, RGBA | .png                             |                  |
+| TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
+
+
 
 # Getting Started
 
