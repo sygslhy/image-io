@@ -12,7 +12,7 @@
 
 # What's new since  `v1.1.1`
 
-Since version `v1.1.1`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library .
+Since version `v1.1.1`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library LibRaw https://www.libraw.org/.
 
 The RAW image formats of the following camera manufacturers are supported, user can open these camera raw files by `read_image`, get image as `numpy.array` format:
 
