@@ -109,7 +109,7 @@ jobs:
               apk add git nasm samurai python3 py3-pip py3-pytest cmake
               ;;
             archarm*)
-              pacman -Sy --needed --noconfirm glibc
+              pacman -Sy --needed --noconfirm glibc libffi
               pacman -Sy --needed --noconfirm git base-devel expat cmake ninja python-pip python-pytest
               ;;
           esac
