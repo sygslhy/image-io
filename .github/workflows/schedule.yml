@@ -56,11 +56,11 @@ jobs:
     needs: checkout-code
     name: Test package on ${{ matrix.distro }} ${{ matrix.arch }}
      # The host should always be linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        distro: [fedora_latest, alpine_latest, archarm_latest]
+        distro: [ubuntu_latest, bookworm, fedora_latest, alpine_latest, archarm_latest]
         arch: [aarch64]
 
     steps:
