@@ -195,10 +195,10 @@ Shape: (3584, 5344)
 
    ],
    "LibRawParams":{
-      "rawWitdh":5344,
+      "rawWidth":5344,
       "rawHeight":3584,
       "rawWidthVisible":5218,
-      "rawWidthVisible":3482,
+      "rawHeightVisible":3482,
       "topMargin":100,
       "leftMargin":126
    }
