@@ -184,11 +184,11 @@ def test_parse_metadata():
     assert abs(metadata.cameraControls.whiteBalance.gainR - 2.223459892023346) < __epsilon
     assert abs(metadata.cameraControls.whiteBalance.gainB - 1.462103373540856) < __epsilon
 
-    array_r = np.array(metadata.cameraControls.colorShading.gainR, copy=False)
-    array_b = np.array(metadata.cameraControls.colorShading.gainB, copy=False)
+    array_r = np.array(metadata.cameraControls.colorShading.gainR)
+    array_b = np.array(metadata.cameraControls.colorShading.gainB)
     assert array_r.shape == (3, 3) and array_b.shape == (3, 3)
-    np.array_equal(array_r, np.array([[2.0, 1.5, 2.0], [1.5, 1.0, 1.5], [2.0, 1.5, 2.0]]))
-    np.array_equal(array_b, np.array([[3.0, 2.5, 3.0], [2.5, 1.0, 2.5], [3.0, 2.5, 3.0]]))
+    assert np.allclose(array_r, np.array([[2.0, 1.5, 2.0], [1.5, 1.0, 1.5], [2.0, 1.5, 2.0]]), rtol=1e-6)
+    assert np.allclose(array_b, np.array([[3.0, 2.5, 3.0], [2.5, 1.0, 2.5], [3.0, 2.5, 3.0]]), rtol=1e-6)
     assert metadata.cameraControls.faceDetection[0].x == metadata.cameraControls.faceDetection[0].y == 0
     assert metadata.cameraControls.faceDetection[0].width == 100
     assert metadata.cameraControls.faceDetection[0].height == 200
@@ -200,11 +200,12 @@ def test_parse_metadata():
     assert metadata.calibrationData is not None
     assert metadata.calibrationData.blackLevel == 256
     assert metadata.calibrationData.whiteLevel == 4095.0
-    array_g = np.array(metadata.calibrationData.vignetting, copy=False)
-    np.array_equal(array_g, np.array([[2.0, 1.5, 2.0], [1.5, 1.1, 1.5], [2.0, 1.5, 2.0]]))
+    array_g = np.array(metadata.calibrationData.vignetting)
+
+    assert np.allclose(array_g, np.array([[2.0, 1.5, 2.0], [1.5, 1.1, 1.5], [2.0, 1.5, 2.0]]), rtol=1e-6)
     assert metadata.calibrationData.colorMatrixTarget == RgbColorSpace.SRGB
-    array_color_matrix = np.array(metadata.calibrationData.colorMatrix, copy=False)
-    np.array_equal(array_color_matrix, np.array([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]))
+    array_color_matrix = np.array(metadata.calibrationData.colorMatrix)
+    assert np.allclose(array_color_matrix, np.array([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]), rtol=1e-6)
 
     # Check exifMetadata members
     assert metadata.exifMetadata is not None
@@ -255,7 +256,7 @@ def test_camera_raw_metadata():
     assert metadata.calibrationData.blackLevel == 2048
     assert metadata.calibrationData.whiteLevel == 15438
     array_color_matrix = np.array(metadata.calibrationData.colorMatrix, copy=False)
-    np.array_equal(
+    assert np.array_equal(
         array_color_matrix,
         np.array([[1.9404515027999878, -1.1166307926177979, 0.17617927491664886],
                   [-0.21374493837356567, 1.6440128087997437, -0.430267870426178],
