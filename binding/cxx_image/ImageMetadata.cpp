@@ -80,10 +80,17 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      list.append(roi.height);
                      return list;
                  })
-            .def("__repr__", [](const ImageMetadata::ROI &roi) {
-                auto dict = py::cast(roi).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::ROI &roi) {
+                     auto dict = py::cast(roi).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init<float, float, float, float>(),
+                 py::arg("x"),
+                 py::arg("y"),
+                 py::arg("width"),
+                 py::arg("height"),
+                 "ROI(x, y, width, height) constructor");
 
     py::enum_<SemanticLabel>(mod, "SemanticLabel")
             .value("NONE", SemanticLabel::NONE)
@@ -170,16 +177,50 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      }
                      return dict;
                  })
-            .def("__repr__", [](const ImageMetadata::FileInfo &fileInfo) {
-                auto dict = py::cast(fileInfo).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::FileInfo &fileInfo) {
+                     auto dict = py::cast(fileInfo).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](std::optional<uint16_t> width,
+                             std::optional<uint16_t> height,
+                             std::optional<uint8_t> pixelPrecision,
+                             std::optional<FileFormat> fileFormat,
+                             std::optional<ImageLayout> imageLayout,
+                             std::optional<PixelType> pixelType,
+                             std::optional<PixelRepresentation> pixelRepresentation,
+                             std::optional<uint16_t> widthAlignment,
+                             std::optional<uint16_t> heightAlignment,
+                             std::optional<uint16_t> sizeAlignment) {
+                     ImageMetadata::FileInfo fi;
+                     if (width) fi.width = *width;
+                     if (height) fi.height = *height;
+                     if (pixelPrecision) fi.pixelPrecision = *pixelPrecision;
+                     if (fileFormat) fi.fileFormat = *fileFormat;
+                     if (imageLayout) fi.imageLayout = *imageLayout;
+                     if (pixelType) fi.pixelType = *pixelType;
+                     if (pixelRepresentation) fi.pixelRepresentation = *pixelRepresentation;
+                     if (widthAlignment) fi.widthAlignment = *widthAlignment;
+                     if (heightAlignment) fi.heightAlignment = *heightAlignment;
+                     if (sizeAlignment) fi.sizeAlignment = *sizeAlignment;
+                     return fi;
+                 }),
+                 py::arg("width") = py::none(),
+                 py::arg("height") = py::none(),
+                 py::arg("pixelPrecision") = py::none(),
+                 py::arg("fileFormat") = py::none(),
+                 py::arg("imageLayout") = py::none(),
+                 py::arg("pixelType") = py::none(),
+                 py::arg("pixelRepresentation") = py::none(),
+                 py::arg("widthAlignment") = py::none(),
+                 py::arg("heightAlignment") = py::none(),
+                 py::arg("sizeAlignment") = py::none());
 
-    py::class_<ImageMetadata::ShootingParams>(
-            imageMetadata,
-            "ShootingParams",
-            "Shooting Params, see class detail with help(ImageMetadata.ShootingParams)",
-            py::is_final())
+    py::class_<ImageMetadata::ShootingParams>(imageMetadata,
+                                              "ShootingParams",
+                                              "Shooting Params, see class detail with "
+                                              "help(ImageMetadata.ShootingParams)",
+                                              py::is_final())
             .def(py::init<>())
             .def_readwrite("aperture", &ImageMetadata::ShootingParams::aperture, "float: Aperture")
             .def_readwrite("exposureTime", &ImageMetadata::ShootingParams::exposureTime, "float: Exposure time")
@@ -217,16 +258,44 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      }
                      return dict;
                  })
-            .def("__repr__", [](const ImageMetadata::ShootingParams &shootingParams) {
-                auto dict = py::cast(shootingParams).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::ShootingParams &shootingParams) {
+                     auto dict = py::cast(shootingParams).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](std::optional<float> aperture,
+                             std::optional<float> exposureTime,
+                             std::optional<float> sensitivity,
+                             std::optional<float> totalGain,
+                             std::optional<float> sensorGain,
+                             std::optional<float> ispGain,
+                             std::optional<ImageMetadata::ROI> zoom) {
+                     ImageMetadata::ShootingParams sp;
+                     if (aperture) sp.aperture = *aperture;
+                     if (exposureTime) sp.exposureTime = *exposureTime;
+                     if (sensitivity) sp.sensitivity = *sensitivity;
+                     if (totalGain) sp.totalGain = *totalGain;
+                     if (sensorGain) sp.sensorGain = *sensorGain;
+                     if (ispGain) sp.ispGain = *ispGain;
+                     if (zoom) sp.zoom = *zoom;
+                     return sp;
+                 }),
 
-    py::class_<ImageMetadata::CalibrationData>(
-            imageMetadata,
-            "CalibrationData",
-            "Calibration data, see class detail with help(ImageMetadata.CalibrationData)",
-            py::is_final())
+                 py::arg("aperture") = py::none(),
+                 py::arg("exposureTime") = py::none(),
+                 py::arg("sensitivity") = py::none(),
+                 py::arg("totalGain") = py::none(),
+                 py::arg("sensorGain") = py::none(),
+                 py::arg("ispGain") = py::none(),
+                 py::arg("zoom") = py::none()
+
+            );
+
+    py::class_<ImageMetadata::CalibrationData>(imageMetadata,
+                                               "CalibrationData",
+                                               "Calibration data, see class detail with "
+                                               "help(ImageMetadata.CalibrationData)",
+                                               py::is_final())
             .def(py::init<>())
             .def_readwrite("blackLevel", &ImageMetadata::CalibrationData::blackLevel, "int or float: Black level")
             .def_readwrite("whiteLevel", &ImageMetadata::CalibrationData::whiteLevel, "int or float: White level")
@@ -257,23 +326,55 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      }
                      return dict;
                  })
-            .def("__repr__", [](const ImageMetadata::CalibrationData &calibData) {
-                auto dict = py::cast(calibData).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::CalibrationData &calibData) {
+                     auto dict = py::cast(calibData).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](std::optional<float> blackLevel,
+                             std::optional<float> whiteLevel,
+                             std::optional<DynamicMatrix> vignetting,
+                             std::optional<Matrix3> colorMatrix,
+                             std::optional<RgbColorSpace> colorMatrixTarget) {
+                     ImageMetadata::CalibrationData calib;
 
-    py::class_<ImageMetadata::CameraControls> cameraControls(
-            imageMetadata,
-            "CameraControls",
-            "Camera Controls, see class detail with help(ImageMetadata.CameraControls)",
-            py::is_final());
+                     if (blackLevel) {
+                         calib.blackLevel = blackLevel;
+                     }
+                     if (whiteLevel) {
+                         calib.whiteLevel = whiteLevel;
+                     }
+                     if (vignetting) {
+                         calib.vignetting = vignetting;
+                     }
+                     if (colorMatrix) {
+                         calib.colorMatrix = colorMatrix;
+                     }
+                     if (colorMatrixTarget) {
+                         calib.colorMatrixTarget = colorMatrixTarget;
+                     }
+
+                     return calib;
+                 }),
+                 py::arg("blackLevel") = py::none(),
+                 py::arg("whiteLevel") = py::none(),
+                 py::arg("vignetting") = py::none(),
+                 py::arg("colorMatrix") = py::none(),
+                 py::arg("colorMatrixTarget") = py::none());
+
+    py::class_<ImageMetadata::CameraControls> cameraControls(imageMetadata,
+                                                             "CameraControls",
+                                                             "Camera Controls, see class detail with "
+                                                             "help(ImageMetadata.CameraControls)",
+                                                             py::is_final());
     cameraControls.def(py::init<>())
             .def_readwrite("whiteBalance",
                            &ImageMetadata::CameraControls::whiteBalance,
                            "class ImageMetadata.WhiteBalance: White balance scales")
             .def_readwrite("colorShading",
                            &ImageMetadata::CameraControls::colorShading,
-                           "class ImageMetadata.ColorShading: Color lens shading correction maps")
+                           "class ImageMetadata.ColorShading: Color lens shading "
+                           "correction maps")
             .def_readwrite("faceDetection",
                            &ImageMetadata::CameraControls::faceDetection,
                            "UnorderdMapSemanticMasks: Array of face ROI")
@@ -296,16 +397,37 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      }
                      return dict;
                  })
-            .def("__repr__", [](const ImageMetadata::CameraControls &cameraControls) {
-                auto dict = py::cast(cameraControls).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::CameraControls &cameraControls) {
+                     auto dict = py::cast(cameraControls).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](std::optional<ImageMetadata::WhiteBalance> whiteBalance,
+                             std::optional<ImageMetadata::ColorShading> colorShading,
+                             std::optional<std::vector<ImageMetadata::ROI>> faceDetection) {
+                     ImageMetadata::CameraControls ctrl;
 
-    py::class_<ImageMetadata::WhiteBalance> whiteBalance(
-            imageMetadata,
-            "WhiteBalance",
-            "White balance scales, see class detail with help(ImageMetadata.WhiteBalance)",
-            py::is_final());
+                     if (whiteBalance) {
+                         ctrl.whiteBalance = *whiteBalance;
+                     }
+                     if (colorShading) {
+                         ctrl.colorShading = *colorShading;
+                     }
+                     if (faceDetection) {
+                         ctrl.faceDetection = *faceDetection;
+                     }
+
+                     return ctrl;
+                 }),
+                 py::arg("whiteBalance") = py::none(),
+                 py::arg("colorShading") = py::none(),
+                 py::arg("faceDetection") = py::none());
+
+    py::class_<ImageMetadata::WhiteBalance> whiteBalance(imageMetadata,
+                                                         "WhiteBalance",
+                                                         "White balance scales, see class detail with "
+                                                         "help(ImageMetadata.WhiteBalance)",
+                                                         py::is_final());
     whiteBalance.def(py::init<>())
             .def_readwrite("gainR", &ImageMetadata::WhiteBalance::gainR, "float: White balance R/G scale")
             .def_readwrite("gainB", &ImageMetadata::WhiteBalance::gainB, "float: White balance B/G scale")
@@ -316,16 +438,25 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      list.append(whiteBalance.gainB);
                      return list;
                  })
-            .def("__repr__", [](const ImageMetadata::WhiteBalance &whiteBalance) {
-                auto dict = py::cast(whiteBalance).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::WhiteBalance &whiteBalance) {
+                     auto dict = py::cast(whiteBalance).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](float gainR, float gainB) {
+                     ImageMetadata::WhiteBalance wb;
+                     wb.gainR = gainR;
+                     wb.gainB = gainB;
+                     return wb;
+                 }),
+                 py::arg("gainR") = 1.0f,
+                 py::arg("gainB") = 1.0f);
 
-    py::class_<ImageMetadata::ColorShading> colorShading(
-            imageMetadata,
-            "ColorShading",
-            "Color lens shading correction maps, see class detail with help(ImageMetadata.ColorShading)",
-            py::is_final());
+    py::class_<ImageMetadata::ColorShading> colorShading(imageMetadata,
+                                                         "ColorShading",
+                                                         "Color lens shading correction maps, see class detail with "
+                                                         "help(ImageMetadata.ColorShading)",
+                                                         py::is_final());
     colorShading.def(py::init<>())
             .def_readwrite("gainR",
                            &ImageMetadata::ColorShading::gainR,
@@ -357,10 +488,19 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                      listColorShading.append(listB);
                      return listColorShading;
                  })
-            .def("__repr__", [](const ImageMetadata::ColorShading &colorShading) {
-                auto dict = py::cast(colorShading).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ImageMetadata::ColorShading &colorShading) {
+                     auto dict = py::cast(colorShading).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](const DynamicMatrix &gainR, const DynamicMatrix &gainB) {
+                     ImageMetadata::ColorShading cs;
+                     cs.gainR = gainR;
+                     cs.gainB = gainB;
+                     return cs;
+                 }),
+                 py::arg("gainR"),
+                 py::arg("gainB"));
 }
 
 } // namespace cxximg

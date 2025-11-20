@@ -89,10 +89,60 @@ void initExif(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                         return dict;
                     },
                     "Serialize the exifMetadata to python dict type")
-            .def("__repr__", [](const ExifMetadata &exif) {
-                auto dict = py::cast(exif).attr("serialize")();
-                return py::str(dict);
-            });
+            .def("__repr__",
+                 [](const ExifMetadata &exif) {
+                     auto dict = py::cast(exif).attr("serialize")();
+                     return py::str(dict);
+                 })
+            .def(py::init([](std::optional<uint16_t> imageWidth,
+                             std::optional<uint16_t> imageHeight,
+                             std::optional<std::string> imageDescription,
+                             std::optional<std::string> make,
+                             std::optional<std::string> model,
+                             std::optional<uint16_t> isoSpeedRatings,
+                             std::optional<ExifMetadata::Rational> exposureTime,
+                             std::optional<ExifMetadata::Rational> focalLength,
+                             std::optional<ExifMetadata::Rational> fNumber,
+                             std::optional<ExifMetadata::SRational> brightnessValue,
+                             std::optional<uint16_t> focalLengthIn35mmFilm,
+                             std::optional<std::string> dateTimeOriginal,
+                             std::optional<int> orientation,
+                             std::optional<std::string> software,
+                             std::optional<ExifMetadata::SRational> exposureBiasValue) {
+                     ExifMetadata exif;
+                     if (imageWidth) exif.imageWidth = *imageWidth;
+                     if (imageHeight) exif.imageHeight = *imageHeight;
+                     if (imageDescription) exif.imageDescription = *imageDescription;
+                     if (make) exif.make = *make;
+                     if (model) exif.model = *model;
+                     if (isoSpeedRatings) exif.isoSpeedRatings = *isoSpeedRatings;
+                     if (exposureTime) exif.exposureTime = *exposureTime;
+                     if (focalLength) exif.focalLength = *focalLength;
+                     if (focalLengthIn35mmFilm) exif.focalLengthIn35mmFilm = *focalLengthIn35mmFilm;
+                     if (brightnessValue) exif.brightnessValue = *brightnessValue;
+                     if (fNumber) exif.fNumber = *fNumber;
+                     if (dateTimeOriginal) exif.dateTimeOriginal = *dateTimeOriginal;
+                     if (orientation) exif.orientation = *orientation;
+                     if (software) exif.software = *software;
+                     if (exposureBiasValue) exif.exposureBiasValue = *exposureBiasValue;
+                     return exif;
+                 }),
+                 "Constructor with optional parameters",
+                 py::arg("imageWidth") = std::nullopt,
+                 py::arg("imageHeight") = std::nullopt,
+                 py::arg("imageDescription") = std::nullopt,
+                 py::arg("make") = std::nullopt,
+                 py::arg("model") = std::nullopt,
+                 py::arg("isoSpeedRatings") = std::nullopt,
+                 py::arg("exposureTime") = std::nullopt,
+                 py::arg("focalLength") = std::nullopt,
+                 py::arg("fNumber") = std::nullopt,
+                 py::arg("brightnessValue") = std::nullopt,
+                 py::arg("focalLengthIn35mmFilm") = std::nullopt,
+                 py::arg("dateTimeOriginal") = std::nullopt,
+                 py::arg("orientation") = std::nullopt,
+                 py::arg("software") = std::nullopt,
+                 py::arg("exposureBiasValue") = std::nullopt);
 
     py::class_<ExifMetadata::Rational>(exifMetadata, "Rational", py::is_final())
             .def(py::init([](uint32_t num, uint32_t denum) {

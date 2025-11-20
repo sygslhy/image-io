@@ -107,10 +107,9 @@ def __convert_LibRawdata_to_ImageMetadata(libRaw):
     assert isinstance(libRaw, LibRaw), "libRaw must be LibRaw type."
 
     libRawParameters = LibRawParameters(libRaw.imgdata.rawdata.sizes.raw_width,
-                                            libRaw.imgdata.rawdata.sizes.raw_height,
-                                            libRaw.imgdata.rawdata.sizes.width, libRaw.imgdata.rawdata.sizes.height,
-                                            libRaw.imgdata.rawdata.sizes.top_margin,
-                                            libRaw.imgdata.rawdata.sizes.left_margin)
+                                        libRaw.imgdata.rawdata.sizes.raw_height, libRaw.imgdata.rawdata.sizes.width,
+                                        libRaw.imgdata.rawdata.sizes.height, libRaw.imgdata.rawdata.sizes.top_margin,
+                                        libRaw.imgdata.rawdata.sizes.left_margin)
     metadata = Metadata(libRawParameters)
 
     metadata.fileInfo.width = libRaw.imgdata.rawdata.sizes.raw_width
