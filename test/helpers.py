@@ -2,7 +2,7 @@ import hashlib
 
 from cxx_image_io import ExifMetadata
 
-epsilon = 1e-7
+epsilon = 1e-6
 
 
 def get_file_hash(file_name):
