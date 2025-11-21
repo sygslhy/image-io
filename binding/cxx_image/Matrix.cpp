@@ -17,7 +17,8 @@ namespace cxximg {
 namespace {
 DynamicMatrix createDynamicMatrixFromPyarray(const py::array_t<float> &arr) {
     /* Request a buffer descriptor from Python */
-    py::buffer_info info = arr.request();
+    py::array_t<float, py::array::c_style | py::array::forcecast> arr_c(arr);
+    py::buffer_info info = arr_c.request();
     /* Some basic validation checks ... */
     if (info.format != py::format_descriptor<float>::format()) {
         throw std::runtime_error("Incompatible format: expected a correct format array!");
@@ -26,8 +27,9 @@ DynamicMatrix createDynamicMatrixFromPyarray(const py::array_t<float> &arr) {
         throw std::runtime_error("Incompatible buffer dimension!");
     }
     /*Create the Dynamic Matrix based on the py::array's buffer */
-    return DynamicMatrix{
-            static_cast<int>(info.shape[1]), static_cast<int>(info.shape[0]), static_cast<float *>(info.ptr)};
+    int numRows = static_cast<int>(info.shape[0]);
+    int numCols = static_cast<int>(info.shape[1]);
+    return DynamicMatrix{numRows, numCols, static_cast<float *>(info.ptr)};
 }
 
 Matrix3 createMatrix3FromPyarray(const py::array_t<float> &arr) {
