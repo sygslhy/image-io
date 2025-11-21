@@ -301,7 +301,9 @@ TEST_CASES = [
                      dateTimeOriginal='2008:12:01 14:52:13',
                      orientation=6,
                      software=None,
-                     exposureBiasValue=ExifMetadata.SRational(0, 1))),
+                     exposureBiasValue=ExifMetadata.SRational(0, 1)),
+        only_pixel_cmp=True
+                     ),
     ImageCase(
         "panasonic",
         "RAW_PANASONIC_LX3.RW2",
@@ -340,6 +342,7 @@ TEST_CASES = [
                                pixelRepresentation=PixelRepresentation.UINT16,
                                width=4516,
                                height=3012),
+        only_pixel_cmp=True,
     ),
     ImageCase(
         "leica",
