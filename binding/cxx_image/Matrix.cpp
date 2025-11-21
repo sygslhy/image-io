@@ -51,7 +51,7 @@ Matrix3 createMatrix3FromPyarray(const py::array_t<float> &arr) {
     return Matrix3(static_cast<float *>(info.ptr));
 }
 
-py::buffer_info defineBufferInfos(DynamicMatrix mod) {
+py::buffer_info defineBufferInfos(DynamicMatrix &mod) {
     static constexpr int MATRIX_DIM = 2;
     return py::buffer_info(mod.data(),                             /* Pointer to buffer */
                            sizeof(float),                          /* Size of one scalar */
@@ -63,7 +63,7 @@ py::buffer_info defineBufferInfos(DynamicMatrix mod) {
                             sizeof(float)});
 }
 
-py::buffer_info defineBufferInfos(Matrix3 mod) {
+py::buffer_info defineBufferInfos(Matrix3 &mod) {
     static constexpr int MATRIX_DIM = 2;
     return py::buffer_info(mod.data(),                             /* Pointer to buffer */
                            sizeof(float),                          /* Size of one scalar */

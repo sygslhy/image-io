@@ -6,6 +6,7 @@ from cxx_image_io import read_image
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.nrt
 
 def compare_fileinfo_values(fi, ref_fi):
     assert fi, 'FileInfo is None'

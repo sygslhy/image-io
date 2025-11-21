@@ -6,6 +6,7 @@ from cxx_image_io import read_exif, read_image, write_exif
 import shutil
 import pytest
 
+pytestmark = pytest.mark.nrt
 
 def compare_exif_values(exif, ref_exif):
     assert exif.dateTimeOriginal == ref_exif.dateTimeOriginal

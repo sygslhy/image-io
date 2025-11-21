@@ -8,6 +8,8 @@ import numpy as np
 import pytest
 from pathlib import Path
 
+pytestmark = pytest.mark.nrt
+
 bayer_array = np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20)
 bayer_metadata = ImageMetadata()
 bayer_metadata.fileInfo.width = 20

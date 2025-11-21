@@ -6,6 +6,7 @@ from cxx_image_io import read_image, write_image, ImageMetadata, ImageWriter, Ma
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.nrt
 
 @pytest.mark.parametrize('case', TEST_CASES)
 def test_read_image(test_images_dir, case):
