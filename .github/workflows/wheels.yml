@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        cp-version: ["cp39", "cp310", "cp311","cp312", "cp313"]
+        cp-version: ["cp310", "cp311","cp312", "cp313"]
 
     steps:
       - name: Download source code artifact
@@ -127,7 +127,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v4
@@ -144,7 +144,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [aarch64, x86_64]
-        cp-version: ["cp39", "cp310", "cp311","cp312", "cp313"]
+        cp-version: ["cp310", "cp311","cp312", "cp313"]
         linux: ["manylinux", "musllinux"]
 
     steps:
@@ -189,7 +189,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-* *musllinux*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             export LD_LIBRARY_PATH=/project/cxx_image_io &&
             auditwheel repair -w {dest_dir} {wheel} --only-plat
@@ -211,7 +211,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-* *manylinux*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             export LD_LIBRARY_PATH=/project/cxx_image_io &&
             auditwheel repair -w {dest_dir} {wheel} --only-plat
@@ -233,7 +233,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-* *musllinux*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             export LD_LIBRARY_PATH=/project/cxx_image_io &&
             auditwheel repair -w {dest_dir} {wheel} --only-plat
@@ -255,7 +255,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-* *manylinux*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             export LD_LIBRARY_PATH=/project/cxx_image_io &&
             auditwheel repair -w {dest_dir} {wheel} --only-plat
@@ -275,7 +275,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-13, macos-14]
-        cp-version: ["cp39", "cp310", "cp311","cp312", "cp313"]
+        cp-version: ["cp310", "cp311","cp312", "cp313"]
 
     steps:
 
@@ -313,7 +313,7 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
-          CIBW_SKIP: pp* cp36-* cp37-* cp38-*
+          CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
             DYLD_LIBRARY_PATH=${{github.workspace}}/source/cxx_image_io delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
           CIBW_BUILD_VERBOSITY: 1
