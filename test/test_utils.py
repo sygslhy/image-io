@@ -1,11 +1,12 @@
-from pathlib import Path
-from test import root_dir
+from cxx_image_io import (ImageLayout, ImageMetadata, PixelRepresentation, PixelType, merge_image_channels, read_image,
+                          split_image_channels)
+
+from .conftest import test_images_dir
+from .data_cases import TEST_CASES
 
 import numpy as np
 import pytest
-
-from cxx_image_io import (ImageLayout, ImageMetadata, PixelRepresentation, PixelType, merge_image_channels, read_image,
-                          split_image_channels)
+from pathlib import Path
 
 bayer_array = np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20)
 bayer_metadata = ImageMetadata()
@@ -133,13 +134,11 @@ def test_split_and_merge_channels(array, metadata, order, ref_values):
         assert np.array_equal(array, res), 'yuv numpy array is different after merge channels'
 
 
-@pytest.mark.parametrize('image_path', [
-    'rgb_8bit.jpg', 'rgb_8bit.png', 'raw_420.yuv', 'bayer_16bit.cfa', 'bayer_12bit.RAWMIPI12', 'bayer_10bit.RAWMIPI',
-    'bayer_16bit.plain16', 'raw.nv12', 'bayer_12bits.dng', 'rgb_8bit.tif'
-])
-def test_split_and_merge_images(image_path):
-    test_images_dir = Path(root_dir, 'images/')
-    image, metadata = read_image(test_images_dir / image_path)
+SPLIT_TEST_CASES_INDEX = ['jpg', 'png', 'yuv', 'cfa', 'rawmipi12', 'rawmipi10', 'raw', 'nv12', 'dng', 'tif']
+@pytest.mark.parametrize('case', [case for case in TEST_CASES if case.name in SPLIT_TEST_CASES_INDEX])
+def test_split_and_merge_images(test_images_dir, case):
+    image_path = test_images_dir / case.file
+    image, metadata = read_image(image_path)
     channels = split_image_channels(image, metadata)
     image_post = merge_image_channels(channels, metadata)
 

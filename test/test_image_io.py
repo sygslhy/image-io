@@ -1,10 +1,10 @@
-import numpy as np
-import pytest
+from .data_cases import TEST_CASES
+from .helpers import get_file_hash, get_image_hash, setup_custom_exif, psnr, PSNR_THRESHOLD
 
 from cxx_image_io import read_image, write_image, ImageMetadata, ImageWriter, Matrix3
 
-from .data_cases import TEST_CASES
-from .helpers import get_file_hash, get_image_hash, setup_custom_exif, psnr, PSNR_THRESHOLD
+import numpy as np
+import pytest
 
 
 @pytest.mark.parametrize('case', TEST_CASES)

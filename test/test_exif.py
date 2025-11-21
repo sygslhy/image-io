@@ -1,9 +1,10 @@
-import pytest
+from .data_cases import TEST_CASES
+from .helpers import EPSILON, setup_custom_exif
 
 from cxx_image_io import read_exif, read_image, write_exif
 
-from .data_cases import TEST_CASES
-from .helpers import EPSILON, setup_custom_exif
+import shutil
+import pytest
 
 
 def compare_exif_values(exif, ref_exif):
@@ -21,7 +22,6 @@ def compare_exif_values(exif, ref_exif):
 @pytest.mark.parametrize('case', [case for case in TEST_CASES if case.exif])
 def test_read_exif(test_images_dir, case):
     image_path = test_images_dir / case.file
-
     _, metadata = read_image(image_path)
     compare_exif_values(metadata.exifMetadata, case.exif)
 
@@ -35,15 +35,18 @@ def test_read_only_exif(test_images_dir, case):
 
 
 @pytest.mark.parametrize('case', [case for case in TEST_CASES if case.name in ('jpg', 'tif')])
-def test_write_exif(test_outputs_dir, case):
-    image_path = test_outputs_dir / case.file
+def test_write_exif(test_images_dir, test_outputs_dir, case):
+    image_path = test_images_dir / case.file
+    tmp_image_path = test_outputs_dir / case.file
+    tmp_image_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(image_path, tmp_image_path)
 
     exif = setup_custom_exif()
 
-    write_exif(image_path, exif)
+    write_exif(tmp_image_path, exif)
 
     # read back from new stored image file
-    parsed_exif = read_exif(image_path)
+    parsed_exif = read_exif(tmp_image_path)
 
     # both exif data must be equal
     assert parsed_exif.dateTimeOriginal == exif.dateTimeOriginal

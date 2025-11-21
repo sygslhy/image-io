@@ -1,10 +1,10 @@
-import numpy as np
-import pytest
+from .data_cases import TEST_CASES
+from .helpers import EPSILON
 
 from cxx_image_io import read_image
 
-from .data_cases import TEST_CASES
-from .helpers import EPSILON
+import numpy as np
+import pytest
 
 
 def compare_fileinfo_values(fi, ref_fi):
