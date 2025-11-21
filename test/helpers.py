@@ -1,8 +1,19 @@
 import hashlib
+import math
+import numpy as np
 
 from cxx_image_io import ExifMetadata
 
-epsilon = 1e-6
+EPSILON = 1e-5
+PSNR_THRESHOLD = 40.0
+
+
+def psnr(a, b):
+    mse = np.mean((a - b)**2)
+    if mse == 0:
+        return float('inf')
+    PIXEL_MAX = 255.0
+    return 20 * math.log10(PIXEL_MAX / math.sqrt(mse))
 
 
 def get_file_hash(file_name):

@@ -2,9 +2,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from cxx_image_io import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout,
-                          ImageMetadata, Matrix3, PixelRepresentation,
-                          PixelType, RgbColorSpace)
+from cxx_image_io import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout, ImageMetadata, Matrix3,
+                          PixelRepresentation, PixelType, RgbColorSpace)
 
 
 @dataclass

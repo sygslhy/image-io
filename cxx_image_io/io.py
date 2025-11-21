@@ -3,9 +3,8 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
-                       ImageLayout, ImageMetadata, ImageUint8, ImageUint16,
-                       Matrix3, PixelRepresentation, PixelType, io, parser)
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout, ImageMetadata, ImageUint8,
+                       ImageUint16, Matrix3, PixelRepresentation, PixelType, io, parser)
 from cxx_libraw import LibRaw, LibRaw_errors
 
 __numpy_array_image_convert_vector = {
@@ -257,10 +256,6 @@ def read_image_libraw(image_path: Path) -> (np.array, ImageMetadata):
     if ret_open == LibRaw_errors.LIBRAW_FILE_UNSUPPORTED:
         raise UnSupportedFileException('Unsupported libRaw file type.')
     raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
-    top_margin, left_margin = iProcessor.imgdata.rawdata.sizes.top_margin, iProcessor.imgdata.rawdata.sizes.left_margin
-    # width, height = iProcessor.imgdata.rawdata.sizes.width, iProcessor.imgdata.rawdata.sizes.height
-    width, height = iProcessor.imgdata.rawdata.sizes.raw_width, iProcessor.imgdata.rawdata.sizes.raw_height
-    raw_image = raw_with_margin[top_margin:top_margin + height, left_margin:left_margin + width]
 
     metadata = __convert_LibRawdata_to_ImageMetadata(iProcessor)
     return raw_with_margin, metadata

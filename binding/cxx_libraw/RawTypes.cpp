@@ -6,6 +6,10 @@
 #include "pybind11/pybind11.h" // NOLINT
 #include "pybind11/stl.h"      // NOLINT(misc-include-cleaner)
 
+#include <cstdint>
+#include <cstring>
+#include <string>
+
 namespace py = pybind11;
 
 void initTypes(py::module &mod) { // NOLINT(misc-use-internal-linkage)

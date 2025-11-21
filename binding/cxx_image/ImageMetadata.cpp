@@ -193,16 +193,36 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                              std::optional<uint16_t> heightAlignment,
                              std::optional<uint16_t> sizeAlignment) {
                      ImageMetadata::FileInfo fi;
-                     if (width) fi.width = *width;
-                     if (height) fi.height = *height;
-                     if (pixelPrecision) fi.pixelPrecision = *pixelPrecision;
-                     if (fileFormat) fi.fileFormat = *fileFormat;
-                     if (imageLayout) fi.imageLayout = *imageLayout;
-                     if (pixelType) fi.pixelType = *pixelType;
-                     if (pixelRepresentation) fi.pixelRepresentation = *pixelRepresentation;
-                     if (widthAlignment) fi.widthAlignment = *widthAlignment;
-                     if (heightAlignment) fi.heightAlignment = *heightAlignment;
-                     if (sizeAlignment) fi.sizeAlignment = *sizeAlignment;
+                     if (width) {
+                         fi.width = *width;
+                     }
+                     if (height) {
+                         fi.height = *height;
+                     }
+                     if (pixelPrecision) {
+                         fi.pixelPrecision = *pixelPrecision;
+                     }
+                     if (fileFormat) {
+                         fi.fileFormat = *fileFormat;
+                     }
+                     if (imageLayout) {
+                         fi.imageLayout = *imageLayout;
+                     }
+                     if (pixelType) {
+                         fi.pixelType = *pixelType;
+                     }
+                     if (pixelRepresentation) {
+                         fi.pixelRepresentation = *pixelRepresentation;
+                     }
+                     if (widthAlignment) {
+                         fi.widthAlignment = *widthAlignment;
+                     }
+                     if (heightAlignment) {
+                         fi.heightAlignment = *heightAlignment;
+                     }
+                     if (sizeAlignment) {
+                         fi.sizeAlignment = *sizeAlignment;
+                     }
                      return fi;
                  }),
                  py::arg("width") = py::none(),
@@ -271,13 +291,27 @@ void initModel(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                              std::optional<float> ispGain,
                              std::optional<ImageMetadata::ROI> zoom) {
                      ImageMetadata::ShootingParams sp;
-                     if (aperture) sp.aperture = *aperture;
-                     if (exposureTime) sp.exposureTime = *exposureTime;
-                     if (sensitivity) sp.sensitivity = *sensitivity;
-                     if (totalGain) sp.totalGain = *totalGain;
-                     if (sensorGain) sp.sensorGain = *sensorGain;
-                     if (ispGain) sp.ispGain = *ispGain;
-                     if (zoom) sp.zoom = *zoom;
+                     if (aperture) {
+                         sp.aperture = *aperture;
+                     }
+                     if (exposureTime) {
+                         sp.exposureTime = *exposureTime;
+                     }
+                     if (sensitivity) {
+                         sp.sensitivity = *sensitivity;
+                     }
+                     if (totalGain) {
+                         sp.totalGain = *totalGain;
+                     }
+                     if (sensorGain) {
+                         sp.sensorGain = *sensorGain;
+                     }
+                     if (ispGain) {
+                         sp.ispGain = *ispGain;
+                     }
+                     if (zoom) {
+                         sp.zoom = *zoom;
+                     }
                      return sp;
                  }),
 

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 
 namespace py = pybind11;
 
@@ -110,21 +111,51 @@ void initExif(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                              std::optional<std::string> software,
                              std::optional<ExifMetadata::SRational> exposureBiasValue) {
                      ExifMetadata exif;
-                     if (imageWidth) exif.imageWidth = *imageWidth;
-                     if (imageHeight) exif.imageHeight = *imageHeight;
-                     if (imageDescription) exif.imageDescription = *imageDescription;
-                     if (make) exif.make = *make;
-                     if (model) exif.model = *model;
-                     if (isoSpeedRatings) exif.isoSpeedRatings = *isoSpeedRatings;
-                     if (exposureTime) exif.exposureTime = *exposureTime;
-                     if (focalLength) exif.focalLength = *focalLength;
-                     if (focalLengthIn35mmFilm) exif.focalLengthIn35mmFilm = *focalLengthIn35mmFilm;
-                     if (brightnessValue) exif.brightnessValue = *brightnessValue;
-                     if (fNumber) exif.fNumber = *fNumber;
-                     if (dateTimeOriginal) exif.dateTimeOriginal = *dateTimeOriginal;
-                     if (orientation) exif.orientation = *orientation;
-                     if (software) exif.software = *software;
-                     if (exposureBiasValue) exif.exposureBiasValue = *exposureBiasValue;
+                     if (imageWidth) {
+                         exif.imageWidth = *imageWidth;
+                     }
+                     if (imageHeight) {
+                         exif.imageHeight = *imageHeight;
+                     }
+                     if (imageDescription) {
+                         exif.imageDescription = *imageDescription;
+                     }
+                     if (make) {
+                         exif.make = *make;
+                     }
+                     if (model) {
+                         exif.model = *model;
+                     }
+                     if (isoSpeedRatings) {
+                         exif.isoSpeedRatings = *isoSpeedRatings;
+                     }
+                     if (exposureTime) {
+                         exif.exposureTime = *exposureTime;
+                     }
+                     if (focalLength) {
+                         exif.focalLength = *focalLength;
+                     }
+                     if (focalLengthIn35mmFilm) {
+                         exif.focalLengthIn35mmFilm = *focalLengthIn35mmFilm;
+                     }
+                     if (brightnessValue) {
+                         exif.brightnessValue = *brightnessValue;
+                     }
+                     if (fNumber) {
+                         exif.fNumber = *fNumber;
+                     }
+                     if (dateTimeOriginal) {
+                         exif.dateTimeOriginal = *dateTimeOriginal;
+                     }
+                     if (orientation) {
+                         exif.orientation = *orientation;
+                     }
+                     if (software) {
+                         exif.software = *software;
+                     }
+                     if (exposureBiasValue) {
+                         exif.exposureBiasValue = *exposureBiasValue;
+                     }
                      return exif;
                  }),
                  "Constructor with optional parameters",

@@ -1,6 +1,5 @@
 import numpy as np
-from cxx_image import (ImageLayout, ImageMetadata, PixelRepresentation,
-                       PixelType)
+from cxx_image import (ImageLayout, ImageMetadata, PixelRepresentation, PixelType)
 
 __bayer_to_str = {
     PixelType.BAYER_RGGB: ('r', 'gr', 'gb', 'b'),

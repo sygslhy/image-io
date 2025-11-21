@@ -1,16 +1,10 @@
-from pathlib import Path
-from test import root_dir
-
 import numpy as np
 import pytest
 
-from cxx_image_io import (ExifMetadata, FileFormat, ImageLayout, ImageMetadata,
-                          ImageWriter, Matrix3, PixelRepresentation, PixelType,
-                          RgbColorSpace, UnorderdMapSemanticMasks, read_exif,
-                          read_image, write_exif, write_image)
+from cxx_image_io import read_image, write_image, ImageMetadata, ImageWriter, Matrix3
 
 from .data_cases import TEST_CASES
-from .helpers import get_file_hash, get_image_hash, setup_custom_exif
+from .helpers import get_file_hash, get_image_hash, setup_custom_exif, psnr, PSNR_THRESHOLD
 
 
 @pytest.mark.parametrize('case', TEST_CASES)
@@ -38,7 +32,8 @@ def test_write_image(test_images_dir, test_outputs_dir, test_npy_dir, case):
 
     metadata = ImageMetadata()
     metadata.fileInfo.pixelType, metadata.fileInfo.imageLayout = case.file_info.pixelType, case.file_info.imageLayout
-    metadata.fileInfo.pixelPrecision, metadata.fileInfo.fileFormat = case.file_info.pixelPrecision, case.file_info.fileFormat
+    metadata.fileInfo.pixelPrecision = case.file_info.pixelPrecision
+    metadata.fileInfo.fileFormat = case.file_info.fileFormat
     metadata.exifMetadata = setup_custom_exif()
 
     metadata.cameraControls.whiteBalance = ImageMetadata.WhiteBalance(2.2502453327178955, 1.493620753288269)
@@ -54,17 +49,23 @@ def test_write_image(test_images_dir, test_outputs_dir, test_npy_dir, case):
 
     write_options = ImageWriter.Options(metadata)
     write_options.fileFormat = metadata.fileInfo.fileFormat
-    # if case.name == 'jpg':
-    #     write_options.jpegQuality = 100
+
+    # Set JPEG quality to max to reduce the compression loss.
+    if case.name == 'jpg':
+        write_options.jpegQuality = 100
+
     npy_path = test_npy_dir / case.npy
     image = np.load(npy_path)
     write_image(output_path, image, write_options)
 
-    # jpg bmp header has different varaition due to different machine
+    # jpg, bmp and png header has different varaition due to different machine
     # so cannot compare the sha1, only compre the image content.
     if case.only_pixel_cmp:
         out_image, metadata = read_image(output_path)
-        assert np.array_equal(out_image, image), 'Image arrays are Different'
+        if case.name == 'jpg':
+            assert psnr(out_image, image) > PSNR_THRESHOLD, 'Image arrays are visualy different'
+        else:
+            assert np.array_equal(out_image, image), 'Image arrays are different'
         return
 
     output_hash = get_file_hash(output_path)

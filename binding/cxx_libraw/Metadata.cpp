@@ -2,7 +2,9 @@
 
 #include "pybind11/pybind11.h" // NOLINT
 
+#include <cstring>
 #include <ctime>
+#include <string>
 
 namespace py = pybind11;
 
@@ -21,7 +23,7 @@ void initMetadata(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                     "timestamp",
                     [](const libraw_imgother_t &self) {
                         std::time_t timestamp = self.timestamp;
-                        std::tm *ptm = std::localtime(&timestamp);
+                        const std::tm *ptm = std::localtime(&timestamp);
                         char data[32];
                         std::strftime(data, sizeof(data), "%Y:%m:%d %H:%M:%S", ptm);
                         return std::string(data);
@@ -30,18 +32,18 @@ void initMetadata(py::module &mod) { // NOLINT(misc-use-internal-linkage)
                     "str : Date and time of shooting.") // setter
             .def_property(
                     "desc",
-                    [](const libraw_imgother_t &s) { return std::string(s.desc); }, // getter
-                    [](libraw_imgother_t &s, const std::string &new_data) {         // setter
-                        std::strncpy(s.desc, new_data.c_str(), sizeof(s.desc) - 1);
-                        s.desc[sizeof(s.desc) - 1] = '\0';
+                    [](const libraw_imgother_t &other) { return std::string(other.desc); }, // getter
+                    [](libraw_imgother_t &other, const std::string &new_data) {             // setter
+                        std::strncpy(other.desc, new_data.c_str(), sizeof(other.desc) - 1);
+                        other.desc[sizeof(other.desc) - 1] = '\0';
                     },
                     "char [512]: Image description.")
             .def_property(
                     "artist",
-                    [](const libraw_imgother_t &s) { return std::string(s.artist); }, // getter
-                    [](libraw_imgother_t &s, const std::string &new_data) {           // setter
-                        std::strncpy(s.artist, new_data.c_str(), sizeof(s.artist) - 1);
-                        s.artist[sizeof(s.artist) - 1] = '\0';
+                    [](const libraw_imgother_t &other) { return std::string(other.artist); }, // getter
+                    [](libraw_imgother_t &other, const std::string &new_data) {               // setter
+                        std::strncpy(other.artist, new_data.c_str(), sizeof(other.artist) - 1);
+                        other.artist[sizeof(other.artist) - 1] = '\0';
                     },
                     "char artist[64]: Author of image.");
 };

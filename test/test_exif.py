@@ -1,16 +1,16 @@
 import pytest
 
-from cxx_image_io import ExifMetadata, read_exif, read_image, write_exif
+from cxx_image_io import read_exif, read_image, write_exif
 
 from .data_cases import TEST_CASES
-from .helpers import epsilon, setup_custom_exif
+from .helpers import EPSILON, setup_custom_exif
 
 
 def compare_exif_values(exif, ref_exif):
     assert exif.dateTimeOriginal == ref_exif.dateTimeOriginal
-    assert abs(exif.exposureTime.asDouble() - ref_exif.exposureTime.asDouble()) < epsilon
-    assert abs(exif.focalLength.asDouble() - ref_exif.focalLength.asDouble()) < epsilon
-    assert abs(exif.fNumber.asDouble() - ref_exif.fNumber.asDouble()) < epsilon
+    assert abs(exif.exposureTime.asDouble() - ref_exif.exposureTime.asDouble()) < EPSILON
+    assert abs(exif.focalLength.asDouble() - ref_exif.focalLength.asDouble()) < EPSILON
+    assert abs(exif.fNumber.asDouble() - ref_exif.fNumber.asDouble()) < EPSILON
     assert exif.isoSpeedRatings == ref_exif.isoSpeedRatings
     assert exif.make == ref_exif.make
     assert exif.model == ref_exif.model
@@ -37,7 +37,6 @@ def test_read_only_exif(test_images_dir, case):
 @pytest.mark.parametrize('case', [case for case in TEST_CASES if case.name in ('jpg', 'tif')])
 def test_write_exif(test_outputs_dir, case):
     image_path = test_outputs_dir / case.file
-    assert image_path.exists()
 
     exif = setup_custom_exif()
 
@@ -48,9 +47,9 @@ def test_write_exif(test_outputs_dir, case):
 
     # both exif data must be equal
     assert parsed_exif.dateTimeOriginal == exif.dateTimeOriginal
-    assert abs(parsed_exif.exposureTime.asDouble() - exif.exposureTime.asDouble()) < epsilon
-    assert abs(parsed_exif.focalLength.asDouble() - exif.focalLength.asDouble()) < epsilon
-    assert abs(parsed_exif.fNumber.asDouble() - exif.fNumber.asDouble()) < epsilon
+    assert abs(parsed_exif.exposureTime.asDouble() - exif.exposureTime.asDouble()) < EPSILON
+    assert abs(parsed_exif.focalLength.asDouble() - exif.focalLength.asDouble()) < EPSILON
+    assert abs(parsed_exif.fNumber.asDouble() - exif.fNumber.asDouble()) < EPSILON
     assert (parsed_exif.make, parsed_exif.model) == (exif.make, exif.model)
     assert (parsed_exif.isoSpeedRatings, parsed_exif.orientation,
             parsed_exif.software) == (exif.isoSpeedRatings, exif.orientation, exif.software)

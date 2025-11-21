@@ -1,3 +1,8 @@
+exclude test/__init__.py
+exclude test/conftest.py
+exclude test/data_cases.py
+exclude test/helpers.py
+exclude test/test_exif.py
 exclude test/test_image_io.py
 exclude test/test_utils.py
-exclude test/__init__.py
+exclude test/test_metadata.py
