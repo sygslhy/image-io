@@ -33,8 +33,9 @@ DynamicMatrix createDynamicMatrixFromPyarray(const py::array_t<float> &arr) {
 }
 
 Matrix3 createMatrix3FromPyarray(const py::array_t<float> &arr) {
+    py::array_t<float, py::array::c_style | py::array::forcecast> arr_c(arr);
     /* Request a buffer descriptor from Python */
-    py::buffer_info info = arr.request();
+    py::buffer_info info = arr_c.request();
     /* Some basic validation checks ... */
     if (info.format != py::format_descriptor<float>::format()) {
         throw std::runtime_error("Incompatible format: expected a correct format array!");
