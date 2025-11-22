@@ -38,3 +38,24 @@ def setup_custom_exif():
                         orientation=1,
                         software="change",
                         exposureBiasValue=ExifMetadata.SRational(0, 1))
+
+def is_musl():
+    import os, subprocess
+
+    # 1. check musl dll link name
+    if os.path.exists("/lib/ld-musl-x86_64.so.1"):
+        return True
+
+    # 2. check alpine
+    if os.path.exists("/etc/alpine-release"):
+        return True
+
+    # 3.check ldd version
+    try:
+        out = subprocess.check_output(["ldd", "--version"], stderr=subprocess.STDOUT)
+        if b"musl" in out:
+            return True
+    except Exception:
+        pass
+
+    return False

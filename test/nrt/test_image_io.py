@@ -1,5 +1,5 @@
 from .data_cases import TEST_CASES
-from .helpers import get_file_hash, get_image_hash, setup_custom_exif, psnr, PSNR_THRESHOLD
+from .helpers import get_file_hash, get_image_hash, setup_custom_exif, psnr, PSNR_THRESHOLD, is_musl
 
 from cxx_image_io import read_image, write_image, ImageMetadata, ImageWriter, Matrix3
 
@@ -10,6 +10,8 @@ pytestmark = pytest.mark.nrt
 
 @pytest.mark.parametrize('case', TEST_CASES)
 def test_read_image(test_images_dir, case):
+    print('is musl:', is_musl())
+    assert False
     image_path = test_images_dir / case.file
     image, metadata = read_image(image_path)
     assert isinstance(image, np.ndarray)
