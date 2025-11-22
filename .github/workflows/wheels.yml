@@ -76,7 +76,7 @@ jobs:
 
   build_and_test_windows:
     needs: checkout-code
-    name: Windows wheel ${{ matrix.os }}-${{matrix.cp-version}}
+    name: wheel-${{ matrix.os }}-${{matrix.cp-version}}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -274,7 +274,7 @@ jobs:
 
   build_and_test_macos:
     needs: checkout-code
-    name: MACOS wheel ${{ matrix.os }}-${{matrix.cp-version}}
+    name: wheel-${{ matrix.os }}-${{matrix.cp-version}}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
