@@ -8,6 +8,7 @@ import pytest
 
 pytestmark = pytest.mark.nrt
 
+
 def compare_exif_values(exif, ref_exif):
     assert exif.dateTimeOriginal == ref_exif.dateTimeOriginal
     assert abs(exif.exposureTime.asDouble() - ref_exif.exposureTime.asDouble()) < EPSILON
@@ -35,6 +36,21 @@ def test_read_only_exif(test_images_dir, case):
     compare_exif_values(exif, case.exif)
 
 
+def test_read_only_exif_error_handling(test_images_dir):
+    image_path = test_images_dir / 'non_existing_file.jpg'
+    with pytest.raises(AssertionError, match="Image file .* not found"):
+        read_exif(image_path)
+
+
+@pytest.mark.parametrize('case', [case for case in TEST_CASES if case.name in ('bmp', 'png', 'raw')])
+def test_read_only_exif(test_images_dir, case):
+    # Use read_exif API to test only EXIF reading on non exif format.
+    image_path = test_images_dir / case.file
+    exif = read_exif(image_path)
+    # exif should be None for non exif format
+    assert exif is None
+
+
 @pytest.mark.parametrize('case', [case for case in TEST_CASES if case.name in ('jpg', 'tif')])
 def test_write_exif(test_images_dir, test_outputs_dir, case):
     image_path = test_images_dir / case.file
@@ -57,3 +73,10 @@ def test_write_exif(test_images_dir, test_outputs_dir, case):
     assert (parsed_exif.make, parsed_exif.model) == (exif.make, exif.model)
     assert (parsed_exif.isoSpeedRatings, parsed_exif.orientation,
             parsed_exif.software) == (exif.isoSpeedRatings, exif.orientation, exif.software)
+
+
+def test_write_exif_no_file(test_outputs_dir):
+    tmp_image_path = test_outputs_dir / 'non_existing_file.jpg'
+    exif = setup_custom_exif()
+    with pytest.raises(SystemExit, match="Exception caught in writing exif, check the error log."):
+        write_exif(tmp_image_path, exif)

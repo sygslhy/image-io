@@ -26,6 +26,17 @@ class UnSupportedFileException(Exception):
 
 class LibRawParameters():
     def __init__(self, raw_width, raw_height, width, height, top_margin, left_margin):
+        assert raw_width > 0, "raw_width must be a positive int"
+        assert raw_height > 0, "raw_height must be a positive int"
+        assert width > 0, "width must be a positive int"
+        assert height > 0, "height must be a positive int"
+        assert top_margin >= 0, "top_margin must be a non-negative int"
+        assert left_margin >= 0, "left_margin must be a non-negative int"
+        assert width <= raw_width, "visible width must not exceed raw width"
+        assert height <= raw_height, "visible height must not exceed raw height"
+        assert top_margin + height <= raw_height, "top_margin + height exceeds raw height"
+        assert left_margin + width <= raw_width, "left_margin + width exceeds raw width"
+
         self.rawWidth = raw_width
         self.rawHeight = raw_height
         self.rawWidthVisible = width
@@ -209,8 +220,6 @@ def read_image_cxx(image_path: Path, metadata_path: Path = None) -> (np.array, I
     if metadata_path:
         assert isinstance(metadata_path, Path), "Metadata path must be pathlib.Path type."
         assert metadata_path.exists(), "Metadata file {0} not found".format(str(metadata_path))
-        metadata_path = str(metadata_path)
-
     try:
         metadata = parser.readMetadata(str(image_path), metadata_path)
         image_reader = io.makeReader(str(image_path), metadata)
@@ -220,12 +229,11 @@ def read_image_cxx(image_path: Path, metadata_path: Path = None) -> (np.array, I
         metadata = image_reader.readMetadata(metadata)
         if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
             image = image_reader.read8u()
-        elif image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
+        if image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
             image = image_reader.read16u()
-        elif image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
+        if image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
             image = image_reader.readf()
-        else:
-            raise Exception('Unsupported image type!')
+
         metadata.fileInfo.pixelRepresentation = image_reader.pixelRepresentation()
         metadata = __fill_medatata(image, metadata)
         return np.array(image, copy=False), metadata
@@ -307,16 +315,11 @@ def read_exif(image_path: Path) -> ExifMetadata:
     """
     assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
     assert image_path.exists(), "Image file {0} not found".format(str(image_path))
-    try:
-        # By binding parser.readMetadata C++ code, we need to privode explicitely None as metadata path
-        # In the case of tif, jpg or dng, we don't need sidecar.
-        metadata = parser.readMetadata(str(image_path), None)
-        image_reader = io.makeReader(str(image_path), metadata)
-        return image_reader.readExif()
-    except Exception as e:
-        logging.error('Exception occurred in reading exif from file {0}: {1}'.format(image_path, e))
-        __print_image_metadata_info(metadata)
-        sys.exit("Exception caught in reading exif, check the error log.")
+    # By binding parser.readMetadata C++ code, we need to privode explicitely None as metadata path
+    # In the case of tif, jpg, we don't need sidecar.
+    metadata = parser.readMetadata(str(image_path), None)
+    image_reader = io.makeReader(str(image_path), metadata)
+    return image_reader.readExif()
 
 
 def write_image(output_path: Path, image_array: np.array, write_options: io.ImageWriter.Options):

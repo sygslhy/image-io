@@ -8,6 +8,7 @@ import pytest
 
 pytestmark = pytest.mark.nrt
 
+
 def compare_fileinfo_values(fi, ref_fi):
     assert fi, 'FileInfo is None'
     assert ref_fi, 'Ref FileInfo is None'

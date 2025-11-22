@@ -137,6 +137,8 @@ def test_split_and_merge_channels(array, metadata, order, ref_values):
 
 
 SPLIT_TEST_CASES_INDEX = ['jpg', 'png', 'yuv', 'cfa', 'rawmipi12', 'rawmipi10', 'raw', 'nv12', 'dng', 'tif']
+
+
 @pytest.mark.parametrize('case', [case for case in TEST_CASES if case.name in SPLIT_TEST_CASES_INDEX])
 def test_split_and_merge_images(test_images_dir, case):
     image_path = test_images_dir / case.file

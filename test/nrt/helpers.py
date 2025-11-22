@@ -39,6 +39,7 @@ def setup_custom_exif():
                         software="change",
                         exposureBiasValue=ExifMetadata.SRational(0, 1))
 
+
 def is_musl():
     import os, subprocess
 

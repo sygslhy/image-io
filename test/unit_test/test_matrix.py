@@ -4,6 +4,7 @@ from cxx_image_io import DynamicMatrix, Matrix3
 
 pytestmark = pytest.mark.unittest
 
+
 def test_array_conv_dynamic_matrix():
     """
     Scenario: Convert a 2x2 DynamicMatrix to a NumPy array
@@ -31,7 +32,7 @@ def test_array_conv_matrix3():
     matrix = Matrix3([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
     array = np.array(matrix)
     assert array.shape == (3, 3)
-    assert np.allclose(array, np.array([[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]))
+    assert np.allclose(array, np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]))
 
 
 def test_incorrect_size_array_conv_matrix3():
@@ -127,7 +128,7 @@ def test_matrix3_wrong_shape_4x4():
     Then a RuntimeError with message 'Incompatible buffer shape!' should be raised
     """
     with pytest.raises(RuntimeError, match="Incompatible buffer shape!"):
-        Matrix3([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
+        Matrix3([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]])
 
 
 def test_dynamic_matrix_serialize_repr():
@@ -155,10 +156,10 @@ def test_matrix3_serialize_repr():
     Then serialize() should return [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
     And repr() should match str(serialized)
     """
-    matrix = Matrix3([[1.0, 2.0, 3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]])
+    matrix = Matrix3([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
     serialized = matrix.serialize()
     repr_str = repr(matrix)
-    assert serialized == [[1.0,2.0,3.0],[4.0,5.0,6.0],[7.0,8.0,9.0]]
+    assert serialized == [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
     assert repr_str == str(serialized)
 
 
@@ -172,7 +173,7 @@ def test_matrix3_with_nan_inf():
     And the (1,1) element should be Inf
     """
     import math
-    matrix = Matrix3([[math.nan, 1.0, 2.0],[3.0, math.inf, 5.0],[6.0,7.0,8.0]])
+    matrix = Matrix3([[math.nan, 1.0, 2.0], [3.0, math.inf, 5.0], [6.0, 7.0, 8.0]])
     array = np.array(matrix)
-    assert math.isnan(array[0,0])
-    assert math.isinf(array[1,1])
+    assert math.isnan(array[0, 0])
+    assert math.isinf(array[1, 1])

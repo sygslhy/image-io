@@ -6,27 +6,20 @@ from cxx_image_io import read_image, write_image, ImageMetadata, ImageWriter, Ma
 import numpy as np
 import pytest
 import platform
+import shutil
 
 pytestmark = pytest.mark.nrt
 
-@pytest.mark.parametrize(
-    "case",
-    [
-        pytest.param(
-            case,
-            marks=pytest.mark.skip(reason="skip on musl x86_64, because musl x86_64 pixel mismatch for nikon and kodak_slr"),
-        )
-        if (
-            case.name in ("nikon", "kodak_slr") and
-            is_musl() and
-            platform.machine() == "x86_64"
-        )
-        else case
-        for case in TEST_CASES
-    ]
-)
+
+@pytest.mark.parametrize("case", [
+    pytest.param(
+        case,
+        marks=pytest.mark.skip(
+            reason="skip on musl x86_64, because musl x86_64 pixel mismatch for nikon and kodak_slr"),
+    ) if (case.name in ("nikon", "kodak_slr") and is_musl() and platform.machine() == "x86_64") else case
+    for case in TEST_CASES
+])
 def test_read_image(test_images_dir, case):
-    print('test log:',  is_musl(), platform.machine() )
     image_path = test_images_dir / case.file
     image, metadata = read_image(image_path)
     assert isinstance(image, np.ndarray)
@@ -39,6 +32,30 @@ def test_read_image(test_images_dir, case):
     ref_hash = case.sha256
     hash = get_image_hash(image)
     assert ref_hash == hash
+
+
+def test_read_image_with_non_existing_file(test_images_dir):
+    image_path = test_images_dir / 'non_existing_file.jpg'
+    with pytest.raises(AssertionError, match="Image file .* not found"):
+        read_image(image_path)
+
+
+@pytest.mark.parametrize("case", [case for case in TEST_CASES if case.name in ('raw')])
+def test_read_image_with_non_existing_file(test_images_dir, test_outputs_dir, case):
+    image_path = test_images_dir / case.file
+    tmp_image_path = test_outputs_dir / case.file
+    tmp_image_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(image_path, tmp_image_path)
+    with pytest.raises(SystemExit, match="Exception caught in reading image, check the error log."):
+        read_image(tmp_image_path)
+
+
+@pytest.mark.parametrize("case", [case for case in TEST_CASES if case.name in ('yuv')])
+def test_read_image_with_non_existing_metadata(test_images_dir, case):
+    image_path = test_images_dir / case.file
+    meta_path = test_images_dir / 'non_existing_file_metadata.json'
+    with pytest.raises(AssertionError, match="Metadata file .* not found"):
+        read_image(image_path, metadata_path=meta_path)
 
 
 WRITE_TEST_CASES_INDEX = ('raw', 'bmp', 'jpg', 'png', 'png_16bit', 'tif', 'tif_16bit', 'cfa', 'rawmipi12', 'rawmipi10',
@@ -90,3 +107,14 @@ def test_write_image(test_images_dir, test_outputs_dir, test_npy_dir, case):
     ref_path = test_images_dir / case.file
     ref_hash = get_file_hash(ref_path)
     assert output_hash == ref_hash, 'Different hash between output and ref.'
+
+
+@pytest.mark.parametrize("case", [case for case in TEST_CASES if case.name in 'jpg'])
+def test_write_image_empty_metadata(test_outputs_dir, test_npy_dir, case):
+    output_path = test_outputs_dir / 'non_existing_file.jpg'
+    metadata = ImageMetadata()
+    write_options = ImageWriter.Options(metadata)
+    npy_path = test_npy_dir / case.npy
+    image = np.load(npy_path)
+    with pytest.raises(SystemExit, match="Exception caught in writing image, check the error log."):
+        write_image(output_path, image, write_options)
