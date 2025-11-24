@@ -2,6 +2,7 @@ from cxx_image import (ImageMetadata, PixelRepresentation, io, parser)
 from pathlib import Path
 import numpy as np
 import logging
+import sys
 
 # internal function to fill the image critical information to metadata that could be used otherwhere.
 def _fill_medatata(image, metadata):
@@ -34,6 +35,7 @@ def read_image_cxx(image_path: Path, metadata_path: Path = None) -> (np.array, I
     """
     assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
     assert image_path.exists(), "Image file {0} not found".format(str(image_path))
+
     if metadata_path:
         assert isinstance(metadata_path, Path), "Metadata path must be pathlib.Path type."
         assert metadata_path.exists(), "Metadata file {0} not found".format(str(metadata_path))

@@ -15,35 +15,32 @@ from .base_reader import BaseImageReader
 
 class ImageReaderFactory:
     """
-    Factory for selecting an appropriate image-reading strategy.
+    Factory responsible for selecting the appropriate image reader
+    based on the predefined multi-stage rules:
 
-    The factory checks each registered reader in sequence and uses the first
-    one that declares support for the given file.
+    1. If extension is in the deterministic C++ list => use Cxx reader.
+    2. Otherwise try LibRaw.
+    3. If LibRaw fails => fallback to Cxx reader again (RAW + sidecar).
     """
 
-    READERS = [
-        CxxImageReader(),
-        LibRawImageReader()
-    ]
+    CXX_READER = CxxImageReader()
+    LIBRAW_READER = LibRawImageReader()
 
     @classmethod
     def get_reader(cls, image_path: Path) -> BaseImageReader:
         """
-        Determine which reader should be used for the provided file.
-
-        Parameters
-        ----------
-        image_path : Path
-            File path whose reader is to be selected.
-
-        Returns
-        -------
-        BaseImageReader
-            A reader capable of loading the file.
+        Select an appropriate reader for the given file following three-step logic.
         """
-        for reader in cls.READERS:
-            if reader.can_read(image_path):
-                return reader
 
-        # Fallback: give LibRaw a chance even if suffix didn't match
-        return LibRawImageReader()
+        suffix = image_path.suffix.lower()
+
+        # Stage 1: Deterministic extension → always prefer C++ backend
+        if cls.CXX_READER.can_read(image_path):
+            return cls.CXX_READER
+
+        # Stage 2: Try LibRaw
+        if cls.LIBRAW_READER.can_read(image_path) or cls.LIBRAW_READER.try_open(image_path):
+            return cls.LIBRAW_READER
+
+        # Stage 3: Fallback: special RAW files requiring sidecar → C++
+        return cls.CXX_READER

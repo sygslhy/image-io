@@ -4,10 +4,9 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 import numpy as np
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout, ImageMetadata, ImageUint8,
-                       ImageUint16, Matrix3, PixelRepresentation, PixelType, io, parser)
-from cxx_libraw import LibRaw, LibRaw_errors
-from .utils.io_cxx_libraw import LibRawParameters, Metadata, _libraw_flip_to_exif_orientation, _parse_pixelType, _convert_LibRawdata_to_Metadata, UnSupportedFileException
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,  ImageUint8,
+                       ImageUint16, ImageMetadata, io, parser)
+from .reader.factory import ImageReaderFactory
 
 # Internal Mapping from numpy dtypes to corresponding C++ Image<T> classes
 _numpy_array_image_convert_vector = {
@@ -20,7 +19,7 @@ _numpy_array_image_convert_vector = {
 
 
 
-def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, Metadata):
+def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, ImageMetadata):
     """Generic API to read different types of image files and return a numpy array,
 
     Parameters
@@ -36,19 +35,8 @@ def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, Metad
         returned image in numpy array format
         metadata
     """
-    if image_path.suffix.lower() in [
-            '.yuv', '.nv12', '.bmp', '.jpg', '.jpeg', '.png', '.cfa', '.dng', '.tif', '.tiff'
-    ]:
-        image, metadata = read_image_cxx(image_path, metadata_path)
-        return image, metadata
-
-    try:
-        image, metadata = read_image_libraw(image_path)
-    except UnSupportedFileException as e:
-        logging.warning('Unsupport file type for libraw, try with cxx_image to read image: {}'.format(e))
-        # try with read_image_cxx to see if it can open this image file.
-        image, metadata = read_image_cxx(image_path, metadata_path)
-    return image, metadata
+    reader = ImageReaderFactory.get_reader(image_path)
+    return reader.read(image_path, metadata_path)
 
 
 def read_exif(image_path: Path) -> ExifMetadata:

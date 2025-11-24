@@ -9,7 +9,7 @@ Each reader must implement:
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-
+import numpy as np
 
 class BaseImageReader(ABC):
     """Abstract base class for image readers."""

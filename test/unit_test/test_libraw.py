@@ -1,4 +1,4 @@
-from cxx_image_io.io import LibRawParameters, Metadata
+from cxx_image_io.utils.io_cxx_libraw import LibRawParameters, Metadata
 from cxx_image import ImageMetadata, ImageLayout, PixelType, PixelRepresentation
 
 import pytest

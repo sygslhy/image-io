@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 
 from cxx_libraw import LibRaw, LibRaw_errors
 from cxx_image import ImageMetadata, PixelType, PixelRepresentation, ImageLayout, ExifMetadata, Matrix3

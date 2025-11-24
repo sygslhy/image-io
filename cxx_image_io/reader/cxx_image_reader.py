@@ -9,14 +9,13 @@ from pathlib import Path
 import numpy as np
 
 from .base_reader import BaseImageReader
-from utils.io_cxx_image import read_image_cxx
+from cxx_image_io.utils.io_cxx_image import read_image_cxx
 
 class CxxImageReader(BaseImageReader):
     """Image-reading strategy using the C++ backend."""
 
     SUPPORTED_EXT = {
-        '.yuv', '.nv12', '.bmp', '.jpg', '.jpeg',
-        '.png', '.cfa', '.dng', '.tif', '.tiff'
+        '.yuv', '.nv12', '.bmp', '.jpg', '.jpeg', '.png', '.cfa', '.dng', '.tif', '.tiff'
     }
 
     def can_read(self, image_path: Path) -> bool:
