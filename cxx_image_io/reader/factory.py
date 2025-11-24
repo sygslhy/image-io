@@ -39,7 +39,7 @@ class ImageReaderFactory:
             return cls.CXX_READER
 
         # Stage 2: Try LibRaw
-        if cls.LIBRAW_READER.can_read(image_path) or cls.LIBRAW_READER.try_open(image_path):
+        if cls.LIBRAW_READER.can_read(image_path):
             return cls.LIBRAW_READER
 
         # Stage 3: Fallback: special RAW files requiring sidecar → C++

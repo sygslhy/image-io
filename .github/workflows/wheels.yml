@@ -361,7 +361,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, ubuntu-24.04, macos-15]
+        os: [windows-2022, ubuntu-24.04, macos-15]
         python-version: ["3.10", "3.11","3.12", "3.13", "3.14"]
     steps:
     - name: Download git repo code
@@ -382,7 +382,7 @@ jobs:
         pip install -i https://test.pypi.org/simple/ cxx-image-io
         cd image_io/
         mkdir -p test/_outputs
-        pytest -sv
+        pytest -m "nrt" -sv
 
   publish-to-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message

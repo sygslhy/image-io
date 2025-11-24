@@ -22,10 +22,10 @@ class LibRawImageReader(BaseImageReader):
         """
         Check whether the provided file appears to be a RAW image.
         """
-        return image_path.suffix.lower() in self.SUPPORTED_RAW_EXT
+        return image_path.suffix.lower() in self.SUPPORTED_RAW_EXT or self._try_open(image_path)
 
 
-    def try_open(self, image_path: Path) -> bool:
+    def _try_open(self, image_path: Path) -> bool:
         """
         Check if LibRaw is capable of opening this file.
         """

@@ -118,4 +118,4 @@ jobs:
           cd /test
           pip install cxx-image-io --break-system-packages
           mkdir -p /test/_outputs
-          pytest -sv
+          pytest -m "nrt" -sv

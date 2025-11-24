@@ -21,11 +21,15 @@ else:
 # Try to ensure that the .pyd file directory is appended in sys.path.
 cur_file_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(cur_file_dir)
+
 # Then import cxx_image from .pyd file.
 from cxx_image import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout, ImageMetadata, Matrix3,
                        PixelRepresentation, PixelType, RgbColorSpace, SemanticLabel, UnorderdMapSemanticMasks)
 from cxx_image.io import ImageReader, ImageWriter
+
+# Then import cxx_libraw from .pyd file and utils interfaces.
 from cxx_libraw import LibRaw, RawData, RawImageSizes
+from cxx_image_io.utils.io_cxx_libraw import LibRawParameters, Metadata
 
 # Exposure the public APIs
 from .io import read_exif, read_image, write_exif, write_image

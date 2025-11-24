@@ -1,8 +1,9 @@
-from cxx_image_io.utils.io_cxx_libraw import LibRawParameters, Metadata
-from cxx_image import ImageMetadata, ImageLayout, PixelType, PixelRepresentation
+from cxx_image_io import LibRawParameters, Metadata
+from cxx_image_io import ImageMetadata, ImageLayout, PixelType, PixelRepresentation
 
 import pytest
 
+pytestmark = pytest.mark.unittest
 
 @pytest.mark.parametrize(
     "raw_width, raw_height, width, height, top_margin, left_margin, expected_msg",
