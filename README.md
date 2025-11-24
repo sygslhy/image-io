@@ -10,24 +10,6 @@
 [![Weekly](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml/badge.svg)](https://github.com/sygslhy/image-io/actions/workflows/schedule.yml)
 
 
-# What's new since  `v1.1.2`
-
-Since version `v1.1.2`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library LibRaw https://www.libraw.org/.
-
-The RAW image formats of the following camera manufacturers are supported, user can open these camera raw files by `read_image`, get image as `numpy.array` format:
-
-| Camera manufacturer | Image format |
-|---------------------|--------------|
-| Canon               | CR2          |
-| Nikon               | NEF          |
-| Sony                | ARW          |
-| Panasonic           | RW2          |
-| Kodak               | DCR          |
-| Samsung             | SRW          |
-| Olympus             | ORF          |
-| Leica               | RAW          |
-| Pentax              | PEF          |
-
 # Introduction
 
 CXX Image IO is a Python project which provides the image IO interfaces, binding with the C++ library: https://github.com/emmcb/cxx-image.
@@ -45,12 +27,28 @@ These IO interfaces are designed to read and write images in many file formats i
 | TIFF          | x    | x      | x    | 8 bits, 16 bits, float | Bayer, RGB           | .tif, .tiff                      |                  |
 
 
+Since version `v1.1.2`, `cxx-image-io` supports reading Bayer RAW images from reflex cameras into numpy.array, while also parsing some EXIF information. It is integrated with the C++ library LibRaw https://www.libraw.org/.
+
+The RAW image formats of the following camera manufacturers are supported, user can open these camera raw files by `read_image`, get image as `numpy.array` format:
+
+| Camera manufacturer | Image format |
+|---------------------|--------------|
+| Canon               | CR2          |
+| Nikon               | NEF          |
+| Sony                | ARW          |
+| Panasonic           | RW2          |
+| Kodak               | DCR          |
+| Samsung             | SRW          |
+| Olympus             | ORF          |
+| Leica               | RAW          |
+| Pentax              | PEF          |
+
 
 # Getting Started
 
 ## Prerequisites
 
-This projet currently supports Python from `3.9` to `3.13` on
+This projet currently supports Python from `3.10` to `3.14` on
 - Windows: `x86_64`
 - Linux: `x86_64` and `aarch64`, glibc `v2.28+`, musl libc `v1.2+`
 - MacOS: `x86_64` and `arm64`, `v11.0+`

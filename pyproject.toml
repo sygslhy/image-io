@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cxx-image-io"
-version = "1.1.4"
+version = "1.1.5"
 dependencies = [
   "numpy>=2.0.2"
 ]
 authors = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 maintainers = [{name = "Yuan SUN", email = "sunyuan860510@gmail.com"}]
 description = "Image IO APIs for wide range image formats (Camera manufacturer RAW images, jpg, png, tif, dng, bmp, yuv, nv12 ), support Exif, interact nicely with numpy array."
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT License"}
 keywords = ["imageio", "image-io", "numpy-image", "exif", "bmp", "camera raw", "raw", "dng", "tif", "yuv", "nv12", "canon", "nikon", "leica", "sony", "pentax", "kodak"]
@@ -19,7 +19,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

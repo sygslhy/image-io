@@ -1,5 +1,7 @@
 exclude test/unit_test/__init__.py
 exclude test/unit_test/test_matrix.py
+exclude test/unit_test/test_cxx_image.py
+exclude test/unit_test/test_libraw.py
 
 exclude test/nrt/__init__.py
 exclude test/nrt/conftest.py
