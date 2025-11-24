@@ -195,3 +195,37 @@ class LibRawParameters():
 
     def __repr__(self):
         return str(self.__dict__)
+
+
+class UnSupportedFileException(Exception):
+    """Custom Exception for the case libraw cannot open unsupported file type.
+    """
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+
+def read_image_libraw(image_path: Path) -> (np.array, Metadata):
+    """Read different types of raw files and return a numpy array,
+       Supported image types: all the support file type by libraw
+
+    Parameters
+    ----------
+    image_path : Path
+        path to image file
+
+    Returns
+    -------
+    np.array
+        returned image in numpy array format
+
+    """
+    iProcessor = LibRaw()
+    ret_open = iProcessor.open_file(str(image_path))
+    iProcessor.unpack()
+    if ret_open == LibRaw_errors.LIBRAW_FILE_UNSUPPORTED:
+        raise UnSupportedFileException('Unsupported libRaw file type.')
+    raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
+
+    metadata = _convert_LibRawdata_to_Metadata(iProcessor)
+    return raw_with_margin, metadata

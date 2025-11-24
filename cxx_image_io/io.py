@@ -1,12 +1,13 @@
 import logging
 import sys
 from pathlib import Path
+from abc import ABC, abstractmethod
 
 import numpy as np
 from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt, ImageLayout, ImageMetadata, ImageUint8,
                        ImageUint16, Matrix3, PixelRepresentation, PixelType, io, parser)
 from cxx_libraw import LibRaw, LibRaw_errors
-from .utils.io_cxx_libraw import LibRawParameters, Metadata, _libraw_flip_to_exif_orientation, _parse_pixelType, _convert_LibRawdata_to_Metadata
+from .utils.io_cxx_libraw import LibRawParameters, Metadata, _libraw_flip_to_exif_orientation, _parse_pixelType, _convert_LibRawdata_to_Metadata, UnSupportedFileException
 
 # Internal Mapping from numpy dtypes to corresponding C++ Image<T> classes
 _numpy_array_image_convert_vector = {
@@ -17,93 +18,6 @@ _numpy_array_image_convert_vector = {
     np.dtype('int'): ImageInt
 }
 
-
-class UnSupportedFileException(Exception):
-    """Custom Exception for the case libraw cannot open unsupported file type.
-    """
-    def __init__(self, message):
-        self.message = message
-        super().__init__(message)
-
-# internal function to fill the image critical information to metadata that could be used otherwhere.
-def _fill_medatata(image, metadata):
-    assert metadata is not None
-    metadata.fileInfo.pixelType = image.pixelType()
-    metadata.fileInfo.pixelPrecision = image.pixelPrecision()
-    metadata.fileInfo.imageLayout = image.imageLayout()
-    metadata.fileInfo.width = image.width()
-    metadata.fileInfo.height = image.height()
-    return metadata
-
-
-def read_image_cxx(image_path: Path, metadata_path: Path = None) -> (np.array, ImageMetadata):
-    """Read different types of image files and return a numpy array,
-       Supported image types: plain raw, packed raw 10 and 12 bits, cfa, jpg, png, tiff, bmp.
-
-    Parameters
-    ----------
-    image_path : Path
-        path to image file
-    metadata_path : Path, optional
-        path to sidecar file for raw file case, the API will find automatically .json next to raw file, by default None,
-
-    Returns
-    -------
-    np.array
-        returned image in numpy array format
-        metadata
-
-    """
-    assert isinstance(image_path, Path), "Image path must be pathlib.Path type."
-    assert image_path.exists(), "Image file {0} not found".format(str(image_path))
-    if metadata_path:
-        assert isinstance(metadata_path, Path), "Metadata path must be pathlib.Path type."
-        assert metadata_path.exists(), "Metadata file {0} not found".format(str(metadata_path))
-    try:
-        metadata = parser.readMetadata(str(image_path), metadata_path)
-        image_reader = io.makeReader(str(image_path), metadata)
-        # Currently don't find a good way to supported completely the std::optional by binding C++ function.
-        # So create explicitily an ImageMetadata object when metadata is None.
-        metadata = ImageMetadata() if metadata is None else metadata
-        metadata = image_reader.readMetadata(metadata)
-        if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
-            image = image_reader.read8u()
-        if image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
-            image = image_reader.read16u()
-        if image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
-            image = image_reader.readf()
-
-        metadata.fileInfo.pixelRepresentation = image_reader.pixelRepresentation()
-        metadata = _fill_medatata(image, metadata)
-        return np.array(image, copy=False), metadata
-    except Exception as e:
-        logging.error('Exception occurred in reading image from file {0}: {1}'.format(image_path, e))
-        sys.exit("Exception caught in reading image, check the error log.")
-
-def read_image_libraw(image_path: Path) -> (np.array, Metadata):
-    """Read different types of raw files and return a numpy array,
-       Supported image types: all the support file type by libraw
-
-    Parameters
-    ----------
-    image_path : Path
-        path to image file
-
-    Returns
-    -------
-    np.array
-        returned image in numpy array format
-
-    """
-    iProcessor = LibRaw()
-    ret_open = iProcessor.open_file(str(image_path))
-    iProcessor.unpack()
-    if ret_open == LibRaw_errors.LIBRAW_FILE_UNSUPPORTED:
-        raise UnSupportedFileException('Unsupported libRaw file type.')
-    raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
-
-    metadata = _convert_LibRawdata_to_Metadata(iProcessor)
-    return raw_with_margin, metadata
 
 
 def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, Metadata):
