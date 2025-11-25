@@ -1,5 +1,6 @@
 import hashlib
 import math
+
 import numpy as np
 
 from cxx_image_io import ExifMetadata
@@ -41,7 +42,8 @@ def setup_custom_exif():
 
 
 def is_musl():
-    import os, subprocess
+    import os
+    import subprocess
 
     # 1. check musl dll link name
     if os.path.exists("/lib/ld-musl-x86_64.so.1"):

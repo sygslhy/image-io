@@ -1,10 +1,10 @@
-from .data_cases import TEST_CASES
-from .helpers import EPSILON
+import numpy as np
+import pytest
 
 from cxx_image_io import read_image
 
-import numpy as np
-import pytest
+from .data_cases import TEST_CASES
+from .helpers import EPSILON
 
 pytestmark = pytest.mark.nrt
 
@@ -66,27 +66,59 @@ def compare_cameracontrol_values(cc, ref_cc):
 
 @pytest.mark.parametrize("case", [case for case in TEST_CASES if case.file_info])
 def test_parse_fileinfo(test_images_dir, case):
-    _, metadata = read_image(test_images_dir / case.file)
+    # Given: an image file with expected fileInfo metadata
+    image_path = test_images_dir / case.file
+
+    # When: the image is read using read_image API
+    _, metadata = read_image(image_path)
+
+    # Then: metadata should not be None
     assert metadata is not None, 'Metadata is None'
+
+    # Then: the parsed fileInfo should match the expected values
     compare_fileinfo_values(metadata.fileInfo, case.file_info)
 
 
 @pytest.mark.parametrize("case", [case for case in TEST_CASES if case.shooting_params])
 def test_parse_shootingparams(test_images_dir, case):
-    _, metadata = read_image(test_images_dir / case.file)
+    # Given: an image file with expected shooting parameters
+    image_path = test_images_dir / case.file
+
+    # When: the image is read using read_image API
+    _, metadata = read_image(image_path)
+
+    # Then: metadata should not be None
     assert metadata is not None, 'Metadata is None'
+
+    # Then: the parsed shooting parameters should match the expected values
     compare_shootingparams_values(metadata.shootingParams, case.shooting_params)
 
 
 @pytest.mark.parametrize("case", [case for case in TEST_CASES if case.calibration])
 def test_parse_calibration(test_images_dir, case):
-    _, metadata = read_image(test_images_dir / case.file)
+    # Given: an image file with expected calibration data
+    image_path = test_images_dir / case.file
+
+    # When: the image is read using read_image API
+    _, metadata = read_image(image_path)
+
+    # Then: metadata should not be None
     assert metadata is not None, 'Metadata is None'
+
+    # Then: the parsed calibration data should match the expected values
     compare_calibration_values(metadata.calibrationData, case.calibration)
 
 
 @pytest.mark.parametrize("case", [case for case in TEST_CASES if case.cameracontrol])
 def test_parse_cameracontrol(test_images_dir, case):
-    _, metadata = read_image(test_images_dir / case.file)
+    # Given: an image file with expected camera control settings
+    image_path = test_images_dir / case.file
+
+    # When: the image is read using read_image API
+    _, metadata = read_image(image_path)
+
+    # Then: metadata should not be None
     assert metadata is not None, 'Metadata is None'
+
+    # Then: the parsed camera control values should match the expected values
     compare_cameracontrol_values(metadata.cameraControls, case.cameracontrol)

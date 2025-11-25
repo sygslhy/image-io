@@ -2,8 +2,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from cxx_image_io import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout, ImageMetadata, Matrix3,
-                          PixelRepresentation, PixelType, RgbColorSpace)
+from cxx_image_io import (DynamicMatrix, ExifMetadata, FileFormat, ImageLayout,
+                          ImageMetadata, Matrix3, PixelRepresentation,
+                          PixelType, RgbColorSpace)
 
 
 @dataclass
@@ -399,4 +400,163 @@ TEST_CASES = [
     ),
 
     # Can add more cases here...
+]
+
+
+@dataclass
+class TestCase:
+    array: np.ndarray
+    fileInfo: ImageMetadata.FileInfo
+    order: tuple
+    ref_values: tuple
+
+
+TEST_CHANNELS_CASES = [
+
+    # -------------------------------------------------------
+    #  Bayer - RGGB
+    # -------------------------------------------------------
+    TestCase(array=np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20),
+             fileInfo=ImageMetadata.FileInfo(width=20,
+                                             height=16,
+                                             pixelType=PixelType.BAYER_RGGB,
+                                             imageLayout=ImageLayout.PLANAR,
+                                             pixelRepresentation=PixelRepresentation.UINT16),
+             order=(PixelType.BAYER_RGGB, 'r', 'gr', 'gb', 'b'),
+             ref_values=(1, 2, 3, 4)),
+
+    # -------------------------------------------------------
+    #  Bayer - GRBG
+    # -------------------------------------------------------
+    TestCase(array=np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20),
+             fileInfo=ImageMetadata.FileInfo(width=20,
+                                             height=16,
+                                             pixelType=PixelType.BAYER_GRBG,
+                                             imageLayout=ImageLayout.PLANAR,
+                                             pixelRepresentation=PixelRepresentation.UINT16),
+             order=(PixelType.BAYER_GRBG, 'gr', 'r', 'b', 'gb'),
+             ref_values=(1, 2, 3, 4)),
+
+    # -------------------------------------------------------
+    #  Bayer - GBRG
+    # -------------------------------------------------------
+    TestCase(array=np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20),
+             fileInfo=ImageMetadata.FileInfo(width=20,
+                                             height=16,
+                                             pixelType=PixelType.BAYER_GBRG,
+                                             imageLayout=ImageLayout.PLANAR,
+                                             pixelRepresentation=PixelRepresentation.UINT16),
+             order=(PixelType.BAYER_GBRG, 'gb', 'b', 'r', 'gr'),
+             ref_values=(1, 2, 3, 4)),
+
+    # -------------------------------------------------------
+    #  Bayer - BGGR
+    # -------------------------------------------------------
+    TestCase(array=np.array([[1, 2] * 10 + [3, 4] * 10] * 8, dtype=np.uint16).reshape(16, 20),
+             fileInfo=ImageMetadata.FileInfo(width=20,
+                                             height=16,
+                                             pixelType=PixelType.BAYER_BGGR,
+                                             imageLayout=ImageLayout.PLANAR,
+                                             pixelRepresentation=PixelRepresentation.UINT16),
+             order=(PixelType.BAYER_BGGR, 'b', 'gb', 'gr', 'r'),
+             ref_values=(1, 2, 3, 4)),
+
+    # -------------------------------------------------------
+    #  RGB interleaved
+    # -------------------------------------------------------
+    TestCase(array=np.array([
+        [[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]],
+        [[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]],
+        [[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]],
+    ],
+                            dtype=np.uint8),
+             fileInfo=ImageMetadata.FileInfo(width=4,
+                                             height=3,
+                                             pixelType=PixelType.RGB,
+                                             imageLayout=ImageLayout.INTERLEAVED,
+                                             pixelRepresentation=PixelRepresentation.UINT8),
+             order=(PixelType.RGB, 'r', 'g', 'b'),
+             ref_values=(1, 2, 3)),
+
+    # -------------------------------------------------------
+    #  RGB planar
+    # -------------------------------------------------------
+    TestCase(array=np.array([[[1, 1, 1], [1, 1, 1]], [[2, 2, 2], [2, 2, 2]], [[3, 3, 3], [3, 3, 3]]], dtype=np.uint8),
+             fileInfo=ImageMetadata.FileInfo(width=3,
+                                             height=2,
+                                             pixelType=PixelType.RGB,
+                                             imageLayout=ImageLayout.PLANAR,
+                                             pixelRepresentation=PixelRepresentation.UINT8),
+             order=(PixelType.RGB, 'r', 'g', 'b'),
+             ref_values=(1, 2, 3)),
+
+    # -------------------------------------------------------
+    #  RGBA interleaved
+    # -------------------------------------------------------
+    TestCase(array=np.array([
+        [[1, 2, 3, 4]] * 4,
+        [[1, 2, 3, 4]] * 4,
+        [[1, 2, 3, 4]] * 4,
+    ], dtype=np.uint8),
+             fileInfo=ImageMetadata.FileInfo(width=4,
+                                             height=3,
+                                             pixelType=PixelType.RGBA,
+                                             imageLayout=ImageLayout.INTERLEAVED,
+                                             pixelRepresentation=PixelRepresentation.UINT8),
+             order=(PixelType.RGBA, 'r', 'g', 'b', 'a'),
+             ref_values=(1, 2, 3, 4)),
+
+    # -------------------------------------------------------
+    #  RGBA planar
+    # -------------------------------------------------------
+    TestCase(array=np.array(
+        [[[1, 1, 1], [1, 1, 1]], [[2, 2, 2], [2, 2, 2]], [[3, 3, 3], [3, 3, 3]], [[4, 4, 4], [4, 4, 4]]],
+        dtype=np.uint8),
+             fileInfo=ImageMetadata.FileInfo(width=3,
+                                             height=2,
+                                             pixelType=PixelType.RGBA,
+                                             imageLayout=ImageLayout.PLANAR,
+                                             pixelRepresentation=PixelRepresentation.UINT8),
+             order=(PixelType.RGBA, 'r', 'g', 'b', 'a'),
+             ref_values=(1, 2, 3, 4)),
+
+    # -------------------------------------------------------
+    #  YUV 420 planar
+    # -------------------------------------------------------
+    TestCase(array=np.array([
+        [1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1],
+        [2, 2, 2, 2, 2, 2],
+        [3, 3, 3, 3, 3, 3],
+    ],
+                            dtype=np.uint8),
+             fileInfo=ImageMetadata.FileInfo(width=6,
+                                             height=4,
+                                             pixelType=PixelType.YUV,
+                                             imageLayout=ImageLayout.YUV_420,
+                                             pixelRepresentation=PixelRepresentation.UINT8),
+             order=(PixelType.YUV, 'y', 'u', 'v'),
+             ref_values=(1, 2, 3)),
+
+    # -------------------------------------------------------
+    #  NV12
+    # -------------------------------------------------------
+    TestCase(array=np.array([
+        [1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1],
+        [2, 3, 2, 3, 2, 3],
+        [2, 3, 2, 3, 2, 3],
+    ],
+                            dtype=np.uint8),
+             fileInfo=ImageMetadata.FileInfo(width=6,
+                                             height=4,
+                                             pixelType=PixelType.YUV,
+                                             imageLayout=ImageLayout.NV12,
+                                             pixelRepresentation=PixelRepresentation.UINT8),
+             order=(PixelType.YUV, 'y', 'u', 'v'),
+             ref_values=(1, 2, 3)),
 ]

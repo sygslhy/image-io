@@ -1,19 +1,18 @@
-"""
-Base interface for all image readers.
-
-This module defines the abstract base class for image reading strategies.
-Each reader must implement:
-    - can_read: determine whether reader supports the given file
-    - read:     load image + metadata and return numpy array + metadata object
-"""
-
 from abc import ABC, abstractmethod
 from pathlib import Path
+
 import numpy as np
 
-class BaseImageReader(ABC):
-    """Abstract base class for image readers."""
 
+class BaseImageReader(ABC):
+    """
+    Base interface for all image readers.
+
+    This module defines the abstract base class for image reading strategies.
+    Each reader must implement:
+    - can_read: determine whether reader supports the given file
+    - read:     load image + metadata and return numpy array + metadata object
+    """
     @abstractmethod
     def can_read(self, image_path: Path) -> bool:
         """
@@ -29,7 +28,7 @@ class BaseImageReader(ABC):
         bool
             True if the reader supports this file.
         """
-        raise NotImplementedError("can_read() must be implemented in subclasses")
+        raise NotImplementedError("can_read must be implemented in subclasses")
 
     @abstractmethod
     def read(self, image_path: Path, metadata_path: Path = None) -> (np.ndarray, object):
@@ -50,4 +49,4 @@ class BaseImageReader(ABC):
         object
             Metadata object (ImageMetadata or Metadata depending on backend)
         """
-        raise NotImplementedError("read() must be implemented in subclasses")
+        raise NotImplementedError("read must be implemented in subclasses")

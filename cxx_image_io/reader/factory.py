@@ -1,16 +1,16 @@
+from pathlib import Path
+
+from .base_reader import BaseImageReader
+from .cxx_image_reader import CxxImageReader
+from .cxx_libraw_reader import LibRawImageReader
+
 """
 Factory class responsible for selecting the appropriate image reader.
 
 Reader selection priority:
-    1. CxxImageReader     – handles standard image formats
-    2. LibRawImageReader  – handles RAW formats
+    1. CxxImageReader     handles standard image formats
+    2. LibRawImageReader  handles RAW formats
 """
-
-from pathlib import Path
-
-from .cxx_image_reader import CxxImageReader
-from .cxx_libraw_reader import LibRawImageReader
-from .base_reader import BaseImageReader
 
 
 class ImageReaderFactory:
@@ -31,8 +31,6 @@ class ImageReaderFactory:
         """
         Select an appropriate reader for the given file following three-step logic.
         """
-
-        suffix = image_path.suffix.lower()
 
         # Stage 1: Deterministic extension → always prefer C++ backend
         if cls.CXX_READER.can_read(image_path):

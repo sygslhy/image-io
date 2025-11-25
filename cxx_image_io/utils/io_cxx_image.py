@@ -1,8 +1,10 @@
-from cxx_image import (ImageMetadata, PixelRepresentation, io, parser)
-from pathlib import Path
-import numpy as np
 import logging
 import sys
+from pathlib import Path
+
+import numpy as np
+from cxx_image import ImageMetadata, PixelRepresentation, io, parser
+
 
 # internal function to fill the image critical information to metadata that could be used otherwhere.
 def _fill_medatata(image, metadata):

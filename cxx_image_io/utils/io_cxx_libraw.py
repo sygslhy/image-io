@@ -1,8 +1,10 @@
-import numpy as np
 from pathlib import Path
 
+import numpy as np
+from cxx_image import (ExifMetadata, ImageLayout, ImageMetadata, Matrix3,
+                       PixelRepresentation, PixelType)
 from cxx_libraw import LibRaw, LibRaw_errors
-from cxx_image import ImageMetadata, PixelType, PixelRepresentation, ImageLayout, ExifMetadata, Matrix3
+
 
 # Get the color type of a pixel at (y,x) in the raw image data.
 def _raw_color(libRaw, y, x):
@@ -16,31 +18,36 @@ def _libraw_flip_to_exif_orientation(flip):
     conv_dict = {0: 1, 3: 3, 5: 6, 6: 8}
     return conv_dict[flip]
 
-# Parse 2x2 bayer pattern  from libRaw object and convert it to PixelType enum.
+
 def _parse_pixelType(libRaw):
-    if libRaw.imgdata.idata.filters < 1000:
-        if libRaw.imgdata.idata.filters == 0:
-            # black and white
-            n = 1
-        elif libRaw.p.imgdata.idata.filters == 1:
-            #  Leaf Catchlight with 16x16 bayer matrix
-            n = 16
-        elif libRaw.p.imgdata.idata.filters == 9:
-            # Fuji X-Trans (6x6 matrix)
-            n = 6
-        else:
-            raise NotImplementedError('filters: {}'.format(libRaw.imgdata.idata.filters))
-    else:
-        n = 4
+    """
+    Parse the 2×2 Bayer pattern from libRaw object and return the 2×2 pattern.
+
+    Only 2×2 Bayer CFA patterns are supported.
+    """
+
+    filters = libRaw.imgdata.idata.filters
+
+    # Only support 2×2 Bayer filters encoded by libraw (filters >= 1000)
+    if filters < 1000:
+        raise NotImplementedError(f"Only 2×2 Bayer CFA is supported. libraw filters={filters}")
+
+    # libraw encodes 2×2 pattern by a 4×4 repeating block
+    n = 4
     pattern = np.empty((n, n), dtype=np.uint8)
+
     for y in range(n):
         for x in range(n):
             pattern[y, x] = _raw_color(libRaw, y, x)
-    if n == 4:
-        if np.all(pattern[:2, :2] == pattern[:2, 2:]) and np.all(pattern[:2, :2] == pattern[2:, 2:]) and np.all(
-                pattern[:2, :2] == pattern[2:, :2]):
-            pattern = pattern[:2, :2]
-    return pattern
+
+    # Reduce 4×4 repeating pattern → 2×2 CFA pattern
+    top_left = pattern[:2, :2]
+
+    if not (np.all(top_left == pattern[:2, 2:]) and np.all(top_left == pattern[2:, :2])
+            and np.all(top_left == pattern[2:, 2:])):
+        raise ValueError("Invalid 4×4 Bayer pattern; sub-blocks are inconsistent.")
+
+    return top_left
 
 
 # Internal function to convert 2x2 bayer pattern to PixelType
@@ -55,7 +62,6 @@ def _bayer_pattern_to_pixel_type(pattern):
         if np.array_equal(pattern, value):
             return key
     raise ValueError("Invalid Bayer pattern")
-
 
 
 # Internal fill metadata fileInfo function
@@ -81,6 +87,7 @@ def _fill_file_info(libRaw, metadata):
         metadata.fileInfo.pixelType = PixelType.CUSTOM
 
     return metadata
+
 
 # Internal fill calibration data function
 def fill_calibration_data(libRaw, metadata):
@@ -137,6 +144,7 @@ def fill_exif_metadata(libRaw, metadata):
         metadata.exifMetadata.imageDescription = libRaw.imgdata.other.desc
 
     return metadata
+
 
 # Convert LibRawdata to Metadata object.
 def _convert_LibRawdata_to_Metadata(libRaw):
@@ -224,7 +232,7 @@ def read_image_libraw(image_path: Path) -> (np.array, Metadata):
     iProcessor = LibRaw()
     ret_open = iProcessor.open_file(str(image_path))
     iProcessor.unpack()
-    if ret_open == LibRaw_errors.LIBRAW_FILE_UNSUPPORTED:
+    if ret_open != LibRaw_errors.LIBRAW_SUCCESS:
         raise UnSupportedFileException('Unsupported libRaw file type.')
     raw_with_margin = np.array(iProcessor.imgdata.rawdata, copy=False)
 

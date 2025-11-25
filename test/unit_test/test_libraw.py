@@ -1,9 +1,10 @@
-from cxx_image_io import LibRawParameters, Metadata
-from cxx_image_io import ImageMetadata, ImageLayout, PixelType, PixelRepresentation
-
 import pytest
 
+from cxx_image_io import (ImageLayout, LibRawParameters, Metadata,
+                          PixelRepresentation, PixelType)
+
 pytestmark = pytest.mark.unittest
+
 
 @pytest.mark.parametrize(
     "raw_width, raw_height, width, height, top_margin, left_margin, expected_msg",
@@ -29,14 +30,10 @@ pytestmark = pytest.mark.unittest
         (100, 100, 80, 80, 0, 25, "left_margin + width exceeds raw width"),  # 25+80=105 > 100
     ])
 def test_libraw_parameters(raw_width, raw_height, width, height, top_margin, left_margin, expected_msg):
-    """
-    Scenario: Creating LibRaw with invalid parameters should raise AssertionError
-
-    Given an invalid libraw processor type
-    When I attempt to create a LibRaw instance
-    Then an AssertionError should be raised
-    """
+    # Given an invalid libraw processor type
     with pytest.raises(AssertionError) as excinfo:
+        # When I attempt to create a LibRaw instance
+        # Then an AssertionError should be raised
         LibRawParameters(raw_width, raw_height, width, height, top_margin, left_margin)
     assert expected_msg in str(excinfo.value)
 
@@ -63,7 +60,7 @@ def test_librawparameters():
 
 
 def test_metadata():
-    # Given:
+    # Given: A Metadata is instanciated with example fileInfo and LibRawParameters
     params = LibRawParameters(raw_width=100, raw_height=200, width=50, height=100, top_margin=10, left_margin=5)
 
     metadata = Metadata(params)
@@ -74,11 +71,10 @@ def test_metadata():
     metadata.fileInfo.width = 848
     metadata.fileInfo.height = 976
 
-    # When:
+    # When: converting the object to string via __repr__
     result = repr(metadata)
 
-    # Then:
-
+    # Then: the string must be as a string of __dict__ state
     assert result == str({
         'fileInfo': {
             'width': 848,

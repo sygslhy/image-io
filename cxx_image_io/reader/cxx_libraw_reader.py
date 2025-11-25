@@ -1,41 +1,34 @@
-"""
-Image-reading strategy using the LibRaw backend (read_image_libraw).
-
-This reader handles various RAW camera formats:
-CR2, NEF, ARW, RAF, ORF, RW2, DNG, and more.
-"""
-
 from pathlib import Path
-import numpy as np
+
+from cxx_image_io.utils.io_cxx_libraw import (LibRaw, LibRaw_errors,
+                                              read_image_libraw)
 
 from .base_reader import BaseImageReader
-from cxx_image_io.utils.io_cxx_libraw import read_image_libraw, LibRaw, LibRaw_errors
 
 
 class LibRawImageReader(BaseImageReader):
-    """Image-reading strategy using LibRaw."""
+    """
+    Image-reading strategy using the LibRaw backend (read_image_libraw).
 
-    SUPPORTED_RAW_EXT = {
-        '.cr2', '.nef', '.arw', '.orf', '.rw2', 'kdc', 'raw', 'pef','srw', 'dcr'}
+    This reader handles various RAW camera formats:
+    CR2, NEF, ARW, RAF, ORF, RW2, DNG, and more.
+    """
+
+    SUPPORTED_RAW_EXT = {'.cr2', '.nef', '.arw', '.orf', '.rw2', '.kdc', '.raw', '.pef', '.srw', '.dcr'}
 
     def can_read(self, image_path: Path) -> bool:
         """
         Check whether the provided file appears to be a RAW image.
         """
-        return image_path.suffix.lower() in self.SUPPORTED_RAW_EXT or self._try_open(image_path)
+        return image_path.suffix.lower() in self.SUPPORTED_RAW_EXT or self._can_open(image_path)
 
-
-    def _try_open(self, image_path: Path) -> bool:
+    def _can_open(self, image_path: Path) -> bool:
         """
         Check if LibRaw is capable of opening this file.
         """
-        try:
-            processor = LibRaw()
-            ret = processor.open_file(str(image_path))
-            return ret != LibRaw_errors.LIBRAW_FILE_UNSUPPORTED
-        except Exception:
-            return False
-
+        processor = LibRaw()
+        ret = processor.open_file(str(image_path))
+        return ret == LibRaw_errors.LIBRAW_SUCCESS
 
     def read(self, image_path: Path, metadata_path: Path = None):
         """

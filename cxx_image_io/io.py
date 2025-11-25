@@ -1,11 +1,11 @@
 import logging
 import sys
 from pathlib import Path
-from abc import ABC, abstractmethod
 
 import numpy as np
-from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,  ImageUint8,
-                       ImageUint16, ImageMetadata, io, parser)
+from cxx_image import (ExifMetadata, ImageDouble, ImageFloat, ImageInt,
+                       ImageMetadata, ImageUint8, ImageUint16, io, parser)
+
 from .reader.factory import ImageReaderFactory
 
 # Internal Mapping from numpy dtypes to corresponding C++ Image<T> classes
@@ -16,7 +16,6 @@ _numpy_array_image_convert_vector = {
     np.dtype('double'): ImageDouble,
     np.dtype('int'): ImageInt
 }
-
 
 
 def read_image(image_path: Path, metadata_path: Path = None) -> (np.array, ImageMetadata):
@@ -88,8 +87,8 @@ def write_image(output_path: Path, image_array: np.array, write_options: io.Imag
         # In addition, numpy array can't provide enough information to create C++ image object from itself.
         # We still need to get the information from metadata.fileInfo in write_options.
         image = _numpy_array_image_convert_vector[image_array.dtype](image_array, options.metadata.fileInfo.pixelType,
-                                                                      options.metadata.fileInfo.imageLayout,
-                                                                      options.metadata.fileInfo.pixelPrecision)
+                                                                     options.metadata.fileInfo.imageLayout,
+                                                                     options.metadata.fileInfo.pixelPrecision)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         image_writer = io.makeWriter(str(output_path), options)
         image_writer.write(image)

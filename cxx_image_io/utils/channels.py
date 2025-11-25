@@ -1,7 +1,8 @@
 import numpy as np
-from cxx_image import (ImageLayout, ImageMetadata, PixelRepresentation, PixelType)
+from cxx_image import (ImageLayout, ImageMetadata, PixelRepresentation,
+                       PixelType)
 
-__bayer_to_str = {
+_bayer_to_str = {
     PixelType.BAYER_RGGB: ('r', 'gr', 'gb', 'b'),
     PixelType.BAYER_BGGR: ('b', 'gb', 'gr', 'r'),
     PixelType.BAYER_GRBG: ('gr', 'r', 'b', 'gb'),
@@ -9,7 +10,7 @@ __bayer_to_str = {
 }
 
 
-def __separate_bayer_channels(bayer, pixel_type, pixel_presentation):
+def _separate_bayer_channels(bayer, pixel_type, pixel_presentation):
 
     r1 = bayer[::2].reshape((-1))
     r2 = bayer[1::2].reshape((-1))
@@ -21,12 +22,12 @@ def __separate_bayer_channels(bayer, pixel_type, pixel_presentation):
     cfa[3] = r2[1::2]
 
     channels = {}
-    for id, c in enumerate(__bayer_to_str[pixel_type]):
+    for id, c in enumerate(_bayer_to_str[pixel_type]):
         channels[c] = cfa[id].reshape(bayer.shape[0] // 2, bayer.shape[1] // 2)
     return channels
 
 
-def __separate_color_channels(image, metadata):
+def _separate_color_channels(image, metadata):
     channels = {}
     if metadata.fileInfo.pixelType == PixelType.RGBA:
         if metadata.fileInfo.imageLayout == ImageLayout.INTERLEAVED:
@@ -57,7 +58,7 @@ def __separate_color_channels(image, metadata):
     return channels
 
 
-def __separate_yuv_channels(image, metadata):
+def _separate_yuv_channels(image, metadata):
 
     channels = {}
     w = metadata.fileInfo.width
@@ -80,7 +81,7 @@ def __separate_yuv_channels(image, metadata):
     return channels
 
 
-def __merge_bayer_channels(channels, pixel_presentation, metadata):
+def _merge_bayer_channels(channels, pixel_presentation, metadata):
     assert len(channels.keys()) == 4, 'bayer must have 4 channels: {0}'.format(channels.keys())
     assert all(k in channels.keys()
                for k in ['r', 'gr', 'gb', 'b']), 'bayer channels must have r, gr, gb, b, current channels: {0}'.format(
@@ -90,14 +91,14 @@ def __merge_bayer_channels(channels, pixel_presentation, metadata):
     width, height = metadata.fileInfo.width, metadata.fileInfo.height
 
     bayer = np.empty((height, width), pixel_presentation)
-    bayer[0::2, 0::2] = channels[__bayer_to_str[pixel_type][0]]  # top left
-    bayer[0::2, 1::2] = channels[__bayer_to_str[pixel_type][1]]  # top right
-    bayer[1::2, 0::2] = channels[__bayer_to_str[pixel_type][2]]  # bottom left
-    bayer[1::2, 1::2] = channels[__bayer_to_str[pixel_type][3]]  # bottom right
+    bayer[0::2, 0::2] = channels[_bayer_to_str[pixel_type][0]]  # top left
+    bayer[0::2, 1::2] = channels[_bayer_to_str[pixel_type][1]]  # top right
+    bayer[1::2, 0::2] = channels[_bayer_to_str[pixel_type][2]]  # bottom left
+    bayer[1::2, 1::2] = channels[_bayer_to_str[pixel_type][3]]  # bottom right
     return bayer
 
 
-def __merge_color_channels(channels, pixel_presentation, metadata):
+def _merge_color_channels(channels, pixel_presentation, metadata):
     assert metadata.fileInfo.width and metadata.fileInfo.height, 'must have width height in fileInfo to merge channels'
     width, height = metadata.fileInfo.width, metadata.fileInfo.height
     if metadata.fileInfo.pixelType == PixelType.RGBA:
@@ -144,7 +145,7 @@ def __merge_color_channels(channels, pixel_presentation, metadata):
         raise Exception('Unsupported pixel type')
 
 
-def __merge_yuv_channels(channels, pixel_presentation, metadata):
+def _merge_yuv_channels(channels, pixel_presentation, metadata):
     assert len(channels.keys()) == 3, 'YUV must have 3 channels: {0}'.format(channels.keys())
     assert all(k in channels.keys()
                for k in ['y', 'u', 'v']), 'YUV channels must have y, u, v, current channels: {0}'.format(
@@ -214,12 +215,12 @@ def split_image_channels(image: np.array, metadata: ImageMetadata) -> dict:
     if metadata.fileInfo.pixelType in (PixelType.BAYER_RGGB, PixelType.BAYER_BGGR, PixelType.BAYER_GRBG,
                                        PixelType.BAYER_GBRG):
         assert width % 2 == 0 and height % 2 == 0, "Bayer width and height must be power of 2"
-        return __separate_bayer_channels(image, metadata.fileInfo.pixelType, pixel_presentation)
+        return _separate_bayer_channels(image, metadata.fileInfo.pixelType, pixel_presentation)
     elif metadata.fileInfo.pixelType in (PixelType.RGB, PixelType.RGBA):
-        return __separate_color_channels(image, metadata)
+        return _separate_color_channels(image, metadata)
     elif metadata.fileInfo.pixelType == PixelType.YUV:
         assert width % 2 == 0 and height % 2 == 0, "YUV width and height must be power of 2"
-        return __separate_yuv_channels(image, metadata)
+        return _separate_yuv_channels(image, metadata)
     else:
         raise Exception('Unsupported pixel type!')
 
@@ -246,8 +247,6 @@ def merge_image_channels(channels: dict, metadata: ImageMetadata) -> np.array:
     (width, height) = (None, None)
     if metadata.fileInfo.width and metadata.fileInfo.height:
         width, height = metadata.fileInfo.width, metadata.fileInfo.height
-    elif metadata.exifMetadata.imageWidth and metadata.exifMetadata.imageHeight:
-        width, height = metadata.exifMetadata.imageWidth, metadata.exifMetadata.imageHeight
     else:
         raise Exception('width and height are necessary to merge channels')
 
@@ -266,10 +265,10 @@ def merge_image_channels(channels: dict, metadata: ImageMetadata) -> np.array:
     if metadata.fileInfo.pixelType in (PixelType.BAYER_RGGB, PixelType.BAYER_BGGR, PixelType.BAYER_GRBG,
                                        PixelType.BAYER_GBRG):
         assert width % 2 == 0 and height % 2 == 0, "bayer image's width and height must be power of 2"
-        return __merge_bayer_channels(channels, pixel_presentation, metadata)
+        return _merge_bayer_channels(channels, pixel_presentation, metadata)
     elif metadata.fileInfo.pixelType in (PixelType.RGB, PixelType.RGBA):
-        return __merge_color_channels(channels, pixel_presentation, metadata)
+        return _merge_color_channels(channels, pixel_presentation, metadata)
     elif metadata.fileInfo.pixelType == PixelType.YUV:
-        return __merge_yuv_channels(channels, pixel_presentation, metadata)
+        return _merge_yuv_channels(channels, pixel_presentation, metadata)
     else:
         raise Exception('Unsupported pixel type!')
