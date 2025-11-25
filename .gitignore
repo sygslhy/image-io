@@ -13,3 +13,4 @@ cxx_image_io/*.so
 cxx_image_io/*.so.*
 .codegpt/
 .codegpt
+.benchmark/

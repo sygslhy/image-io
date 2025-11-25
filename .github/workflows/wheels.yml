@@ -69,6 +69,19 @@ jobs:
           ls -l  .. &&
           pytest -sv --cov=cxx_image_io --cov-report=html --cov-report=term --cov-fail-under=95
 
+      - name: Run benchmark to generate baseline
+        run: |
+          cd test-cxx-image-io &&
+          ls -l  .. &&
+          pytest benchmark/ --benchmark-save=baseline --benchmark-json=baseline.json
+
+      - name: Upload baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-baseline
+          path: test-cxx-image-io/benchmark/baseline.json
+
+
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-sdist
@@ -279,7 +292,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-14]
         cp-version: ["cp310", "cp311","cp312", "cp313", "cp314"]
 
     steps:
