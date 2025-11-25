@@ -29,7 +29,7 @@ class BaseImageReader(ABC):
         bool
             True if the reader supports this file.
         """
-        pass
+        raise NotImplementedError("can_read() must be implemented in subclasses")
 
     @abstractmethod
     def read(self, image_path: Path, metadata_path: Path = None) -> (np.ndarray, object):
@@ -50,4 +50,4 @@ class BaseImageReader(ABC):
         object
             Metadata object (ImageMetadata or Metadata depending on backend)
         """
-        pass
+        raise NotImplementedError("read() must be implemented in subclasses")

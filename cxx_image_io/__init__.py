@@ -5,18 +5,35 @@ import sys
 # Determine the path to the shared libraries
 lib_dir = os.path.join(os.path.dirname(__file__))
 
-# Load the shared libraries
-if sys.platform == 'win32':
-    hllDll = ctypes.WinDLL(os.path.join(lib_dir, "libexif.dll"))
-    hllDll1 = ctypes.WinDLL(os.path.join(lib_dir, "libraw_r.dll"))
-elif sys.platform == 'linux':
-    hllDll = ctypes.CDLL(os.path.join(lib_dir, "libexif.so"))
-    hllDll1 = ctypes.CDLL(os.path.join(lib_dir, "libraw_r.so"))
-elif sys.platform == 'darwin':
-    hllDll = ctypes.CDLL(os.path.join(lib_dir, "libexif.dylib"))
-    hllDll1 = ctypes.CDLL(os.path.join(lib_dir, "libraw_r.dylib"))
-else:
-    print('Warning, unsupport platform')
+
+LIB_EXT = {
+    "win32": ".dll",
+    "linux": ".so",
+    "darwin": ".dylib",
+}
+
+# preload the all dll libs
+def preload_libs(lib_dir, lib_names):
+    platform = sys.platform
+
+    ext = None
+    for key, value in LIB_EXT.items():
+        if platform.startswith(key):
+            ext = value
+            break
+
+    if ext is None:
+        raise RuntimeError(f"Unsupported platform: {platform}")
+
+
+    for name in lib_names:
+        path = os.path.join(lib_dir, name + ext)
+        if os.path.exists(path):
+            ctypes.CDLL(path)
+
+# Load the shared libraries, so that binding module can
+# find the preloaded dll in memory.
+preload_libs(lib_dir, ["libexif", "libraw_r"])
 
 # Try to ensure that the .pyd file directory is appended in sys.path.
 cur_file_dir = os.path.dirname(os.path.realpath(__file__))
