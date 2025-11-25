@@ -48,7 +48,7 @@ jobs:
       - name: Build sdist
         run: |
           cd source &&
-          python3 -m pip install build pytest
+          python3 -m pip install build pytest pytest-cov pytest-benchmark
           python3 -m build --sdist
 
       - name: Installation from sdist
@@ -67,7 +67,7 @@ jobs:
         run: |
           cd test-cxx-image-io &&
           ls -l  .. &&
-          pytest -sv
+          pytest -sv --cov=cxx_image_io --cov-report=html --cov-report=term --cov-fail-under=95
 
       - uses: actions/upload-artifact@v4
         with:
