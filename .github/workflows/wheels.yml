@@ -69,11 +69,11 @@ jobs:
           ls -l  ../source &&
           pytest test/nrt test/unit_test -sv --cov=cxx_image_io --cov-report=html --cov-report=term --cov-fail-under=95
 
-      - name: Run benchmark to generate baseline
+      - name: Run benchmark to compare with baseline must not regress 5% on Mean.
         run: |
           cd test-cxx-image-io &&
-          pytest test/benchmark/ --benchmark-save=baseline --benchmark-json=baseline.json &&
-          ls -l
+          pytest test/benchmark/ --benchmark-compare=test/benchmark/baseline.json --benchmark-compare-fail=mean:5% &&
+          ls -l test/benchmark/
 
       - name: Upload baseline
         uses: actions/upload-artifact@v4
