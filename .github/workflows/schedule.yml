@@ -1,11 +1,11 @@
 name: Test the PYPI package in all the platforms
 
 
-on: [push, pull_request]
+# on: [push, pull_request]
 
-# on:
-#  schedule:
-#    - cron: '30 10 * * 5'
+on:
+ schedule:
+   - cron: '30 10 * * 4'
 
 jobs:
   checkout-code:

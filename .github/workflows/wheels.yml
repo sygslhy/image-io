@@ -389,13 +389,14 @@ jobs:
 
     - name: Install cxx-image-io from test pypi and run NRT test
       run: |
+        sleep 30
         python -c "import sys; print(sys.version)"
         python -m pip install --upgrade pip
         python -m pip install numpy pytest
         pip install -i https://test.pypi.org/simple/ cxx-image-io
         cd image_io/
         mkdir -p test/_outputs
-        pytest nrt -m "nrt" -sv
+        pytest -m "nrt" -sv test/nrt
 
   publish-to-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
