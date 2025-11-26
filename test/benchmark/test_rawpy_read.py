@@ -1,7 +1,7 @@
-# tests/benchmark/test_rawpy_read.py
-from pathlib import Path
 import rawpy
+import pytest
 
+pytestmark = pytest.mark.nrt
 def test_rawpy_open(benchmark, raw_file):
     def load():
         with rawpy.imread(str(raw_file)) as raw:

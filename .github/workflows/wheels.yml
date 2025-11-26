@@ -66,20 +66,20 @@ jobs:
       - name: Test installed package
         run: |
           cd test-cxx-image-io &&
-          ls -l  .. &&
-          pytest -sv --cov=cxx_image_io --cov-report=html --cov-report=term --cov-fail-under=95
+          ls -l  ../source &&
+          pytest test/nrt test/unit_test -sv --cov=cxx_image_io --cov-report=html --cov-report=term --cov-fail-under=95
 
       - name: Run benchmark to generate baseline
         run: |
           cd test-cxx-image-io &&
-          ls -l  &&
-          pytest test-cxx-image-io/benchmark/ --benchmark-save=baseline --benchmark-json=baseline.json
+          pytest test/benchmark/ --benchmark-save=baseline --benchmark-json=baseline.json &&
+          ls -l
 
       - name: Upload baseline
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-baseline
-          path: test-cxx-image-io/benchmark/baseline.json
+          path: test-cxx-image-io/baseline.json
 
 
       - uses: actions/upload-artifact@v4
@@ -142,8 +142,8 @@ jobs:
             rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\python3.exe &&
             rm -rf C:\\hostedtoolcache\\windows\\Python\\3.9.13\\x64\\libs\\python39.lib &&
             git config --system core.longpaths true
-          CIBW_TEST_REQUIRES: pytest pytest-cov pytest-benchmark rawpy
-          CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: "pytest  -sv {project}/../test-cxx-image-io/test/nrt {project}/../test-cxx-image-io/test/unit_test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-*
           CIBW_BUILD_VERBOSITY: 1
@@ -204,8 +204,8 @@ jobs:
             yum install -y nasm ninja-build
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
-          CIBW_TEST_REQUIRES: pytest pytest-cov pytest-benchmark rawpy
-          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test/nrt {project}/test-cxx-image-io/test/unit_test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -226,8 +226,8 @@ jobs:
             apk add --update nasm samurai
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
-          CIBW_TEST_REQUIRES: pytest pytest-cov pytest-benchmark rawpy
-          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test/nrt {project}/test-cxx-image-io/test/unit_test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: pp* cp36-* cp37-* cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -248,8 +248,8 @@ jobs:
             yum install -y cmake nasm ninja-build
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
-          CIBW_TEST_REQUIRES: pytest pytest-cov pytest-benchmark rawpy
-          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test/nrt {project}/test-cxx-image-io/test/unit_test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: cp38-* cp39-* *musllinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -270,8 +270,8 @@ jobs:
             apk add --update cmake nasm samurai
           CIBW_BEFORE_BUILD: >
             rm -rf /usr/local/bin/python3*
-          CIBW_TEST_REQUIRES: pytest pytest-cov pytest-benchmark rawpy
-          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: "pytest -sv {project}/test-cxx-image-io/test/nrt {project}/test-cxx-image-io/test/unit_test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: cp38-* cp39-* *manylinux*
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -292,7 +292,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14-large, macos-14]
+        os: [macos-14]
         cp-version: ["cp310", "cp311","cp312", "cp313", "cp314"]
 
     steps:
@@ -328,8 +328,8 @@ jobs:
         # to supply options, put them in 'env', like:
         env:
           MACOSX_DEPLOYMENT_TARGET: 11.0
-          CIBW_TEST_REQUIRES: pytest pytest-cov pytest-benchmark rawpy
-          CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: "pytest -sv {project}/../test-cxx-image-io/test/nrt {project}/../test-cxx-image-io/test/unit_test"
           CIBW_BUILD: ${{matrix.cp-version}}-*
           CIBW_SKIP: cp38-* cp39-*
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
@@ -395,7 +395,7 @@ jobs:
         pip install -i https://test.pypi.org/simple/ cxx-image-io
         cd image_io/
         mkdir -p test/_outputs
-        pytest -m "nrt" -sv
+        pytest nrt -m "nrt" -sv
 
   publish-to-pypi:
     if: contains(github.event.head_commit.message,'[Release]')  # only publish to PyPI when [Release] in commit message
