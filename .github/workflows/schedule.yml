@@ -1,11 +1,11 @@
 name: Test the PYPI package in all the platforms
 
 
-# on: [push, pull_request]
+on: [push, pull_request]
 
-on:
- schedule:
-   - cron: '30 10 * * 1'
+# on:
+#  schedule:
+#    - cron: '30 10 * * 5'
 
 jobs:
   checkout-code:
@@ -50,7 +50,7 @@ jobs:
         pip install  cxx-image-io
         cd image_io/
         mkdir -p test/_outputs
-        pytest -sv
+        pytest -sv test/nrt
 
   test-arm64-package:
     needs: checkout-code
@@ -118,4 +118,4 @@ jobs:
           cd /test
           pip install cxx-image-io --break-system-packages
           mkdir -p /test/_outputs
-          pytest -m "nrt" -sv
+          pytest -m "nrt" -sv /test/nrt
