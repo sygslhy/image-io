@@ -54,6 +54,8 @@ def _separate_color_channels(image, metadata):
             channels['b'] = image[2, :, :]
         else:
             raise Exception('Unsupported color image layout')
+    else:
+        raise Exception('Unsupported color pixel type')
 
     return channels
 
@@ -195,8 +197,6 @@ def split_image_channels(image: np.array, metadata: ImageMetadata) -> dict:
     (width, height) = (None, None)
     if metadata.fileInfo.width and metadata.fileInfo.height:
         width, height = metadata.fileInfo.width, metadata.fileInfo.height
-    elif metadata.exifMetadata.imageWidth and metadata.exifMetadata.imageHeight:
-        width, height = metadata.exifMetadata.imageWidth, metadata.exifMetadata.imageHeight
     else:
         raise Exception('width and height are necessary to split channels')
 
@@ -206,7 +206,7 @@ def split_image_channels(image: np.array, metadata: ImageMetadata) -> dict:
     elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16:
         pixel_presentation = np.uint16
     elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.FLOAT:
-        pixel_presentation = np.float
+        pixel_presentation = np.float32
     else:
         raise Exception('Unsupported pixel presentation!')
 
@@ -216,7 +216,7 @@ def split_image_channels(image: np.array, metadata: ImageMetadata) -> dict:
                                        PixelType.BAYER_GBRG):
         assert width % 2 == 0 and height % 2 == 0, "Bayer width and height must be power of 2"
         return _separate_bayer_channels(image, metadata.fileInfo.pixelType, pixel_presentation)
-    elif metadata.fileInfo.pixelType in (PixelType.RGB, PixelType.RGBA):
+    elif metadata.fileInfo.pixelType in (PixelType.RGB, PixelType.RGBA, PixelType.CUSTOM):
         return _separate_color_channels(image, metadata)
     elif metadata.fileInfo.pixelType == PixelType.YUV:
         assert width % 2 == 0 and height % 2 == 0, "YUV width and height must be power of 2"
@@ -256,7 +256,7 @@ def merge_image_channels(channels: dict, metadata: ImageMetadata) -> np.array:
     elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.UINT16:
         pixel_presentation = np.uint16
     elif metadata.fileInfo.pixelRepresentation == PixelRepresentation.FLOAT:
-        pixel_presentation = np.float
+        pixel_presentation = np.float32
     else:
         raise Exception('Unsupported pixel presentation: {0}'.format(metadata.fileInfo.pixelRepresentation))
 
@@ -266,7 +266,7 @@ def merge_image_channels(channels: dict, metadata: ImageMetadata) -> np.array:
                                        PixelType.BAYER_GBRG):
         assert width % 2 == 0 and height % 2 == 0, "bayer image's width and height must be power of 2"
         return _merge_bayer_channels(channels, pixel_presentation, metadata)
-    elif metadata.fileInfo.pixelType in (PixelType.RGB, PixelType.RGBA):
+    elif metadata.fileInfo.pixelType in (PixelType.RGB, PixelType.RGBA, PixelType.CUSTOM):
         return _merge_color_channels(channels, pixel_presentation, metadata)
     elif metadata.fileInfo.pixelType == PixelType.YUV:
         return _merge_yuv_channels(channels, pixel_presentation, metadata)

@@ -15,7 +15,6 @@ LIB_EXT = {
 # preload the all dll libs
 def preload_libs(lib_dir, lib_names):
     platform = sys.platform
-
     ext = None
     for key, value in LIB_EXT.items():
         if platform.startswith(key):
@@ -29,6 +28,8 @@ def preload_libs(lib_dir, lib_names):
         path = os.path.join(lib_dir, name + ext)
         if os.path.exists(path):
             ctypes.CDLL(path)
+        else:
+            raise FileNotFoundError(f"{path} not found")
 
 
 # Load the shared libraries, so that binding module can

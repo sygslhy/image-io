@@ -66,7 +66,6 @@ def _bayer_pattern_to_pixel_type(pattern):
 
 # Internal fill metadata fileInfo function
 def _fill_file_info(libRaw, metadata):
-    assert isinstance(libRaw, LibRaw), "libRaw must be LibRaw type."
     assert isinstance(metadata, Metadata), "metadata must be Metadata type."
 
     metadata.fileInfo.width = libRaw.imgdata.rawdata.sizes.raw_width
@@ -90,8 +89,7 @@ def _fill_file_info(libRaw, metadata):
 
 
 # Internal fill calibration data function
-def fill_calibration_data(libRaw, metadata):
-    assert isinstance(libRaw, LibRaw), "libRaw must be LibRaw type."
+def _fill_calibration_data(libRaw, metadata):
     assert isinstance(metadata, Metadata), "metadata must be Metadata type."
 
     # fill calibrationData
@@ -108,15 +106,13 @@ def fill_calibration_data(libRaw, metadata):
         metadata.shootingParams.ispGain = 2**libRaw.imgdata.color.dng_levels.baseline_exposure
 
     rgb_cam = np.array(libRaw.imgdata.color.rgb_cam[:, :3])
-    if not np.all(rgb_cam == 0):
-        metadata.calibrationData.colorMatrix = Matrix3(rgb_cam)
+    metadata.calibrationData.colorMatrix = Matrix3(rgb_cam)
 
     return metadata
 
 
 # Internal fill exif data function
-def fill_exif_metadata(libRaw, metadata):
-    assert isinstance(libRaw, LibRaw), "libRaw must be LibRaw type."
+def _fill_exif_metadata(libRaw, metadata):
     assert isinstance(metadata, Metadata), "metadata must be Metadata type."
 
     metadata.exifMetadata.imageWidth = libRaw.imgdata.rawdata.sizes.width
@@ -126,6 +122,7 @@ def fill_exif_metadata(libRaw, metadata):
         metadata.exifMetadata.orientation = _libraw_flip_to_exif_orientation(libRaw.imgdata.rawdata.sizes.flip)
     if libRaw.imgdata.other.iso_speed and libRaw.imgdata.other.iso_speed > 0:
         metadata.exifMetadata.isoSpeedRatings = int(libRaw.imgdata.other.iso_speed)
+
     if libRaw.imgdata.other.shutter:
         fshutter = round(libRaw.imgdata.other.shutter, 8)
         if fshutter > 0:
@@ -157,9 +154,9 @@ def _convert_LibRawdata_to_Metadata(libRaw):
 
     metadata = _fill_file_info(libRaw, metadata)
 
-    metadata = fill_calibration_data(libRaw, metadata)
+    metadata = _fill_calibration_data(libRaw, metadata)
 
-    metadata = fill_exif_metadata(libRaw, metadata)
+    metadata = _fill_exif_metadata(libRaw, metadata)
 
     return metadata
 
@@ -179,7 +176,7 @@ class Metadata(ImageMetadata):
         return str(all_dict)
 
 
-class LibRawParameters():
+class LibRawParameters:
     """Important parameters related to raw sensor data size and coordinates needed by LibRaw processor.
 
     """

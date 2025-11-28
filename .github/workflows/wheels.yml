@@ -67,7 +67,7 @@ jobs:
         run: |
           cd test-cxx-image-io &&
           ls -l  ../source &&
-          pytest test/nrt test/unit_test -sv --cov=cxx_image_io --cov-report=html --cov-report=term --cov-fail-under=95
+          pytest test/nrt test/unit_test -sv --cov=cxx_image_io --cov-branch --cov-report=html --cov-report=term --cov-fail-under=95
 
       - name: Run benchmark to compare with baseline must not regress 5% on Mean.
         run: |

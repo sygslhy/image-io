@@ -8,6 +8,106 @@ from cxx_image_io import (ImageLayout, ImageMetadata, PixelRepresentation,
 pytestmark = pytest.mark.unittest
 
 # ----------------------------------------------------------------------
+# split_image_channels
+# ----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "pixel_type,pixel_repr,layout,dtype,shape, res_shape",
+    [
+        # --- RGB ----------------------------------------------------------------
+        (PixelType.RGB, PixelRepresentation.UINT8, ImageLayout.INTERLEAVED, np.uint8, (2, 2, 3), (2, 2)),
+        (PixelType.RGB, PixelRepresentation.UINT16, ImageLayout.INTERLEAVED, np.uint16, (2, 2, 3), (2, 2)),
+        (PixelType.RGB, PixelRepresentation.FLOAT, ImageLayout.INTERLEAVED, np.float32, (2, 2, 3), (2, 2)),
+
+        # --- RGBA ---------------------------------------------------------------
+        (PixelType.RGBA, PixelRepresentation.UINT8, ImageLayout.INTERLEAVED, np.uint8, (2, 2, 4), (2, 2)),
+        (PixelType.RGBA, PixelRepresentation.FLOAT, ImageLayout.INTERLEAVED, np.float32, (2, 2, 4), (2, 2)),
+
+        # --- Bayer --------------------------------------------------------------
+        (PixelType.BAYER_RGGB, PixelRepresentation.UINT8, ImageLayout.PLANAR, np.uint8, (4, 4), (2, 2)),
+        (PixelType.BAYER_RGGB, PixelRepresentation.FLOAT, ImageLayout.PLANAR, np.float32, (4, 4), (2, 2))
+    ])
+def test_split_image_channels(pixel_type, pixel_repr, layout, dtype, shape, res_shape):
+    # Given: a simple 2x2 (or minimal) image with specified pixel type and representation
+    img = np.ones(shape, dtype=dtype)
+
+    metadata = ImageMetadata()
+    metadata.fileInfo.width = shape[1]
+    metadata.fileInfo.height = shape[0]
+    metadata.fileInfo.pixelType = pixel_type
+    metadata.fileInfo.pixelRepresentation = pixel_repr
+    metadata.fileInfo.imageLayout = layout
+
+    # When: splitting channels
+    channels = split_image_channels(img, metadata)
+
+    # Then: channels should exist and have correct dtype
+    assert isinstance(channels, dict)
+    for ch_name, ch in channels.items():
+        assert isinstance(ch, np.ndarray)
+        assert ch.dtype == dtype
+        assert ch.shape == res_shape
+
+
+# ----------------------------------------------------------------------
+# merge_image_channels
+# ----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "pixel_type,pixel_repr,layout,dtype,shape, res_shape",
+    [
+        # --- RGB INTERLEAVED: H x W x 3 ---
+        (PixelType.RGB, PixelRepresentation.UINT8, ImageLayout.INTERLEAVED, np.uint8, (2, 2), (2, 2, 3)),
+        (PixelType.RGB, PixelRepresentation.UINT16, ImageLayout.INTERLEAVED, np.uint16, (2, 2), (2, 2, 3)),
+        (PixelType.RGB, PixelRepresentation.FLOAT, ImageLayout.INTERLEAVED, np.float32, (2, 2), (2, 2, 3)),
+
+        # --- RGBA INTERLEAVED: H x W x 4 ---
+        (PixelType.RGBA, PixelRepresentation.UINT8, ImageLayout.INTERLEAVED, np.uint8, (2, 2), (2, 2, 4)),
+        (PixelType.RGBA, PixelRepresentation.FLOAT, ImageLayout.INTERLEAVED, np.float32, (2, 2), (2, 2, 4)),
+
+        # --- Bayer PLANAR: H x W (single plane raw pattern) ---
+        (PixelType.BAYER_RGGB, PixelRepresentation.UINT8, ImageLayout.PLANAR, np.uint8, (4, 4), (8, 8)),
+        (PixelType.BAYER_RGGB, PixelRepresentation.FLOAT, ImageLayout.PLANAR, np.float32, (4, 4), (8, 8)),
+    ])
+def test_merge_image_channels(pixel_type, pixel_repr, layout, dtype, shape, res_shape):
+    # Given: separate channels for a minimal 2x2 image
+    width, height = shape
+    if pixel_type in (PixelType.RGB, PixelType.RGBA):
+        channels = {
+            'r': np.ones((height, width), dtype=dtype),
+            'g': np.ones((height, width), dtype=dtype),
+            'b': np.ones((height, width), dtype=dtype),
+        }
+        if pixel_type == PixelType.RGBA:
+            channels['a'] = np.ones((height, width), dtype=dtype)
+    elif pixel_type == PixelType.BAYER_RGGB:  # Bayer
+        channels = {
+            'r': np.ones((height, width), dtype=dtype),
+            'gr': np.ones((height, width), dtype=dtype),
+            'gb': np.ones((height, width), dtype=dtype),
+            'b': np.ones((height, width), dtype=dtype)
+        }
+        width, height = 2 * width, 2 * height
+
+    metadata = ImageMetadata()
+    metadata.fileInfo.width = width
+    metadata.fileInfo.height = height
+    metadata.fileInfo.pixelType = pixel_type
+    metadata.fileInfo.pixelRepresentation = pixel_repr
+    metadata.fileInfo.imageLayout = layout
+
+    # When: merging channels back to image
+    merged = merge_image_channels(channels, metadata)
+
+    # Then: merged image should have correct dtype and shape
+    assert isinstance(merged, np.ndarray)
+    assert merged.dtype == dtype
+    assert merged.shape == res_shape
+
+
+# ----------------------------------------------------------------------
 # split_image_channels - KO cases
 # ----------------------------------------------------------------------
 
@@ -83,12 +183,14 @@ def test_split_bayer_width_not_even():
 
 
 @pytest.mark.parametrize(
-    "pixel_type,image_layout,img_shape",
+    "pixel_type,image_layout,img_shape, err_msg",
     [
-        (PixelType.RGBA, ImageLayout(18), (2, 2, 4)),  # RGBA with unsupported layout
-        (PixelType.RGB, ImageLayout(17), (2, 2, 3)),  # RGB with unsupported layout
+        (PixelType.RGBA, ImageLayout(18), (2, 2, 4), 'Unsupported color image layout'),  # RGBA with unsupported layout
+        (PixelType.RGB, ImageLayout(17), (2, 2, 3), 'Unsupported color image layout'),  # RGB with unsupported layout
+        (PixelType.CUSTOM, ImageLayout(1),
+         (2, 2, 3), 'Unsupported color pixel type')  # unsupported Pixel with supported layout
     ])
-def test_split_color_unsupported_layout(pixel_type, image_layout, img_shape):
+def test_split_color_unsupported_layout(pixel_type, image_layout, img_shape, err_msg):
     # Given a metadata object with RGB or RGBA pixel type
     metadata = ImageMetadata()
     metadata.fileInfo.width = 2
@@ -103,8 +205,8 @@ def test_split_color_unsupported_layout(pixel_type, image_layout, img_shape):
     img = np.zeros(img_shape, dtype=np.uint8)
 
     # When split_image_channels() is called
-    # Then it raises Exception('Unsupported color image layout')
-    with pytest.raises(Exception, match="Unsupported color image layout"):
+    # Then it raises Exception with specific message
+    with pytest.raises(Exception, match=err_msg):
         split_image_channels(img, metadata)
 
 
@@ -118,15 +220,12 @@ def test_split_image_channels_unsupported_pixel_type():
     metadata.fileInfo.imageLayout = ImageLayout.INTERLEAVED
 
     # And Given: valid RGB channels
-    channels = {
-        'r': np.zeros((4, 4), dtype=np.uint8),
-        'g': np.zeros((4, 4), dtype=np.uint8),
-        'b': np.zeros((4, 4), dtype=np.uint8)
-    }
+    img_shape = (2, 2, 4)
+    img = np.zeros(img_shape, dtype=np.uint8)
 
     # When / Then: call merge_image_channels and expect exception ---
     with pytest.raises(Exception, match="Unsupported pixel type!"):
-        merge_image_channels(channels, metadata)
+        split_image_channels(img, metadata)
 
 
 def test_split_yuv_wrong_layout():
@@ -238,11 +337,11 @@ def test_merge_rgb_missing_channels():
         merge_image_channels(channels, metadata)
 
 
-@pytest.mark.parametrize("pixel_type, required_keys", [
-    (PixelType.RGB, ['r', 'g', 'b']),
-    (PixelType.RGBA, ['r', 'g', 'b', 'a']),
-])
-def test_merge_color_channels_unsupported_layout(pixel_type, required_keys):
+@pytest.mark.parametrize("pixel_type, required_keys, err_msg",
+                         [(PixelType.RGB, ['r', 'g', 'b'], 'Unsupported color image layout'),
+                          (PixelType.RGBA, ['r', 'g', 'b', 'a'], 'Unsupported color image layout'),
+                          (PixelType.CUSTOM, ['r', 'g', 'b'], 'Unsupported pixel type')])
+def test_merge_color_channels_unsupported_layout(pixel_type, required_keys, err_msg):
     # Given: RGB image but metadata contains invalid imageLayout
     metadata = ImageMetadata()
     metadata.fileInfo.width = 2
@@ -254,8 +353,8 @@ def test_merge_color_channels_unsupported_layout(pixel_type, required_keys):
     # And Given: valid RGB channels
     channels = {k: np.zeros((2, 2), dtype=np.uint8) for k in required_keys}
 
-    # When / Then: calling merge_image_channels should raise unsupported layout exception
-    with pytest.raises(Exception, match="Unsupported color image layout"):
+    # When / Then: calling merge_image_channels should raise unsupported exception
+    with pytest.raises(Exception, match=err_msg):
         merge_image_channels(channels, metadata)
 
 
