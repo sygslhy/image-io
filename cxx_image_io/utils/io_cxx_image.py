@@ -48,14 +48,15 @@ def read_image_cxx(image_path: Path, metadata_path: Path = None) -> (np.array, I
         # So create explicitily an ImageMetadata object when metadata is None.
         metadata = ImageMetadata() if metadata is None else metadata
         metadata = image_reader.readMetadata(metadata)
-        if image_reader.pixelRepresentation() == PixelRepresentation.UINT8:
+        pixel_repr = image_reader.pixelRepresentation()
+        if pixel_repr == PixelRepresentation.UINT8:
             image = image_reader.read8u()
-        if image_reader.pixelRepresentation() == PixelRepresentation.UINT16:
+        elif pixel_repr == PixelRepresentation.UINT16:
             image = image_reader.read16u()
-        if image_reader.pixelRepresentation() == PixelRepresentation.FLOAT:
+        else:
             image = image_reader.readf()
 
-        metadata.fileInfo.pixelRepresentation = image_reader.pixelRepresentation()
+        metadata.fileInfo.pixelRepresentation = pixel_repr
         metadata = _fill_medatata(image, metadata)
         return np.array(image, copy=False), metadata
     except Exception as e:
